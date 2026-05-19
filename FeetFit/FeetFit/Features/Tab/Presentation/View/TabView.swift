@@ -11,9 +11,13 @@ struct TabBar: View {
     
     // MARK: - Propery
     
-    @State var tabCase: TabCase = .home
+    @State var tabCase: TabCase
     @State var isShowMyPage: Bool = false
-    
+
+    init(initialTab: TabCase = .home) {
+        _tabCase = State(initialValue: initialTab)
+    }
+
     var body: some View {
         TabView(selection: $tabCase) {
             ForEach(TabCase.allCases) { tab in
@@ -43,7 +47,9 @@ struct TabBar: View {
         case .home:
             HomeView()
         case .report:
-            ReportView()
+            NavigationStack {
+                ReportView()
+            }
         case .recommend:
             RecommendListView()
         case .mypage:

@@ -8,11 +8,26 @@
 import SwiftUI
 
 struct ReportView: View {
+    @State private var selectedMenu: ReportMenuType = .resultReport
+    
     var body: some View {
-        Text("Report")
+        VStack {
+            switch selectedMenu {
+            case .resultReport:
+                Text("결과 리포트 화면")
+                
+            case .summary:
+                SummaryView()
+            }
+        }
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolBarCollection.ReportMenu(selection: $selectedMenu)
+        }
     }
 }
 
 #Preview {
-    ReportView()
+    TabBar(initialTab: .report)
 }
