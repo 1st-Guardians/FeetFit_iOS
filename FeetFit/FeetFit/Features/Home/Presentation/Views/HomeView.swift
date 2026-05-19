@@ -63,18 +63,8 @@ struct HomeView: View {
             Rectangle()
                 .foregroundColor(.clear)
                 .frame(width: 402, height: 372)
-                .background(
-                    LinearGradient(
-                        stops: [
-                            Gradient.Stop(color: .blue02, location: 0.00),
-                            Gradient.Stop(color: Color(red: 0.8, green: 0.92, blue: 1), location: 0.64),
-                            Gradient.Stop(color: .white, location: 0.90),
-                        ],
-                        startPoint: UnitPoint(x: 0.5, y: 0),
-                        endPoint: UnitPoint(x: 0.5, y: 1)
-                    )
-              )
-            
+                .blueLinear()
+
             Spacer()
         }
     }
