@@ -12,17 +12,17 @@ struct MainBox: View {
     // MARK: - Properties
     
     private let title: String
-    private let content: String
     private let status: MainBoxStatus
-    private let listContent: [String]?
-    
-    init(title: String, content: String, status: MainBoxStatus, listContent: [String]? = nil) {
+    private let listContent: [String]
+    private let content: String?
+
+    init(title: String, status: MainBoxStatus, listContent: [String], content: String?) {
         self.title = title
-        self.content = content
         self.status = status
         self.listContent = listContent
+        self.content = content
     }
-    
+
     // MARK: - Body
     
     var body: some View {
@@ -41,21 +41,20 @@ struct MainBox: View {
                 .foregroundStyle(status.color)
             }
             
-            // 리스트
-            if let listContent = listContent, !listContent.isEmpty {
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(listContent, id: \.self) { content in
-                        Text(" ∙ " + content)
-                            .pretendardFont(.BlockText)
-                    }
-                    
-                    Divider()
-                }
+            ForEach(listContent, id: \.self) { content in
+                Text(" ∙ " + content)
+                    .pretendardFont(.BlockText)
             }
             
             // 내용
-            Text(content)
-                .pretendardFont(.BlockText)
+            if let content {
+                VStack(alignment: .leading, spacing: 10) {
+                    Divider()
+                    
+                    Text(content)
+                        .pretendardFont(.BlockText)
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
@@ -65,9 +64,11 @@ struct MainBox: View {
 
 #Preview {
     MainBox(
-        title: "제목", content: "내용", status: .good,
+        title: "제목",
+        status: .good,
         listContent: [
             "list 1", "list 2", "list 3"
-        ]
+        ],
+        content: "내용"
     )
 }
