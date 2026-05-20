@@ -6,15 +6,19 @@
 //
 
 import SwiftUI
+import Charts
 
 struct SummaryView: View {
     @State private var isTooltipPresented = false
     
     var body: some View {
-        VStack {
-            totalScoreSection
+        ScrollView {
+            VStack(spacing: 24) {
+                totalScoreSection
+                yearSection
+            }
+            .padding(.horizontal, 20)
         }
-        .padding(.horizontal, 20)
     }
     
     // MARK: - SubView
@@ -52,6 +56,24 @@ struct SummaryView: View {
             )
         }
         .padding(.top, 20)
+        .mainBoxStyle()
+    }
+    
+    private var yearSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("1년 발 상태 변화")
+                    .pretendardFont(.BlockTitle)
+                    .foregroundStyle(.black01)
+                
+                Text("월별 발 건강 점수 추이를 확인해 보세요.")
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.gray01)
+            }
+            
+            YearChartView()
+        }
+        .padding(20)
         .mainBoxStyle()
     }
 }
