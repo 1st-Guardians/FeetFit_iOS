@@ -14,7 +14,7 @@ struct ReportView: View {
         VStack {
             switch selectedMenu {
             case .resultReport:
-                Text("결과 리포트 화면")
+                ResultView()
                 
             case .summary:
                 SummaryView()
