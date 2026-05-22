@@ -66,9 +66,15 @@ struct OverallResultView: View {
     
     // 발 수치
     private var sizeSection: some View {
-        VStack {
-            
+        VStack(alignment: .leading, spacing: 10) {
+            Text("발 수치")
+                .pretendardFont(.BlockTitle)
+            Divider()
+                .background(.gray02)
+            FootSizeTableView()
         }
+        .padding(20)
+        .mainBoxStyle()
     }
     
     // 발 냄새
