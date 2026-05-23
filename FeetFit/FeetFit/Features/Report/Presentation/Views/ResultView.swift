@@ -20,10 +20,7 @@ struct ResultView: View {
             segmentControl
             
             contentView
-            
-            Spacer()
         }
-        .padding(.horizontal, 20)
         .padding(.top, 16)
     }
     
@@ -37,6 +34,7 @@ struct ResultView: View {
             }
         }
         .pickerStyle(.segmented)
+        .padding(.horizontal, 16)
     }
     
     @ViewBuilder

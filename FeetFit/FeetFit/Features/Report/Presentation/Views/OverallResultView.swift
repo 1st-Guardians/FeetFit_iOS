@@ -25,7 +25,10 @@ struct OverallResultView: View {
                 
                 manageTipSection
             }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 20)
         }
+        .scrollIndicators(.hidden)
     }
     
     // MARK: - SubViews
@@ -94,9 +97,15 @@ struct OverallResultView: View {
     
     // 발 환경 상태
     private var environmentSection: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 15) {
+            Text("발 환경 상태")
+                .pretendardFont(.BlockTitle)
             
+            EnvironmentGaugeView(type: .temperature, value: 34)
+            EnvironmentGaugeView(type: .humidity, value: 50)
         }
+        .padding(20)
+        .mainBoxStyle()
     }
     
     // 관리 팁
