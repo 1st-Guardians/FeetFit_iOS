@@ -11,12 +11,18 @@ struct ResultView: View {
     
     // MARK: - Properties
     
+    let selectedDate: Date
     @State private var selectedSegment: ResultSegment = .overall
     
     // MARK: - Body
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(alignment: .trailing, spacing: 16) {
+            Text("측정날짜: \(formattedSelectedDate)")
+                .pretendardFont(.Caption)
+                .foregroundStyle(.gray01)
+                .padding(.horizontal, 20)
+            
             segmentControl
             
             contentView
@@ -50,8 +56,15 @@ struct ResultView: View {
             AthletesFootResultView()
         }
     }
+    
+    // MARK: - Helper
+    private var formattedSelectedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd"
+        return formatter.string(from: selectedDate)
+    }
 }
 
 #Preview {
-    ResultView()
+    ResultView(selectedDate: Date())
 }
