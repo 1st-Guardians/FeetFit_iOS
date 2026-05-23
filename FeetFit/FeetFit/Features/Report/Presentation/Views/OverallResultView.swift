@@ -87,7 +87,7 @@ struct OverallResultView: View {
         VStack(alignment: .leading, spacing: 15) {
             Text("발 냄새")
                 .pretendardFont(.BlockTitle)
-            GaugeView(type: .greenToRed, current: 0.28, minValue: 0.00, maxValue: 5.00, unit: "ppm")
+            GaugeView(type: .smell, current: 0.28)
                 .frame(maxWidth: .infinity, alignment: .center)
             Text("발 냄새 위험도는 0.28ppm으로 낮은 편이에요. 냄새 분석 결과를 이 섹션에서 확인할 수 있어요.")
         }

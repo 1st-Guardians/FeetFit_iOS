@@ -10,29 +10,20 @@ import SwiftUI
 struct GaugeView: View {
     private let type: GaugeType
     private let current: CGFloat
-    private let minValue: CGFloat
-    private let maxValue: CGFloat
-    private let unit: String
     
     private let lineWidth: CGFloat = 15
     
     init(
         type: GaugeType,
-        current: CGFloat,
-        minValue: CGFloat,
-        maxValue: CGFloat,
-        unit: String
+        current: CGFloat
     ) {
         self.type = type
         self.current = current
-        self.minValue = minValue
-        self.maxValue = maxValue
-        self.unit = unit
     }
     
     private var progress: CGFloat {
-        guard maxValue > minValue else { return 0 }
-        let value = (current - minValue) / (maxValue - minValue)
+        guard type.maxValue > 0 else { return 0 }
+        let value = (current - 0) / (type.maxValue - 0)
         return min(max(value, 0), 1)
     }
     
@@ -98,25 +89,30 @@ struct GaugeView: View {
                             )
                         )
                     
-                    HStack(alignment: unit == "º" ? .top : .bottom, spacing: 2) {
-                        Text("\(current, specifier: "%.2f")")
-                            .pretendardFont(.ScoreText)
+                    HStack(alignment: type.alignment, spacing: 2) {
+                        if type == .smell {
+                            Text("\(current, specifier: "%.2f")")
+                                .pretendardFont(.ScoreText)
+                        } else {
+                            Text("\(Int(current))")
+                                .pretendardFont(.ScoreText)
+                        }
                         
-                        Text(unit)
-                            .pretendardFont(.SectionTitle)
+                        Text(type.unit)
+                            .pretendardFont(type.unitFont)
                             .padding(.bottom, 8)
                     }
-                    .offset(y: 20)
+                    .offset(y: 25)
                     .foregroundStyle(.black01)
                 }
             }
-            .frame(width: 260, height: 130)
+            .frame(width: 220, height: 110)
         }
     }
     
     private func pointOnArc(value: CGFloat, center: CGPoint, radius: CGFloat) -> CGPoint {
-        let clampedValue = min(max(value, minValue), maxValue)
-        let ratio = (clampedValue - minValue) / (maxValue - minValue)
+        let clampedValue = min(max(value, 0), type.maxValue)
+        let ratio = (clampedValue - 0) / (type.maxValue - 0)
         
         let angle = Double(180 * (1 - ratio))
         let radians = angle * .pi / 180
@@ -149,11 +145,8 @@ struct SemiCircleShape: Shape {
 #Preview {
     VStack {
         GaugeView(
-            type: .greenToRed,
-            current: 12,
-            minValue: 0,
-            maxValue: 40,
-            unit: "ppm"
+            type: .smell,
+            current: 0.4
         )
         .padding()
     }
