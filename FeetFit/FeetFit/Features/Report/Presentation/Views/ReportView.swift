@@ -20,8 +20,6 @@ struct ReportView: View {
                 SummaryView()
             }
         }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolBarCollection.ReportMenu(selection: $selectedMenu)
         }
