@@ -38,38 +38,53 @@ struct GaugeView: View {
     
     var body: some View {
         VStack(spacing: 4) {
-            
             GeometryReader { geometry in
                 let width = geometry.size.width
                 let height = geometry.size.height
                 
-                let radius = min(width / 2, height) - lineWidth / 2 - 4
                 let center = CGPoint(x: width / 2, y: height - 4)
+                let radius = min(width / 2, height) - lineWidth / 2 - 10
                 
                 ZStack {
-                    SemiCircleShape()
-                        .stroke(
-                            Color.gray.opacity(0.12),
-                            style: StrokeStyle(
-                                lineWidth: lineWidth,
-                                lineCap: .butt
-                            )
+                    Path { path in
+                        path.addArc(
+                            center: center,
+                            radius: radius,
+                            startAngle: .degrees(180),
+                            endAngle: .degrees(0),
+                            clockwise: false
                         )
+                    }
+                    .stroke(
+                        Color.gray.opacity(0.12),
+                        style: StrokeStyle(
+                            lineWidth: lineWidth,
+                            lineCap: .butt
+                        )
+                    )
                     
-                    SemiCircleShape()
-                        .stroke(
-                            style: StrokeStyle(
-                                lineWidth: lineWidth,
-                                lineCap: .butt
-                            )
+                    Path { path in
+                        path.addArc(
+                            center: center,
+                            radius: radius,
+                            startAngle: .degrees(180),
+                            endAngle: .degrees(0),
+                            clockwise: false
                         )
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: type.colors,
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
+                    }
+                    .stroke(
+                        style: StrokeStyle(
+                            lineWidth: lineWidth,
+                            lineCap: .butt
                         )
+                    )
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: type.colors,
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
                     
                     Circle()
                         .fill(.white)
@@ -79,13 +94,14 @@ struct GaugeView: View {
                             pointOnArc(
                                 value: current,
                                 center: center,
-                                radius: radius + 9
+                                radius: radius
                             )
                         )
                     
-                    HStack(alignment: unit=="º" ? .top : .bottom, spacing: 2) {
+                    HStack(alignment: unit == "º" ? .top : .bottom, spacing: 2) {
                         Text("\(current, specifier: "%.2f")")
                             .pretendardFont(.ScoreText)
+                        
                         Text(unit)
                             .pretendardFont(.SectionTitle)
                             .padding(.bottom, 8)
@@ -94,7 +110,7 @@ struct GaugeView: View {
                     .foregroundStyle(.black01)
                 }
             }
-            .frame(width: 220, height: 100)
+            .frame(width: 260, height: 130)
         }
     }
     
