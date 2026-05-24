@@ -96,4 +96,35 @@ struct ToolBarCollection {
             }
         }
     }
+    
+    // MARK: - 달력 버튼
+
+    struct CalendarBtn: ToolbarContent {
+        @Binding var selectedDate: Date
+        
+        let measuredDates: [Date]
+        
+        @State private var isPresented: Bool = false
+        
+        var body: some ToolbarContent {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isPresented = true
+                } label: {
+                    Image(systemName: "calendar")
+                }
+                .popover(isPresented: $isPresented) {
+                    CustomCalendarPickerView(
+                        selectedDate: $selectedDate,
+                        measuredDates: measuredDates,
+                        onSelect: {
+                            isPresented = false
+                        }
+                    )
+                    .frame(width: 340)
+                    .presentationCompactAdaptation(.popover)
+                }
+            }
+        }
+    }
 }
