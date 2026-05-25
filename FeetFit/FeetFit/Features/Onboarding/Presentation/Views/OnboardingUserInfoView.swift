@@ -27,7 +27,7 @@ struct OnboardingUserInfoView: View {
     }
     
     var body: some View {
-        ScrollView{
+        ScrollView {
             VStack(alignment: .leading) {
                 
                 Spacer().frame(height: 24)
