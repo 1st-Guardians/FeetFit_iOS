@@ -69,6 +69,7 @@ struct MyPageView: View {
     
     var ProfileEditGroup: some View {
         HStack {
+            // TODO: 수정 화면
             Text("프로필 수정하기")
                 .pretendardFont(.Placeholder)
             
@@ -103,6 +104,7 @@ struct MyPageView: View {
             
             
             HStack {
+                // TODO: 하드웨어 연결하러 가기
                 Text("하드웨어 연결하러 가기")
                     .pretendardFont(.Placeholder)
                 
