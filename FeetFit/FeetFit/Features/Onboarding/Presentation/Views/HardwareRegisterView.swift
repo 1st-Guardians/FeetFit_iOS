@@ -10,16 +10,12 @@ import Lottie
 struct HardwareRegisterView: View {
     var body: some View {
         VStack(spacing: 0){
-            LottieView(animation: .named("FeetFit Loading", bundle: Bundle.main))
-                .playing(loopMode: .loop)
-                .frame(width: 100, height: 100)
-                .padding(.bottom, 10)
-                .padding(.top, 217)
             
-            Text("하드웨어를\n등록해주세요.")
-                .pretendardFont(.SubTitle)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 277)
+            LoadingMessageView(
+                message: "하드웨어를\n등록해주세요."
+            )
+            .padding(.bottom, 277)
+            
             
             
             MainButton("하드웨어 등록하기", action: {
