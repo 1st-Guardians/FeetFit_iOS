@@ -10,7 +10,7 @@ import SwiftUI
 
 struct OnboardingUserInfoView: View {
     
-    @State private var userInfo = OnboardingUserInfo()
+    @State private var userInfo = UserInfo()
     @State private var agreementState = AgreementState()
     @FocusState private var focusedField: Field?
     
@@ -23,7 +23,7 @@ struct OnboardingUserInfoView: View {
     }
     
     private var isFormValid: Bool {
-        userInfo.isFilled && agreementState.isRequiredChecked
+        userInfo.isOnboardingFilled && agreementState.isRequiredChecked
     }
     
     var body: some View {

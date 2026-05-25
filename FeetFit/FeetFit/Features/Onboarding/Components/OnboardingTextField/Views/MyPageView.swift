@@ -9,7 +9,13 @@ import SwiftUI
 
 struct MyPageView: View {
     var body: some View {
-        Text("MyPage")
+        ScrollView {
+            VStack(alignment: .leading, spacing:0) {
+                
+            }
+        }
+        .background(.gray03)
+        
     }
 }
 
