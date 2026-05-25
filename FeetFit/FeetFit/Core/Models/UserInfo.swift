@@ -1,21 +1,23 @@
 //
-//  OnboardingUserInfo.swift
+//  UserInfo.swift
 //  FeetFit
 //
-//  Created by 이채은 on 5/22/26.
+//  Created by 이채은 on 5/25/26.
 //
 
 import Foundation
 
-struct OnboardingUserInfo {
+struct UserInfo {
     var nickname: String = ""
     var age: String = ""
     var weight: String = ""
     var height: String = ""
     var footSize: String = ""
     var gender: Gender? = nil
-    
-    var isFilled: Bool {
+}
+
+extension UserInfo {
+    var isOnboardingFilled: Bool {
         !nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !age.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !height.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
