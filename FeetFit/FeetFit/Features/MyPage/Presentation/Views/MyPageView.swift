@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MyPageView: View {
     @State private var hardwareStatus: HardwareStatus = .connected
+    @State private var hasMeasurementRecord: Bool = false
     
     var body: some View {
         ScrollView {
@@ -43,6 +44,24 @@ struct MyPageView: View {
             
             UserInfoGroup()
             
+            if !hasMeasurementRecord {
+                Spacer().frame(height: 10)
+                
+                HStack(spacing: 0) {
+                    Image(systemName: "exclamationmark.circle")
+                        .font(.system(size: 15))
+                        .padding(.trailing, 10)
+                    
+                    Text("측정 기록이 없어 온보딩 때 입력한 발 사이즈를 표시하고 있어요. \n정확한 발 사이즈 확인을 위해 측정을 진행해 보세요.")
+                        .pretendardFont(.Caption)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.blue01.opacity(0.25))
+                )
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 26)
@@ -112,9 +131,9 @@ struct MyPageView: View {
                 }
                 .padding(.vertical, 18)
             }
-
+            
             Divider()
-
+            
             Link(destination: URL(string: "https://www.notion.so/3600ea2764358018b6d0ed799bb46bd3?source=copy_link")!) {
                 HStack {
                     Text("개인정보처리 방침")
