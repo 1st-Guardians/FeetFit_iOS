@@ -28,6 +28,7 @@ struct HardwareRegisterView: View {
             .padding(.bottom, 20)
             .padding(.horizontal, 18)
             
+            
             Text("다음에 등록할래요")
                 .underline()
                 .pretendardFont(.Placeholder)
