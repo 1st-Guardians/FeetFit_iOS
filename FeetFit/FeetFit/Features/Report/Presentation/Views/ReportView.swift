@@ -9,21 +9,36 @@ import SwiftUI
 
 struct ReportView: View {
     @State private var selectedMenu: ReportMenuType = .resultReport
+    @State private var selectedDate: Date = Date()
+    
+    private let measuredDates: [Date] = [
+        Date(),
+        Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
+        Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+        Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
+        Calendar.current.date(byAdding: .day, value: -4, to: Date())!,
+        Calendar.current.date(byAdding: .day, value: -5, to: Date())!
+    ]
     
     var body: some View {
         VStack {
             switch selectedMenu {
             case .resultReport:
-                Text("결과 리포트 화면")
+                ResultView(selectedDate: selectedDate)
                 
             case .summary:
                 SummaryView()
             }
         }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolBarCollection.ReportMenu(selection: $selectedMenu)
+            
+            if selectedMenu == .resultReport {
+                ToolBarCollection.CalendarBtn(
+                    selectedDate: $selectedDate,
+                    measuredDates: measuredDates
+                )
+            }
         }
     }
 }
