@@ -9,7 +9,14 @@ import SwiftUI
 
 struct UserInfoGroup: View {
     
-    @State private var userInfo = UserInfo()
+    @State private var userInfo = UserInfo(
+        nickname: "황먼지",
+        age: "24",
+        weight: "55",
+        height: "165",
+        footSize: "230",
+        gender: .female
+    )
     
     var body: some View {
         VStack(spacing: 0) {
