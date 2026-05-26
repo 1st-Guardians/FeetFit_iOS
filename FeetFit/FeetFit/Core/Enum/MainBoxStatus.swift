@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum MainBoxStatus {
+enum MainBoxStatus: Codable {
     case good
     case warn
     case bad
