@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2360DE212FC5F85500854F55 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 2360DE202FC5F85500854F55 /* Moya */; };
+		2360E4372FC607ED00854F55 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2360E4362FC607ED00854F55 /* Lottie */; };
+		2360E4392FC607ED00854F55 /* Lottie-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 2360E4382FC607ED00854F55 /* Lottie-Dynamic */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		2322D43D2F83DD790035B9E4 /* FeetFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FeetFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +42,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2360DE212FC5F85500854F55 /* Moya in Frameworks */,
+				2360E4372FC607ED00854F55 /* Lottie in Frameworks */,
+				2360E4392FC607ED00854F55 /* Lottie-Dynamic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +87,9 @@
 			);
 			name = FeetFit;
 			packageProductDependencies = (
+				2360DE202FC5F85500854F55 /* Moya */,
+				2360E4362FC607ED00854F55 /* Lottie */,
+				2360E4382FC607ED00854F55 /* Lottie-Dynamic */,
 			);
 			productName = FeetFit;
 			productReference = 2322D43D2F83DD790035B9E4 /* FeetFit.app */;
@@ -107,6 +119,10 @@
 			);
 			mainGroup = 2322D4342F83DD790035B9E4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2360DE1F2FC5F85500854F55 /* XCRemoteSwiftPackageReference "Moya" */,
+				2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2322D43E2F83DD790035B9E4 /* Products */;
 			projectDirPath = "";
@@ -349,6 +365,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2360DE1F2FC5F85500854F55 /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
+		2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2360DE202FC5F85500854F55 /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2360DE1F2FC5F85500854F55 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+		2360E4362FC607ED00854F55 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+		2360E4382FC607ED00854F55 /* Lottie-Dynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = "Lottie-Dynamic";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2322D4352F83DD790035B9E4 /* Project object */;
 }
