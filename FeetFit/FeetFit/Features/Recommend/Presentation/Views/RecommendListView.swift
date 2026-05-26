@@ -35,10 +35,12 @@ struct RecommendListView: View {
         ZStack(alignment: .topLeading) {
             background
             
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    topGroup
-                        .padding([.bottom, .horizontal], 16)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                topGroup
+                    .padding([.bottom, .horizontal], 16)
+                ScrollView {
+                    Spacer()
                     
                     midGroup
                     
@@ -75,10 +77,24 @@ struct RecommendListView: View {
                     .pretendardFont(.BlockText)
             }
             .padding(20)
-            .background(
+            .background {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(.white.opacity(0.35))
-            )
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.blue02)
+                    .shadow(color: .blue02, radius: 4, x: 0, y: 0)
+                    .mask {
+                        Rectangle()
+                            .padding(-8)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .blendMode(.destinationOut)
+                            }
+                            .compositingGroup()
+                    }
+            }
             .padding(.bottom, 18)
             
             HStack {
