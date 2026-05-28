@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2348701B2FC82FE400223118 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 2348701A2FC82FE400223118 /* Moya */; };
+		2348701E2FC82FF100223118 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2348701D2FC82FF100223118 /* Lottie */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		2322D43D2F83DD790035B9E4 /* FeetFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FeetFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2348701B2FC82FE400223118 /* Moya in Frameworks */,
+				2348701E2FC82FF100223118 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = FeetFit;
 			packageProductDependencies = (
+				2348701A2FC82FE400223118 /* Moya */,
+				2348701D2FC82FF100223118 /* Lottie */,
 			);
 			productName = FeetFit;
 			productReference = 2322D43D2F83DD790035B9E4 /* FeetFit.app */;
@@ -107,6 +116,10 @@
 			);
 			mainGroup = 2322D4342F83DD790035B9E4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */,
+				2348701C2FC82FF100223118 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2322D43E2F83DD790035B9E4 /* Products */;
 			projectDirPath = "";
@@ -140,6 +153,8 @@
 /* Begin XCBuildConfiguration section */
 		2322D4462F83DD7A0035B9E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2322D43F2F83DD790035B9E4 /* FeetFit */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -205,6 +220,8 @@
 		};
 		2322D4472F83DD7A0035B9E4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2322D43F2F83DD790035B9E4 /* FeetFit */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -263,6 +280,8 @@
 		};
 		2322D4492F83DD7A0035B9E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2322D43F2F83DD790035B9E4 /* FeetFit */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -296,6 +315,8 @@
 		};
 		2322D44A2F83DD7A0035B9E4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2322D43F2F83DD790035B9E4 /* FeetFit */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -349,6 +370,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
+		2348701C2FC82FF100223118 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2348701A2FC82FE400223118 /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+		2348701D2FC82FF100223118 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2348701C2FC82FF100223118 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2322D4352F83DD790035B9E4 /* Project object */;
 }
