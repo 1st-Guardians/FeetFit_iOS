@@ -7,9 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2360DE212FC5F85500854F55 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 2360DE202FC5F85500854F55 /* Moya */; };
-		2360E4372FC607ED00854F55 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2360E4362FC607ED00854F55 /* Lottie */; };
-		2360E4392FC607ED00854F55 /* Lottie-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 2360E4382FC607ED00854F55 /* Lottie-Dynamic */; };
+		2348701B2FC82FE400223118 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 2348701A2FC82FE400223118 /* Moya */; };
+		2348701E2FC82FF100223118 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2348701D2FC82FF100223118 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,9 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2360DE212FC5F85500854F55 /* Moya in Frameworks */,
-				2360E4372FC607ED00854F55 /* Lottie in Frameworks */,
-				2360E4392FC607ED00854F55 /* Lottie-Dynamic in Frameworks */,
+				2348701B2FC82FE400223118 /* Moya in Frameworks */,
+				2348701E2FC82FF100223118 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,9 +85,8 @@
 			);
 			name = FeetFit;
 			packageProductDependencies = (
-				2360DE202FC5F85500854F55 /* Moya */,
-				2360E4362FC607ED00854F55 /* Lottie */,
-				2360E4382FC607ED00854F55 /* Lottie-Dynamic */,
+				2348701A2FC82FE400223118 /* Moya */,
+				2348701D2FC82FF100223118 /* Lottie */,
 			);
 			productName = FeetFit;
 			productReference = 2322D43D2F83DD790035B9E4 /* FeetFit.app */;
@@ -120,8 +117,8 @@
 			mainGroup = 2322D4342F83DD790035B9E4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				2360DE1F2FC5F85500854F55 /* XCRemoteSwiftPackageReference "Moya" */,
-				2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */,
+				2348701C2FC82FF100223118 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2322D43E2F83DD790035B9E4 /* Products */;
@@ -223,6 +220,8 @@
 		};
 		2322D4472F83DD7A0035B9E4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2322D43F2F83DD790035B9E4 /* FeetFit */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -316,6 +315,8 @@
 		};
 		2322D44A2F83DD7A0035B9E4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2322D43F2F83DD790035B9E4 /* FeetFit */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -371,7 +372,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		2360DE1F2FC5F85500854F55 /* XCRemoteSwiftPackageReference "Moya" */ = {
+		234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya";
 			requirement = {
@@ -379,7 +380,7 @@
 				minimumVersion = 15.0.3;
 			};
 		};
-		2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+		2348701C2FC82FF100223118 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios";
 			requirement = {
@@ -390,20 +391,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2360DE202FC5F85500854F55 /* Moya */ = {
+		2348701A2FC82FE400223118 /* Moya */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2360DE1F2FC5F85500854F55 /* XCRemoteSwiftPackageReference "Moya" */;
+			package = 234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
 		};
-		2360E4362FC607ED00854F55 /* Lottie */ = {
+		2348701D2FC82FF100223118 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			package = 2348701C2FC82FF100223118 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
-		};
-		2360E4382FC607ED00854F55 /* Lottie-Dynamic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2360E4352FC607ED00854F55 /* XCRemoteSwiftPackageReference "lottie-ios" */;
-			productName = "Lottie-Dynamic";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
