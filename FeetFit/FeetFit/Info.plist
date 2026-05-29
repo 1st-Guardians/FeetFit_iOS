@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>kakaokompassauth</string>
+	</array>
 	<key>API_BASE_URL</key>
 	<string>$(API_BASE_URL)</string>
 	<key>CFBundleURLTypes</key>
@@ -17,10 +23,6 @@
 	</array>
 	<key>KAKAO_NATIVE_APP_KEY</key>
 	<string>$(KAKAO_NATIVE_APP_KEY)</string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>kakaokopassauth</string>
-	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
