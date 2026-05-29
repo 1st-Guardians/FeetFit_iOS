@@ -13,5 +13,4 @@ enum OnboardingRoute: Hashable {
     case hardwareRegister
     case hardwarePairing
     case hardwarePairingFinish
-    case tab
 }
