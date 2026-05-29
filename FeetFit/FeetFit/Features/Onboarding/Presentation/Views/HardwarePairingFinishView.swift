@@ -19,6 +19,7 @@ struct HardwarePairingFinishView: View {
             
             Spacer()
         }
+        .navigationBarBackButtonHidden()
     }
 }
 

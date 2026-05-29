@@ -33,6 +33,7 @@ struct HardwareRegisterView: View {
             
             
         }
+        .navigationBarBackButtonHidden()
     }
 }
 
