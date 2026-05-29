@@ -10,6 +10,9 @@ import SwiftUI
 
 struct OnboardingUserInfoView: View {
     
+    @Environment(NavigationRouter<OnboardingRoute>.self) private var router
+    @StateObject private var viewModel = OnboardingUserInfoViewModel()
+    
     @State private var userInfo = UserInfo()
     @State private var agreementState = AgreementState()
     @FocusState private var focusedField: Field?
@@ -47,6 +50,11 @@ struct OnboardingUserInfoView: View {
             .padding(.horizontal, 16)
         }
         .background(.gray03)
+        .navigationBarBackButtonHidden()
+        .onChange(of: viewModel.isSuccess) { _, isSuccess in
+            guard isSuccess else { return }
+            router.push(.hardwareRegister)
+        }
         
     }
     
@@ -235,9 +243,14 @@ struct OnboardingUserInfoView: View {
             
             Spacer().frame(height: 32)
             
-            MainButton("하드웨어 등록하기") { }
-                .buttonSize(.big)
-                .disabled(!isFormValid)
+            MainButton(viewModel.isLoading ? "저장 중..." : "하드웨어 등록하기") {
+                viewModel.setupProfile(
+                    userInfo: userInfo,
+                    agreementState: agreementState
+                )
+            }
+            .buttonSize(.big)
+            .disabled(!isFormValid || viewModel.isLoading)
         }
     }
 }

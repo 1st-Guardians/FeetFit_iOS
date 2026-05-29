@@ -126,3 +126,4 @@ iOSInjectionProject/
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,cocoapods
 
 .xcconfig
+Secrets.xcconfig

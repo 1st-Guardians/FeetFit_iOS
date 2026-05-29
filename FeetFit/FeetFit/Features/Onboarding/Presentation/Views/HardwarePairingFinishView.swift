@@ -9,7 +9,8 @@ import SwiftUI
 import Lottie
 
 struct HardwarePairingFinishView: View {
-    
+    let onFinish: () -> Void
+
     var body: some View {
         VStack(spacing: 0) {
             
@@ -19,9 +20,12 @@ struct HardwarePairingFinishView: View {
             
             Spacer()
         }
+        .navigationBarBackButtonHidden()
+        .task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            await MainActor.run {
+                onFinish()
+            }
+        }
     }
-}
-
-#Preview {
-    HardwarePairingFinishView()
 }

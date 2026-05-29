@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		20E2CF542FC9DB88009C9619 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 20E2CF532FC9DB88009C9619 /* KakaoSDKAuth */; };
+		20E2CF562FC9DB88009C9619 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 20E2CF552FC9DB88009C9619 /* KakaoSDKCommon */; };
+		20E2CF582FC9DB88009C9619 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 20E2CF572FC9DB88009C9619 /* KakaoSDKUser */; };
 		2348701B2FC82FE400223118 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 2348701A2FC82FE400223118 /* Moya */; };
 		2348701E2FC82FF100223118 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2348701D2FC82FF100223118 /* Lottie */; };
 /* End PBXBuildFile section */
@@ -41,8 +44,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20E2CF562FC9DB88009C9619 /* KakaoSDKCommon in Frameworks */,
 				2348701B2FC82FE400223118 /* Moya in Frameworks */,
 				2348701E2FC82FF100223118 /* Lottie in Frameworks */,
+				20E2CF582FC9DB88009C9619 /* KakaoSDKUser in Frameworks */,
+				20E2CF542FC9DB88009C9619 /* KakaoSDKAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +93,9 @@
 			packageProductDependencies = (
 				2348701A2FC82FE400223118 /* Moya */,
 				2348701D2FC82FF100223118 /* Lottie */,
+				20E2CF532FC9DB88009C9619 /* KakaoSDKAuth */,
+				20E2CF552FC9DB88009C9619 /* KakaoSDKCommon */,
+				20E2CF572FC9DB88009C9619 /* KakaoSDKUser */,
 			);
 			productName = FeetFit;
 			productReference = 2322D43D2F83DD790035B9E4 /* FeetFit.app */;
@@ -119,6 +128,7 @@
 			packageReferences = (
 				234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */,
 				2348701C2FC82FF100223118 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				20E2CF522FC9DB88009C9619 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2322D43E2F83DD790035B9E4 /* Products */;
@@ -372,6 +382,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		20E2CF522FC9DB88009C9619 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.27.3;
+			};
+		};
 		234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya";
@@ -391,6 +409,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		20E2CF532FC9DB88009C9619 /* KakaoSDKAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20E2CF522FC9DB88009C9619 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKAuth;
+		};
+		20E2CF552FC9DB88009C9619 /* KakaoSDKCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20E2CF522FC9DB88009C9619 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKCommon;
+		};
+		20E2CF572FC9DB88009C9619 /* KakaoSDKUser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20E2CF522FC9DB88009C9619 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKUser;
+		};
 		2348701A2FC82FE400223118 /* Moya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 234870192FC82FE400223118 /* XCRemoteSwiftPackageReference "Moya" */;
