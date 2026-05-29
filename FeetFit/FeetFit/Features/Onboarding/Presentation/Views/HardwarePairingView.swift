@@ -41,7 +41,3 @@ struct HardwarePairingView: View {
         }
     }
 }
-
-#Preview {
-    OnboardingTabContainer()
-}

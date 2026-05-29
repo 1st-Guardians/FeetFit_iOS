@@ -8,27 +8,29 @@
 import SwiftUI
 
 struct OnboardingTabContainer: View {
+    let onFinish: () -> Void
+    
     @State private var router = NavigationRouter<OnboardingRoute>()
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            SplashView()
-                .navigationDestination(for:
-                    OnboardingRoute.self) { route
-                    in
+            LoginView(onFinish: onFinish)
+                .navigationDestination(for: OnboardingRoute.self) { route in
                     switch route {
                     case .login:
-                        LoginView()
+                        LoginView(onFinish: onFinish)
+                        
                     case .onboardingUserInfo:
                         OnboardingUserInfoView()
+                        
                     case .hardwareRegister:
-                        HardwareRegisterView()
+                        HardwareRegisterView(onFinish: onFinish)
+                        
                     case .hardwarePairing:
                         HardwarePairingView()
+                        
                     case .hardwarePairingFinish:
-                        HardwarePairingFinishView()
-                    case .tab:
-                        TabBar()
+                        HardwarePairingFinishView(onFinish: onFinish)
                     }
                 }
         }
@@ -37,5 +39,5 @@ struct OnboardingTabContainer: View {
 }
 
 #Preview {
-    OnboardingTabContainer()
+    OnboardingTabContainer {}
 }

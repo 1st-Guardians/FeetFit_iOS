@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SplashView: View {
-    @Environment(NavigationRouter<OnboardingRoute>.self) private var router
+    let onFinish: () -> Void
     
     var body: some View {
         VStack {
@@ -19,11 +19,9 @@ struct SplashView: View {
         .navigationBarBackButtonHidden()
         .task {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
-            router.replace(with: .login)
+            await MainActor.run {
+                onFinish()
+            }
         }
     }
-}
-
-#Preview {
-    SplashView()
 }

@@ -9,7 +9,7 @@ import SwiftUI
 import Lottie
 
 struct HardwarePairingFinishView: View {
-    @Environment(NavigationRouter<OnboardingRoute>.self) private var router
+    let onFinish: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,11 +23,9 @@ struct HardwarePairingFinishView: View {
         .navigationBarBackButtonHidden()
         .task {
             try? await Task.sleep(nanoseconds: 3_000_000_000)
-            router.replace(with: .tab)
+            await MainActor.run {
+                onFinish()
+            }
         }
     }
-}
-
-#Preview {
-    HardwarePairingFinishView()
 }

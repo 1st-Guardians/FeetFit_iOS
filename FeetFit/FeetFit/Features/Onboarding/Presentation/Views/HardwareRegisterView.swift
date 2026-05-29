@@ -8,6 +8,7 @@ import SwiftUI
 import Lottie
 
 struct HardwareRegisterView: View {
+    let onFinish: () -> Void
     @Environment(NavigationRouter<OnboardingRoute>.self) private var router
     
     var body: some View {
@@ -27,7 +28,7 @@ struct HardwareRegisterView: View {
             .padding(.horizontal, 18)
             
             Button {
-                router.replace(with: .tab)
+                onFinish()
             } label: {
                 Text("다음에 등록할래요")
                     .underline()
@@ -41,8 +42,4 @@ struct HardwareRegisterView: View {
         }
         .navigationBarBackButtonHidden()
     }
-}
-
-#Preview {
-    HardwareRegisterView()
 }

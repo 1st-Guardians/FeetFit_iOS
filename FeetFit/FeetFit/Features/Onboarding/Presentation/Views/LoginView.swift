@@ -9,8 +9,9 @@ import SwiftUI
 
 
 struct LoginView: View {
-    @Environment(NavigationRouter<OnboardingRoute>.self) private var router
+    let onFinish: () -> Void
     
+    @Environment(NavigationRouter<OnboardingRoute>.self) private var router
     @StateObject private var viewModel = LoginViewModel()
     
     var body: some View {
@@ -87,14 +88,10 @@ struct LoginView: View {
             if viewModel.requiresProfileSetup {
                 router.replace(with: .onboardingUserInfo)
             } else {
-                router.replace(with: .tab)
+                onFinish()
             }
         }
         
     }
 }
 
-
-#Preview {
-    LoginView()
-}
