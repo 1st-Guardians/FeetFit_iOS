@@ -29,4 +29,11 @@ final class NavigationRouter<Route: Hashable> {
     func reset() {
         path = NavigationPath()
     }
+    
+    
+    func replace(with route: Route) {
+        path = NavigationPath()
+        path.append(route)
+    }
 }
+

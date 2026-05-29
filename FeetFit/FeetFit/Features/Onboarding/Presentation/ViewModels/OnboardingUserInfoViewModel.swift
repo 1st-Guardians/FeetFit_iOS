@@ -82,6 +82,11 @@ final class OnboardingUserInfoViewModel: ObservableObject {
             case .failure(let error):
                 print("Profile Setup API 오류:", error)
                 
+                if let response = error.response {
+                    print("Profile Setup statusCode:", response.statusCode)
+                    print("Profile Setup 에러 응답:", String(data: response.data, encoding: .utf8) ?? "응답 없음")
+                }
+                
                 DispatchQueue.main.async {
                     ToastManager.shared.show("사용자 정보를 저장하지 못했습니다.")
                 }

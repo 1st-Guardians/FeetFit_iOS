@@ -8,6 +8,8 @@ import SwiftUI
 import Lottie
 
 struct HardwareRegisterView: View {
+    @Environment(NavigationRouter<OnboardingRoute>.self) private var router
+    
     var body: some View {
         VStack(spacing: 0){
             
@@ -19,16 +21,20 @@ struct HardwareRegisterView: View {
             
             
             MainButton("하드웨어 등록하기", action: {
-                print("하드웨어 등록 버튼 클릭")
+                router.push(.hardwarePairing)
             })
             .padding(.bottom, 20)
             .padding(.horizontal, 18)
             
-            
-            Text("다음에 등록할래요")
-                .underline()
-                .pretendardFont(.Placeholder)
-                .foregroundStyle(.gray01)
+            Button {
+                router.replace(with: .tab)
+            } label: {
+                Text("다음에 등록할래요")
+                    .underline()
+                    .pretendardFont(.Placeholder)
+                    .foregroundStyle(.gray01)
+            }
+            .buttonStyle(.plain)
             
             
             
