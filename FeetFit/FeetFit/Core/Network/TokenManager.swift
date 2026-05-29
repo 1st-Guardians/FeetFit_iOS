@@ -13,13 +13,29 @@ final class TokenManager {
     private let refreshTokenKey = "refresh_token"
 
     var accessToken: String? {
-        get { UserDefaults.standard.string(forKey: accessTokenKey) }
-        set { UserDefaults.standard.set(newValue, forKey: accessTokenKey) }
+        get {
+            KeychainManager.standard.loadString(for: accessTokenKey)
+        }
+        set {
+            if let newValue {
+                KeychainManager.standard.saveString(newValue, for: accessTokenKey)
+            } else {
+                KeychainManager.standard.delete(for: accessTokenKey)
+            }
+        }
     }
 
     var refreshToken: String? {
-        get { UserDefaults.standard.string(forKey: refreshTokenKey) }
-        set { UserDefaults.standard.set(newValue, forKey: refreshTokenKey) }
+        get {
+            KeychainManager.standard.loadString(for: refreshTokenKey)
+        }
+        set {
+            if let newValue {
+                KeychainManager.standard.saveString(newValue, for: refreshTokenKey)
+            } else {
+                KeychainManager.standard.delete(for: refreshTokenKey)
+            }
+        }
     }
 
     func save(accessToken: String, refreshToken: String) {
