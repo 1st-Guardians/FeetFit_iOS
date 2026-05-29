@@ -95,8 +95,6 @@ final class HardwarePairingViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 do {
-                    print("디바이스 삭제 statusCode:", response.statusCode)
-                    print("디바이스 삭제 응답:", String(data: response.data, encoding: .utf8) ?? "응답 없음")
                     
                     let decodedData = try JSONDecoder().decode(
                         BaseResponse<DeviceResponse>.self,

@@ -63,8 +63,6 @@ final class OnboardingUserInfoViewModel: ObservableObject {
                     }
                     
                     print("사용자 정보 등록 성공")
-                    print("userId:", profile.userId)
-                    print("requiresProfileSetup:", profile.requiresProfileSetup)
                     
                     DispatchQueue.main.async {
                         self.isSuccess = true
