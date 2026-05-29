@@ -12,7 +12,7 @@ struct OnboardingTabContainer: View {
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            LoginView()
+            SplashView()
                 .navigationDestination(for:
                     OnboardingRoute.self) { route
                     in
@@ -25,8 +25,10 @@ struct OnboardingTabContainer: View {
                         HardwareRegisterView()
                     case .hardwarePairing:
                         HardwarePairingView()
-                    case .hardwareParingFinish:
+                    case .hardwarePairingFinish:
                         HardwarePairingFinishView()
+                    case .tab:
+                        TabBar()
                     }
                 }
         }

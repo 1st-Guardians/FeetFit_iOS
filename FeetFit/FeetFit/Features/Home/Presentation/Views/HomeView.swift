@@ -53,6 +53,7 @@ struct HomeView: View {
             .scrollIndicators(.hidden)
             .foregroundStyle(.black01)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .navigationBarBackButtonHidden()
         }
     }
     

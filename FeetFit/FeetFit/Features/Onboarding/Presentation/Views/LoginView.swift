@@ -84,8 +84,11 @@ struct LoginView: View {
         .onChange(of: viewModel.isLogin) { _, isLogin in
             guard isLogin else { return }
             
-            router.push(.onboardingUserInfo)
-            
+            if viewModel.requiresProfileSetup {
+                router.replace(with: .onboardingUserInfo)
+            } else {
+                router.replace(with: .tab)
+            }
         }
         
     }
