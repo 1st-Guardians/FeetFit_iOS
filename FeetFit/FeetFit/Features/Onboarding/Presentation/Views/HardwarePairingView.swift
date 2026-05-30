@@ -5,18 +5,14 @@
 //  Created by 이채은 on 5/25/26.
 //
 
-//
-//  HardwarePairingView.swift
-//  FeetFit
-//
-
 import SwiftUI
 import Lottie
 
 struct HardwarePairingView: View {
     
-    @Environment(NavigationRouter<OnboardingRoute>.self) private var router
     @StateObject private var viewModel = HardwarePairingViewModel()
+    
+    let onConnected: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -31,13 +27,16 @@ struct HardwarePairingView: View {
             .padding(.horizontal, 18)
             .disabled(viewModel.isLoading)
         }
-        .navigationBarBackButtonHidden()
         .task {
             viewModel.registerDevice()
         }
         .onChange(of: viewModel.isConnected) { _, isConnected in
             guard isConnected else { return }
-            router.replace(with: .hardwarePairingFinish)
+            onConnected()
         }
     }
+}
+
+#Preview {
+    HardwarePairingView(onConnected: {})
 }

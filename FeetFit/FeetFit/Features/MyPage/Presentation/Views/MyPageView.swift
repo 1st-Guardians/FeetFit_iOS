@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct MyPageView: View {
+    @ObservedObject var viewModel: MyPageViewModel
+    
+    let onProfileEditTap: () -> Void
+    let onHardwarePairingTap: () -> Void
+    
     @State private var hardwareStatus: HardwareStatus = .connected
     @State private var hasMeasurementRecord: Bool = false
     
@@ -32,7 +37,12 @@ struct MyPageView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.gray03)
+        .onAppear {
+            viewModel.fetchProfile()
+        }
     }
+    
+    
     
     
     var TopInfoGroup: some View {
@@ -42,7 +52,7 @@ struct MyPageView: View {
                 .padding(.bottom, 32)
                 .padding(.leading, 12)
             
-            UserInfoGroup()
+            UserInfoGroup(userInfo: viewModel.userInfo)
             
             if !hasMeasurementRecord {
                 Spacer().frame(height: 10)
@@ -68,26 +78,29 @@ struct MyPageView: View {
     }
     
     var ProfileEditGroup: some View {
-        HStack {
-            // TODO: 수정 화면
-            Text("프로필 수정하기")
-                .pretendardFont(.Placeholder)
-            
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14))
-                .foregroundStyle(.gray01)
+        Button {
+            onProfileEditTap()
+        } label: {
+            HStack {
+                Text("프로필 수정하기")
+                    .pretendardFont(.Placeholder)
+                    .foregroundStyle(.black)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.gray01)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 18)
+            .mainBoxStyle()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
-        .mainBoxStyle()
-        
     }
     
     var HardwareConnectingGroup: some View {
-        VStack(spacing:0) {
+        VStack(spacing: 0) {
             HStack {
                 Text("하드웨어 연결 상태")
                     .pretendardFont(.Placeholder)
@@ -102,20 +115,22 @@ struct MyPageView: View {
             
             Divider()
             
-            
-            HStack {
-                // TODO: 하드웨어 연결하러 가기
-                Text("하드웨어 연결하러 가기")
-                    .pretendardFont(.Placeholder)
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.gray01)
+            Button {
+                onHardwarePairingTap()
+            } label: {
+                HStack {
+                    Text("하드웨어 연결하러 가기")
+                        .pretendardFont(.Placeholder)
+                        .foregroundStyle(.black)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.gray01)
+                }
+                .padding(.vertical, 18)
             }
-            .padding(.vertical, 18)
-            
         }
         .padding(.horizontal, 20)
         .mainBoxStyle()
@@ -152,10 +167,4 @@ struct MyPageView: View {
         .padding(.horizontal, 20)
         .mainBoxStyle()
     }
-}
-
-
-
-#Preview {
-    MyPageView()
 }
