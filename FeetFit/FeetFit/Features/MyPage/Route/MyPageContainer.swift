@@ -9,10 +9,12 @@ import SwiftUI
 
 struct MyPageContainer: View {
     @State private var path: [MyPageRoute] = []
+    @StateObject private var viewModel = MyPageViewModel()
     
     var body: some View {
         NavigationStack(path: $path) {
             MyPageView(
+                viewModel: viewModel,
                 onProfileEditTap: {
                     path.append(.profileEditing)
                 },
@@ -24,6 +26,7 @@ struct MyPageContainer: View {
                 switch route {
                 case .mypage:
                     MyPageView(
+                        viewModel: viewModel,
                         onProfileEditTap: {
                             path.append(.profileEditing)
                         },
@@ -33,7 +36,7 @@ struct MyPageContainer: View {
                     )
                     
                 case .profileEditing:
-                    ProfileEditView()
+                    ProfileEditView(viewModel: viewModel)
                     
                 case .hardwarePairing:
                     HardwarePairingView {

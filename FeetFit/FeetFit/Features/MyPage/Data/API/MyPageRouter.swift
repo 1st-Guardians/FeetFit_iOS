@@ -11,12 +11,13 @@ import Alamofire
 
 enum MyPageRouter {
     case getProfile
+    case updateProfile(request: MyPageProfileUpdateRequest)
 }
 
 extension MyPageRouter: APITargetType {
     var path: String {
         switch self {
-        case .getProfile:
+        case .getProfile, .updateProfile:
             return APIConfig.Path.user + "/profile"
         }
     }
@@ -25,6 +26,8 @@ extension MyPageRouter: APITargetType {
         switch self {
         case .getProfile:
             return .get
+        case .updateProfile:
+            return .patch
         }
     }
     
@@ -32,6 +35,9 @@ extension MyPageRouter: APITargetType {
         switch self {
         case .getProfile:
             return .requestPlain
+            
+        case .updateProfile(let request):
+            return .requestJSONEncodable(request)
         }
     }
 }

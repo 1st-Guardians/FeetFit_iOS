@@ -11,9 +11,18 @@ struct MyPageProfileResult: Decodable {
     let userId: Int
     let nickname: String
     let age: Int
-    let heightCm: Int
+    let heightCm: Double
     let weightKg: Double
     let footSize: Int
     let gender: Gender
     let requiresProfileSetup: Bool
+}
+
+struct MyPageProfileUpdateRequest: Encodable {
+    let nickname: String
+    let age: Int
+    let heightCm: Double
+    let weightKg: Double
+    let footSize: Int
+    let gender: Gender
 }

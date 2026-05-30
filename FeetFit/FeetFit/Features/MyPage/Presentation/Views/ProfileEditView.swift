@@ -10,16 +10,15 @@ import SwiftUI
 struct ProfileEditView: View {
     @Environment(\.dismiss) private var dismiss
     
-    @State private var userInfo = UserInfo(
-        nickname: "황먼지",
-        age: "24",
-        weight: "55",
-        height: "165",
-        footSize: "230",
-        gender: .female
-    )
+    @ObservedObject var viewModel: MyPageViewModel
+    @State private var userInfo: UserInfo
     
     @FocusState private var focusedField: Field?
+    
+    init(viewModel: MyPageViewModel) {
+        self.viewModel = viewModel
+        _userInfo = State(initialValue: viewModel.userInfo)
+    }
     
     enum Field {
         case nickname
@@ -52,6 +51,9 @@ struct ProfileEditView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.gray03)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            userInfo = viewModel.userInfo
+        }
     }
     
     var HeaderGroup: some View {
@@ -184,15 +186,19 @@ struct ProfileEditView: View {
     
     private func submitProfile() {
         guard userInfo.isOnboardingFilled else {
-            print("입력되지 않은 값이 있습니다.")
+            ToastManager.shared.show("입력되지 않은 값이 있습니다.")
             return
         }
         
-        print("수정된 프로필:", userInfo)
-        dismiss()
+        viewModel.updateProfile(
+            nickname: userInfo.nickname,
+            age: userInfo.age,
+            height: userInfo.height,
+            weight: userInfo.weight,
+            footSize: userInfo.footSize,
+            gender: userInfo.gender
+        ) {
+            dismiss()
+        }
     }
-}
-
-#Preview {
-    ProfileEditView()
 }

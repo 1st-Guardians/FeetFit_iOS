@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MyPageView: View {
-    @StateObject private var viewModel = MyPageViewModel()
+    @ObservedObject var viewModel: MyPageViewModel
     
     let onProfileEditTap: () -> Void
     let onHardwarePairingTap: () -> Void
