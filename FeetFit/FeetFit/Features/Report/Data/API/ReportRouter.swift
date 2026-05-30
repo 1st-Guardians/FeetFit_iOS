@@ -13,6 +13,7 @@ enum ReportRouter {
     case getSummary
     case getDailyFootAnalysis(date: String)
     case getHalluxValgus(date: String)
+    case getAthletesFoot(date: String)
 }
 
 extension ReportRouter: APITargetType {
@@ -26,12 +27,18 @@ extension ReportRouter: APITargetType {
 
         case .getHalluxValgus:
             return APIConfig.Path.report + "/hallux-valgus"
+
+        case .getAthletesFoot:
+            return APIConfig.Path.report + "/tina-pedis"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .getSummary, .getDailyFootAnalysis, .getHalluxValgus:
+        case .getSummary,
+             .getDailyFootAnalysis,
+             .getHalluxValgus,
+             .getAthletesFoot:
             return .get
         }
     }
@@ -42,7 +49,8 @@ extension ReportRouter: APITargetType {
             return .requestPlain
 
         case .getDailyFootAnalysis(let date),
-             .getHalluxValgus(let date):
+             .getHalluxValgus(let date),
+             .getAthletesFoot(let date):
             return .requestParameters(
                 parameters: ["date": date],
                 encoding: URLEncoding.queryString
@@ -51,11 +59,8 @@ extension ReportRouter: APITargetType {
     }
 
     var headers: [String: String]? {
-        switch self {
-        case .getSummary, .getDailyFootAnalysis, .getHalluxValgus:
-            return [
-                "Content-Type": "application/json"
-            ]
-        }
+        return [
+            "Content-Type": "application/json"
+        ]
     }
 }

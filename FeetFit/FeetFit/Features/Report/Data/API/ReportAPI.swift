@@ -193,4 +193,68 @@ final class ReportAPI {
             }
         }
     }
+    
+    // 무좀 결과 리포트
+    func fetchAthletesFoot(date: String) async throws -> AthletesFootResultDTO {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.request(.getAthletesFoot(date: date)) { result in
+                switch result {
+                case .success(let response):
+                    print("Athletes Foot statusCode:", response.statusCode)
+                    print("Athletes Foot response:", String(data: response.data, encoding: .utf8) ?? "")
+
+                    do {
+                        let decoded = try JSONDecoder().decode(
+                            BaseResponse<AthletesFootResultDTO>.self,
+                            from: response.data
+                        )
+
+                        guard decoded.isSuccess else {
+                            continuation.resume(
+                                throwing: APIError.serverError(decoded.message)
+                            )
+                            return
+                        }
+
+                        guard let result = decoded.result else {
+                            continuation.resume(
+                                throwing: APIError.serverError("무좀 분석 응답이 비어 있습니다.")
+                            )
+                            return
+                        }
+
+                        continuation.resume(returning: result)
+                    } catch {
+                        print("Athletes Foot decoding error:", error)
+                        continuation.resume(throwing: APIError.decodingError)
+                    }
+
+                case .failure(let error):
+                    if let response = error.response {
+                        print("Athletes Foot failure statusCode:", response.statusCode)
+                        print("Athletes Foot failure response:", String(data: response.data, encoding: .utf8) ?? "")
+
+                        let errorResponse = try? JSONDecoder().decode(
+                            APIErrorResponse.self,
+                            from: response.data
+                        )
+
+                        if response.statusCode == 401 {
+                            continuation.resume(throwing: APIError.unauthorized)
+                            return
+                        }
+
+                        continuation.resume(
+                            throwing: APIError.serverError(
+                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            )
+                        )
+                        return
+                    }
+
+                    continuation.resume(throwing: APIError.from(error))
+                }
+            }
+        }
+    }
 }
