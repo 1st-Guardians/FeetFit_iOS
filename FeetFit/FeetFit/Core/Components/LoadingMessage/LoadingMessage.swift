@@ -22,7 +22,7 @@ struct LoadingMessageView: View {
         lottieName: String = "FeetFit Loading",
         message: String,
         lottieSize: CGFloat = 100,
-        topPadding: CGFloat = 217,
+        topPadding: CGFloat = 163,
         bottomPadding: CGFloat = 10
     ) {
         self.lottieName = lottieName

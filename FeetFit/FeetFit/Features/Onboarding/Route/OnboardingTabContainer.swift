@@ -27,7 +27,9 @@ struct OnboardingTabContainer: View {
                         HardwareRegisterView(onFinish: onFinish)
                         
                     case .hardwarePairing:
-                        HardwarePairingView()
+                        HardwarePairingView {
+                            router.replace(with: .hardwarePairingFinish)
+                        }
                         
                     case .hardwarePairingFinish:
                         HardwarePairingFinishView(onFinish: onFinish)

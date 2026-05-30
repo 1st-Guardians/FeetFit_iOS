@@ -53,7 +53,7 @@ struct TabBar: View {
         case .recommend:
             RecommendListView()
         case .mypage:
-            MyPageView()
+            MyPageContainer()
         }
     }
 }
