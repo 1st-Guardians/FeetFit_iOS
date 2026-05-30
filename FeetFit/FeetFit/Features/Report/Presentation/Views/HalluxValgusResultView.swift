@@ -8,48 +8,59 @@
 import SwiftUI
 
 struct HalluxValgusResultView: View {
-    // MARK: - Body
+    @StateObject private var viewModel = HalluxValgusResultViewModel()
     
     var body: some View {
         ScrollView {
             VStack(spacing: 15) {
-                scoreSection
-                
-                imageSection
-                
-                gaugeSection
+                if viewModel.isLoading && viewModel.result == nil {
+                    ProgressView()
+                        .padding(.top, 40)
+                } else if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .pretendardFont(.BlockText)
+                        .foregroundStyle(.gray01)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 40)
+                } else if let result = viewModel.result {
+                    scoreSection(result)
+                    imageSection(result)
+                    gaugeSection(result)
+                }
             }
             .foregroundStyle(.black01)
             .padding(.vertical, 16)
             .padding(.horizontal, 20)
         }
         .scrollIndicators(.hidden)
+        .task {
+            await viewModel.fetchHalluxValgus()
+        }
     }
     
-    // MARK: - SubViews
-    
-    private var scoreSection: some View {
-        ScoreView(score: 93, description: "엄지발가락의 외반 각도가 12도로 정상 범위 내이며, 전체적인 발 정렬이 안정적입니다.", difference: 4)
+    private func scoreSection(_ result: HalluxValgusResultDTO) -> some View {
+        ScoreView(
+            score: result.riskScoreInt,
+            description: result.scoreAnalysisText,
+            difference: result.riskScoreDiffInt
+        )
     }
     
-    private var imageSection: some View {
+    private func imageSection(_ result: HalluxValgusResultDTO) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("분석 이미지")
                     .pretendardFont(.BlockTitle)
+                
                 Text("외곽선 및 키포인트 추출")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
             }
-            
-            HStack {
-                // TODO: 서버 이미지
+            HStack(spacing: 20) {
+                analysisImageView(result.leftImageUrl)
                 
-                Rectangle().fill(.gray02)
-                    .frame(height: 200)
-                
-                Rectangle().fill(.gray02)
-                    .frame(height: 200)
+                analysisImageView(result.rightImageUrl)
             }
             .padding(20)
             .gradientBoxStyle()
@@ -58,33 +69,67 @@ struct HalluxValgusResultView: View {
         .mainBoxStyle()
     }
     
-    private var gaugeSection: some View {
+    @ViewBuilder
+    private func analysisImageView(_ imageUrl: String?) -> some View {
+        if let imageUrl,
+           let url = URL(string: imageUrl),
+           !imageUrl.isEmpty {
+            AsyncImage(url: url) { image in
+                image
+                    .resizable()
+                    .scaledToFit()
+            } placeholder: {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 200)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            Rectangle()
+                .fill(.gray02)
+                .frame(maxWidth: .infinity)
+                .frame(height: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+    
+    private func gaugeSection(_ result: HalluxValgusResultDTO) -> some View {
         VStack(alignment: .leading, spacing: 24) {
-            // 타이틀
             VStack(alignment: .leading, spacing: 4) {
                 Text("상세 설명")
                     .pretendardFont(.BlockTitle)
+                
                 Text("무지외반 위험도 분석 결과")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
             }
             
-            // 왼발
             VStack(spacing: 10) {
                 Text("왼발")
                     .pretendardFont(.SectionTitle)
-                GaugeView(type: .halluxValgus, current: 12)
-                Text("엄지발가락이 두 번째 발가락 쪽으로 기울어진 각도(HVA)가 12°로 측정되었습니다. 정상 기준(15° 이하)에 해당합니다.")
+                
+                GaugeView(
+                    type: .halluxValgus,
+                    current: result.leftToeAngleCGFloat
+                )
+                
+                Text(result.leftAnalysisText)
                     .multilineTextAlignment(.leading)
                     .pretendardFont(.BlockText)
             }
             
-            // 오른발
             VStack(spacing: 10) {
                 Text("오른발")
                     .pretendardFont(.SectionTitle)
-                GaugeView(type: .halluxValgus, current: 12)
-                Text("엄지발가락이 두 번째 발가락 쪽으로 기울어진 각도(HVA)가 12°로 측정되었습니다. 정상 기준(15° 이하)에 해당합니다.")
+                
+                GaugeView(
+                    type: .halluxValgus,
+                    current: result.rightToeAngleCGFloat
+                )
+                
+                Text(result.rightAnalysisText)
                     .multilineTextAlignment(.leading)
                     .pretendardFont(.BlockText)
             }
