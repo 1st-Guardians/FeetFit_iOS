@@ -15,13 +15,13 @@ struct ScoreView: View {
     private let score: Int
     private let title: String?
     private let description: String
-    private let difference: Int
+    private let difference: Int?
     
     init(
         score: Int,
         title: String? = nil,
         description: String,
-        difference: Int
+        difference: Int?
     ) {
         self.score = min(max(score, 0), 100)
         self.title = title
@@ -34,6 +34,10 @@ struct ScoreView: View {
     }
     
     private var differenceText: String {
+        guard let difference else {
+            return "이전 측정 데이터 없음"
+        }
+
         if difference > 0 {
             return "지난 측정 대비 +\(difference)"
         } else if difference < 0 {
@@ -42,8 +46,12 @@ struct ScoreView: View {
             return "지난 측정과 동일"
         }
     }
-    
+
     private var differenceIcon: String {
+        guard let difference else {
+            return "minus"
+        }
+
         if difference > 0 {
             return "arrow.up.right"
         } else if difference < 0 {

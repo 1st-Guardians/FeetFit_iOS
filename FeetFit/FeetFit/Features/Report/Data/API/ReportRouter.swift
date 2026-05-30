@@ -11,6 +11,7 @@ import Moya
 
 enum ReportRouter {
     case getSummary
+    case getDailyFootAnalysis(date: String)
 }
 
 extension ReportRouter: APITargetType {
@@ -18,12 +19,15 @@ extension ReportRouter: APITargetType {
         switch self {
         case .getSummary:
             return APIConfig.Path.report + "/summary"
+
+        case .getDailyFootAnalysis:
+            return APIConfig.Path.report + "/daily-foot-analysis"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .getSummary:
+        case .getSummary, .getDailyFootAnalysis:
             return .get
         }
     }
@@ -32,12 +36,19 @@ extension ReportRouter: APITargetType {
         switch self {
         case .getSummary:
             return .requestPlain
+            
+        // 종합 결과 리포트
+        case .getDailyFootAnalysis(let date):
+            return .requestParameters(
+                parameters: ["date": date],
+                encoding: URLEncoding.queryString
+            )
         }
     }
 
     var headers: [String: String]? {
         switch self {
-        case .getSummary:
+        case .getSummary, .getDailyFootAnalysis:
             return [
                 "Content-Type": "application/json"
             ]
