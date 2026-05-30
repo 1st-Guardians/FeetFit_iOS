@@ -56,11 +56,6 @@ final class ShoeAPI {
     }
 }
 
-struct APIErrorResponse: Decodable {
-    let isSuccess: Bool
-    let code: String
-    let message: String
-}
 
 enum ShoeAPIError: LocalizedError {
     case server(code: String, message: String)

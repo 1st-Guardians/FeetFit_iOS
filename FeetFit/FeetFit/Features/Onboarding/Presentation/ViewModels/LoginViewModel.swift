@@ -16,7 +16,10 @@ class LoginViewModel: ObservableObject {
     @Published var isLogin: Bool = false
     @Published var requiresProfileSetup: Bool = false
     
-    private let authProvider = APIManager.shared.createProvider(for: AuthRouter.self)
+    private let authProvider = APIManager.shared.createProvider(
+        for: AuthRouter.self,
+        withAuth: false
+    )
 
     
     func kakaoLogin() {
