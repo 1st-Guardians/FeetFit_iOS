@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MyPageView: View {
+    @StateObject private var viewModel = MyPageViewModel()
+    
     @State private var hardwareStatus: HardwareStatus = .connected
     @State private var hasMeasurementRecord: Bool = false
     
@@ -32,7 +34,11 @@ struct MyPageView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.gray03)
+        .onAppear {
+            viewModel.fetchProfile()
+        }
     }
+    
     
     
     var TopInfoGroup: some View {
@@ -42,7 +48,7 @@ struct MyPageView: View {
                 .padding(.bottom, 32)
                 .padding(.leading, 12)
             
-            UserInfoGroup()
+            UserInfoGroup(userInfo: viewModel.userInfo)
             
             if !hasMeasurementRecord {
                 Spacer().frame(height: 10)

@@ -9,14 +9,7 @@ import SwiftUI
 
 struct UserInfoGroup: View {
     
-    @State private var userInfo = UserInfo(
-        nickname: "황먼지",
-        age: "24",
-        weight: "55",
-        height: "165",
-        footSize: "230",
-        gender: .female
-    )
+    let userInfo: UserInfo
     
     var body: some View {
         VStack(spacing: 0) {
@@ -60,5 +53,14 @@ struct UserInfoGroup: View {
 
 
 #Preview {
-    UserInfoGroup()
+    UserInfoGroup(
+        userInfo: UserInfo(
+            nickname: "황먼지",
+            age: "24",
+            weight: "55",
+            height: "165",
+            footSize: "230",
+            gender: .female
+        )
+    )
 }
