@@ -68,17 +68,3 @@ struct ShoeInfoView: View {
     }
 }
 
-#Preview {
-    ShoeInfoView(
-        shoe: ShoeInfo(
-            id: 1,
-            brand: "Converse",
-            name: "척테일러 올스타 클래식 블랙 어쩌구 저쩌구신발이레용",
-            price: 75000,
-            rating: 4.3,
-            fitScore: 92,
-            interestCount: 128,
-            imageURL: ""
-        )
-    )
-}
