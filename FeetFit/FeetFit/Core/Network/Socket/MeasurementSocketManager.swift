@@ -7,39 +7,117 @@
 
 import Foundation
 
-final class MeasurementSocketManager {
+final class MeasurementSocketManager: NSObject, URLSessionWebSocketDelegate {
+    static let shared = MeasurementSocketManager()
+
     private var webSocketTask: URLSessionWebSocketTask?
 
-    private let socketURL = URL(string: "ws://54.184.58.176/ws/measurements")!
+    private lazy var session = URLSession(
+        configuration: .default,
+        delegate: self,
+        delegateQueue: nil
+    )
 
-    func connect() {
-        let session = URLSession(configuration: .default)
-        webSocketTask = session.webSocketTask(with: socketURL)
+    private var isConnected = false
+    private var subscribedTopic: String?
+    private var isManuallyDisconnected = false
+    private var pingTimer: Timer?
 
-        webSocketTask?.resume()
+    var onConnected: (() -> Void)?
+    var onMeasurementMessage: ((String) -> Void)?
+    var onError: ((Error) -> Void)?
 
-        print("WebSocket 연결 시작")
-
-        receiveMessage()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.sendConnectFrame()
-        }
+    private override init() {
+        super.init()
     }
 
-    private func sendConnectFrame() {
-        let frame = """
-        CONNECT
-        accept-version:1.2
-        host:54.184.58.176
+    // MARK: - Connect
 
-        """
-        + "\u{00}"
+    func connect() {
+        guard let url = URL(string: "ws://54.184.58.176/ws/measurements") else {
+            print("WebSocket URL 생성 실패")
+            return
+        }
+
+        if isConnected {
+            print("이미 WebSocket 연결됨")
+
+            DispatchQueue.main.async {
+                self.onConnected?()
+            }
+
+            return
+        }
+
+        isManuallyDisconnected = false
+
+        print("WebSocket 연결 URL:", url.absoluteString)
+
+        webSocketTask = session.webSocketTask(with: url)
+        webSocketTask?.resume()
+    }
+
+    // MARK: - STOMP CONNECT
+
+    private func sendConnectFrame() {
+        var frame = ""
+        frame += "CONNECT\n"
+        frame += "accept-version:1.2\n"
+        frame += "host:54.184.58.176\n"
+        frame += "\n"
+        frame += "\u{00}"
 
         send(frame)
     }
 
-    private func receiveMessage() {
+    // MARK: - STOMP SUBSCRIBE with RECEIPT
+
+    func subscribe(to topic: String, sessionId: Int? = nil) {
+        let subscribeId = sessionId.map { "sub-measurement-\($0)" } ?? "sub-measurement"
+
+        var frame = ""
+        frame += "SUBSCRIBE\n"
+        frame += "id:\(subscribeId)\n"
+        frame += "destination:\(topic)\n"
+        frame += "\n"
+        frame += "\u{00}"
+
+        subscribedTopic = topic
+        send(frame)
+
+        print("STOMP 구독 요청:", topic)
+    }
+
+    // MARK: - Send
+
+    private func send(_ text: String) {
+        let printableFrame = text
+            .replacingOccurrences(of: "\u{00}", with: "^@")
+
+        print("===== STOMP 전송 frame =====")
+        print(printableFrame)
+        print("==========================")
+
+        webSocketTask?.send(.string(text)) { error in
+            if let error {
+                print("WebSocket 전송 실패:", error)
+            } else {
+                if text.hasPrefix("CONNECT") {
+                    print("STOMP CONNECT 전송 성공")
+                } else if text.hasPrefix("SUBSCRIBE") {
+                    print("STOMP SUBSCRIBE 전송 성공")
+                } else if text.hasPrefix("DISCONNECT") {
+                    print("STOMP DISCONNECT 전송 성공")
+                } else {
+                    print("WebSocket 전송 성공")
+                }
+            }
+        }
+    }
+
+    // MARK: - Receive
+
+    private func receive() {
         webSocketTask?.receive { [weak self] result in
             guard let self else { return }
 
@@ -47,78 +125,171 @@ final class MeasurementSocketManager {
             case .success(let message):
                 switch message {
                 case .string(let text):
-                    print("WebSocket 수신:")
-                    print(text)
-
-                    self.handleSTOMPMessage(text)
+                    self.handleStompFrame(text)
 
                 case .data(let data):
-                    print("WebSocket Data 수신:", data)
+                    print("WebSocket data 수신:", data)
 
                 @unknown default:
-                    break
+                    print("알 수 없는 WebSocket 메시지")
                 }
 
-                self.receiveMessage()
+                self.receive()
 
             case .failure(let error):
+                self.isConnected = false
+                self.stopPing()
+
+                if self.isManuallyDisconnected {
+                    print("WebSocket 수신 종료: 직접 연결 종료")
+                    return
+                }
+
                 print("WebSocket 수신 실패:", error)
+                self.onError?(error)
             }
         }
     }
 
-    private func handleSTOMPMessage(_ text: String) {
-        if text.hasPrefix("CONNECTED") {
-            print("STOMP 연결 성공")
-            
-            // TODO: 사용자 Topic 구독
+    // MARK: - Handle STOMP Frame
 
+    private func handleStompFrame(_ text: String) {
+        print("STOMP 수신:")
+        print(text)
+
+        if text.hasPrefix("CONNECTED") {
+            isConnected = true
+            print("STOMP 연결 완료")
+
+            DispatchQueue.main.async {
+                self.onConnected?()
+            }
+
+            return
+        }
+
+        if text.hasPrefix("RECEIPT") {
+            print("STOMP 구독 RECEIPT 수신:")
+            print(text)
             return
         }
 
         if text.hasPrefix("MESSAGE") {
             let body = extractBody(from: text)
-            print("STOMP 메시지 body:")
-            print(body ?? "body 없음")
+
+            print("측정 메시지 body:")
+            print(body)
+
+            DispatchQueue.main.async {
+                self.onMeasurementMessage?(body)
+            }
+
+            return
         }
 
         if text.hasPrefix("ERROR") {
             print("STOMP ERROR 수신:")
             print(text)
+            return
         }
     }
 
-    private func extractBody(from message: String) -> String? {
-        guard let range = message.range(of: "\n\n") else {
-            return nil
+    private func extractBody(from frame: String) -> String {
+        let normalizedFrame = frame.replacingOccurrences(of: "\r\n", with: "\n")
+        let parts = normalizedFrame.components(separatedBy: "\n\n")
+
+        guard parts.count >= 2 else {
+            return normalizedFrame
+                .replacingOccurrences(of: "\u{00}", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
         }
 
-        return String(message[range.upperBound...])
+        return parts[1]
             .replacingOccurrences(of: "\u{00}", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private func send(_ text: String) {
-        webSocketTask?.send(.string(text)) { error in
-            if let error {
-                print("WebSocket 전송 실패:", error)
-            } else {
-                print("WebSocket 전송 성공")
+    // MARK: - Ping
+
+    private func startPing() {
+        stopPing()
+
+        DispatchQueue.main.async {
+            self.pingTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+                self?.sendPing()
             }
         }
     }
 
+    private func stopPing() {
+        pingTimer?.invalidate()
+        pingTimer = nil
+    }
+
+    private func sendPing() {
+        webSocketTask?.sendPing { error in
+            if let error {
+                print("WebSocket ping 실패:", error)
+            } else {
+                print("WebSocket ping 성공")
+            }
+        }
+    }
+
+    // MARK: - Disconnect
+
     func disconnect() {
-        let frame = """
+        isManuallyDisconnected = true
+        stopPing()
+
+        let frame =
+        """
         DISCONNECT
 
+        \u{00}
         """
-        + "\u{00}"
 
         send(frame)
 
         webSocketTask?.cancel(with: .goingAway, reason: nil)
         webSocketTask = nil
+        isConnected = false
+        subscribedTopic = nil
 
         print("WebSocket 연결 종료")
+    }
+
+    // MARK: - URLSessionWebSocketDelegate
+
+    func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didOpenWithProtocol protocol: String?
+    ) {
+        print("URLSession WebSocket didOpen")
+
+        isManuallyDisconnected = false
+
+        receive()
+        sendConnectFrame()
+        startPing()
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
+        reason: Data?
+    ) {
+        let reasonText = reason.flatMap {
+            String(data: $0, encoding: .utf8)
+        } ?? "nil"
+
+        isConnected = false
+        stopPing()
+
+        print("URLSession WebSocket didClose")
+        print("closeCode:", closeCode.rawValue)
+        print("reason:", reasonText)
     }
 }

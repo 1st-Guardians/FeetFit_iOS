@@ -103,6 +103,7 @@ class LoginViewModel: ObservableObject {
                     }
                     
                     print("카카오 로그인 성공")
+                    print("accessToken!!!!!!!!!!! \(loginResult.accessToken)")
                     print("프로필 설정 필요 여부: \(loginResult.requiresProfileSetup)")
                     
                 } catch {

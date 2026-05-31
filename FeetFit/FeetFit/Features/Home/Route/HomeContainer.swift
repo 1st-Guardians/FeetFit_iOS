@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeContainer: View {
     @State private var router = NavigationRouter<HomeRoute>()
+    @State private var measurementViewModel = FootMeasurementViewModel()
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -17,26 +18,28 @@ struct HomeContainer: View {
                     switch route {
                     case .main:
                         HomeView()
+
                     case .measurement:
-                        FootMeasurementConnectingView()
-                            .toolbar(.hidden, for: .tabBar)
-                    }
-                }
-                .navigationDestination(for: MeasurementRoute.self) { route in
-                    switch route {
-                    case .connecting:
-                        FootMeasurementConnectingView()
-                            .toolbar(.hidden, for: .tabBar)
-                    case .start:
+                        FootMeasurementConnectingView(
+                            viewModel: measurementViewModel
+                        )
+                        .toolbar(.hidden, for: .tabBar)
+
+                    case .measurementStart:
                         FootMeasurementStartView()
                             .toolbar(.hidden, for: .tabBar)
-                    case .progress:
-                        FootMeasurementProgressView()
-                            .toolbar(.hidden, for: .tabBar)
-                    case .exporting:
+
+                    case .measurementProgress:
+                        FootMeasurementProgressView(
+                            viewModel: measurementViewModel
+                        )
+                        .toolbar(.hidden, for: .tabBar)
+
+                    case .measurementExporting:
                         FootMeasurementDataExportingView()
                             .toolbar(.hidden, for: .tabBar)
-                    case .finish:
+
+                    case .measurementFinish:
                         FootMeasurementFinishView()
                             .toolbar(.hidden, for: .tabBar)
                     }
@@ -44,8 +47,4 @@ struct HomeContainer: View {
         }
         .environment(router)
     }
-}
-
-#Preview {
-    HomeContainer()
 }

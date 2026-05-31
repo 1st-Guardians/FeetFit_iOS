@@ -10,4 +10,8 @@ import Foundation
 enum HomeRoute: Hashable {
     case main
     case measurement
+    case measurementStart
+    case measurementProgress
+    case measurementExporting
+    case measurementFinish
 }
