@@ -45,7 +45,7 @@ struct TabBar: View {
     private func tabView(_ tab: TabCase) -> some View {
         switch tab {
         case .home:
-            HomeView()
+            HomeContainer()
         case .report:
             NavigationStack {
                 ReportView()

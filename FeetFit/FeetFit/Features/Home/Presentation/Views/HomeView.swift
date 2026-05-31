@@ -9,12 +9,13 @@ import SwiftUI
 
 struct HomeView: View {
     // MARK: - Properties
+    @Environment(NavigationRouter<HomeRoute>.self) private var router
     
     // 임시
     private let measuredDates: [Date] = [
-        Date(),
-        Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-        Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+//        Date(),
+//        Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+//        Calendar.current.date(byAdding: .day, value: 1, to: Date())!
     ]
     
     private var homeStatus: HomeStatus {
@@ -83,8 +84,7 @@ struct HomeView: View {
             Button(action: {
                 switch homeStatus {
                 case .noRecord, .notMeasuredToday:
-                    // TODO: 측정하러 가기
-                    break
+                    router.push(.measurement)
                     
                 case .measuredToday:
                     // TODO: 결과 확인하러 가기
