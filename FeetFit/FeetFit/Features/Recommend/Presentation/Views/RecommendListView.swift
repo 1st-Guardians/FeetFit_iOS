@@ -8,29 +8,29 @@
 import SwiftUI
 
 struct RecommendListView: View {
-    @State private var selectedSortType: ShoeSortType = .fit
     @State private var searchText: String = ""
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
     
-    private let recommendation: ShoeRecommendation = .mock
     @State private var recentKeywords: [String] = ["나이키", "척테일러"]
+    
+    @StateObject private var viewModel = RecommendListViewModel()
     
     private var filteredShoes: [ShoeInfo] {
         let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         guard !keyword.isEmpty else {
-            return recommendation.shoes
+            return viewModel.shoes
         }
-        
-        return recommendation.shoes.filter {
+
+        return viewModel.shoes.filter {
             $0.brand.localizedCaseInsensitiveContains(keyword) ||
             $0.name.localizedCaseInsensitiveContains(keyword)
         }
     }
-    
+
     private var sortedShoes: [ShoeInfo] {
-        selectedSortType.sort(filteredShoes)
+        filteredShoes
     }
     
     var body: some View {
@@ -46,6 +46,14 @@ struct RecommendListView: View {
             )
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
+        }
+        .task {
+            await viewModel.fetchShoes()
+        }
+        .onChange(of: viewModel.selectedSortType) { _, _ in
+            Task {
+                await viewModel.reloadShoes()
+            }
         }
         .onChange(of: searchText) { _, newValue in
             handleSearchTextChange(newValue)
@@ -113,11 +121,11 @@ struct RecommendListView: View {
                 .padding(.leading, 12)
             
             VStack(alignment: .leading, spacing: 0) {
-                Text("\(recommendation.userName)님의 발 타입은요..")
+                Text("내 발에 맞는 신발을 추천해드릴게요")
                     .pretendardFont(.BlockTitle)
                     .padding(.bottom, 10)
                 
-                Text(recommendation.footDescription)
+                Text("발 측정 결과를 기반으로 적합도, 별점, 관심도 순으로 신발을 확인할 수 있어요.")
                     .pretendardFont(.BlockText)
             }
             .padding(20)
@@ -142,13 +150,13 @@ struct RecommendListView: View {
             .padding(.bottom, 18)
             
             HStack {
-                Text("\(sortedShoes.count)개")
+                Text("\(viewModel.shoes.count)개")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
                 
                 Spacer()
                 
-                ShoeSortMenuButton(selectedSortType: $selectedSortType)
+                ShoeSortMenuButton(selectedSortType: $viewModel.selectedSortType)
             }
         }
     }

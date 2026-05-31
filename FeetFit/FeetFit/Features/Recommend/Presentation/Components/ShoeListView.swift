@@ -23,7 +23,3 @@ struct ShoeListView: View {
         }
     }
 }
-
-#Preview {
-    ShoeListView(shoes: ShoeRecommendation.mock.shoes)
-}
