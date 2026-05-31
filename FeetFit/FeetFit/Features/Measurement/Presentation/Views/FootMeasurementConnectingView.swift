@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct FootMeasurementConnectingView: View {
+    private let socketManager = MeasurementSocketManager()
+    
     var body: some View {
         VStack(spacing: 0) {
             LoadingMessageView(
@@ -17,6 +19,7 @@ struct FootMeasurementConnectingView: View {
             
             MainButton("기기 연결하기", action: {
                 print("기기 연결하기 버튼 클릭")
+                socketManager.connect()
             })
             .padding(.horizontal, 18)
             
