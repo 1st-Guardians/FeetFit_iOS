@@ -9,7 +9,8 @@ import SwiftUI
 
 struct AthletesFootResultView: View {
     // MARK: - Properties
-
+    let selectedDate: Date
+    
     @StateObject private var viewModel = AthletesFootResultViewModel()
     @State private var selectedImageType: AthleteImageType = .suspiciousMap
 
@@ -41,8 +42,8 @@ struct AthletesFootResultView: View {
             .padding(.horizontal, 20)
         }
         .scrollIndicators(.hidden)
-        .task {
-            await viewModel.fetchAthletesFoot()
+        .task(id: selectedDate) {
+            await viewModel.fetchAthletesFoot(date: selectedDate)
         }
     }
 
@@ -237,8 +238,4 @@ struct AthletesFootResultView: View {
         .padding(20)
         .mainBoxStyle()
     }
-}
-
-#Preview {
-    AthletesFootResultView()
 }

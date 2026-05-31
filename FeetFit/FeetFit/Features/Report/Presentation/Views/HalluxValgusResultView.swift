@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HalluxValgusResultView: View {
+    let selectedDate: Date
     @StateObject private var viewModel = HalluxValgusResultViewModel()
     
     var body: some View {
@@ -34,8 +35,8 @@ struct HalluxValgusResultView: View {
             .padding(.horizontal, 20)
         }
         .scrollIndicators(.hidden)
-        .task {
-            await viewModel.fetchHalluxValgus()
+        .task(id: selectedDate) {
+            await viewModel.fetchHalluxValgus(date: selectedDate)
         }
     }
     
@@ -137,8 +138,4 @@ struct HalluxValgusResultView: View {
         .padding(20)
         .mainBoxStyle()
     }
-}
-
-#Preview {
-    HalluxValgusResultView()
 }

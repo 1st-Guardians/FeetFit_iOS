@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct OverallResultView: View {
+    let selectedDate: Date
     @StateObject private var viewModel = OverallResultViewModel()
 
     var body: some View {
@@ -37,8 +38,8 @@ struct OverallResultView: View {
             .padding(.horizontal, 20)
         }
         .scrollIndicators(.hidden)
-        .task {
-            await viewModel.fetchDailyFootAnalysis()
+        .task(id: selectedDate) {
+            await viewModel.fetchDailyFootAnalysis(date: selectedDate)
         }
     }
 
@@ -175,8 +176,4 @@ struct OverallResultView: View {
             content: nil
         )
     }
-}
-
-#Preview {
-    OverallResultView()
 }

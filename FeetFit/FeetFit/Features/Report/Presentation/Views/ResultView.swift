@@ -47,13 +47,13 @@ struct ResultView: View {
     private var contentView: some View {
         switch selectedSegment {
         case .overall:
-            OverallResultView()
+            OverallResultView(selectedDate: selectedDate)
             
         case .halluxValgus:
-            HalluxValgusResultView()
+            HalluxValgusResultView(selectedDate: selectedDate)
             
         case .athletesFoot:
-            AthletesFootResultView()
+            AthletesFootResultView(selectedDate: selectedDate)
         }
     }
     

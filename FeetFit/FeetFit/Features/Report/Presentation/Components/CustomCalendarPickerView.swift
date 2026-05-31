@@ -12,6 +12,7 @@ struct CustomCalendarPickerView: View {
     
     let measuredDates: [Date]
     var onSelect: (() -> Void)? = nil
+    var onMonthChange: ((Date) -> Void)? = nil
     
     @State private var currentMonth: Date
     
@@ -21,11 +22,13 @@ struct CustomCalendarPickerView: View {
     init(
         selectedDate: Binding<Date>,
         measuredDates: [Date],
-        onSelect: (() -> Void)? = nil
+        onSelect: (() -> Void)? = nil,
+        onMonthChange: ((Date) -> Void)? = nil
     ) {
         self._selectedDate = selectedDate
         self.measuredDates = measuredDates
         self.onSelect = onSelect
+        self.onMonthChange = onMonthChange
         self._currentMonth = State(initialValue: selectedDate.wrappedValue)
     }
     
@@ -197,6 +200,8 @@ extension CustomCalendarPickerView {
         withTransaction(transaction) {
             currentMonth = newMonth
         }
+        
+        onMonthChange?(newMonth)
     }
     
     private func isMeasuredDate(_ date: Date) -> Bool {
