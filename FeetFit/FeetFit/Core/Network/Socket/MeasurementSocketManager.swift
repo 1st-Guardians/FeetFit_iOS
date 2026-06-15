@@ -63,7 +63,6 @@ final class MeasurementSocketManager: NSObject, URLSessionWebSocketDelegate {
         var frame = ""
         frame += "CONNECT\n"
         frame += "accept-version:1.2\n"
-        frame += "host:54.184.58.176\n"
         frame += "\n"
         frame += "\u{00}"
 
