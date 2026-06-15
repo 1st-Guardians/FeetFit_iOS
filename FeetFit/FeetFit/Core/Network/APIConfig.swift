@@ -13,6 +13,14 @@ enum APIConfig {
         }
         return url
     }()
+    
+    static let socketURL: String = {
+        guard let url = Bundle.main.infoDictionary?["SOCKET_URL"] as? String,
+              !url.isEmpty else {
+            fatalError("SOCKET_URL이 Info.plist에 설정되어 있지 않습니다.")
+        }
+        return url
+    }()
 
     enum Path {
         static let auth = "/api/auth"

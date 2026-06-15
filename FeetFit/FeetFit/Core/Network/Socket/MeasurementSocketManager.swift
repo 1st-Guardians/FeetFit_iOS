@@ -34,7 +34,7 @@ final class MeasurementSocketManager: NSObject, URLSessionWebSocketDelegate {
     // MARK: - Connect
 
     func connect() {
-        guard let url = URL(string: "ws://54.184.58.176/ws/measurements") else {
+        guard let url = URL(string: APIConfig.socketURL) else {
             print("WebSocket URL 생성 실패")
             return
         }
