@@ -18,11 +18,12 @@ struct FootMeasurementConnectingView: View {
             )
             .padding(.bottom, 277)
             
-            MainButton("기기 연결하기", action: {
+            MainButton(viewModel.isLoading ? "기기 연결 중..." : "기기 연결하기", action: {
                 print("기기 연결하기 버튼 클릭")
                 viewModel.connectDevice()
             })
             .padding(.horizontal, 18)
+            .disabled(viewModel.isLoading)
             
             Spacer()
         }
