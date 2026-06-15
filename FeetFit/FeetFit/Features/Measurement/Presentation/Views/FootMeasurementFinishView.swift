@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct FootMeasurementFinishView: View {
+    @Environment(NavigationRouter<HomeRoute>.self) private var router
+    
     var body: some View {
         VStack(spacing: 0) {
             LoadingMessageView(
@@ -15,8 +17,8 @@ struct FootMeasurementFinishView: View {
             )
             .padding(.bottom, 277)
             
-            MainButton("결과 확인하기", action: {
-                print("결과 확인하기 버튼 클릭")
+            MainButton("홈으로 돌아가기", action: {
+                router.reset()
             })
             .padding(.horizontal, 18)
             

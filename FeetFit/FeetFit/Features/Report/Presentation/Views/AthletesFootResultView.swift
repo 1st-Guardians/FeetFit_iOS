@@ -116,40 +116,33 @@ struct AthletesFootResultView: View {
             }
 
             HStack {
-                Rectangle()
-                    .fill(.gray02)
-                    .overlay {
-                        footImageView(
-                            imageUrl: result.imageUrl(for: selectedImageType),
-                            placeholderText: selectedImageType == .suspiciousMap ? "의심 부위 지도" : "원본 이미지"
-                        )
-                    }
-                    .frame(height: 300)
+                footImageView(
+                    imageUrl: result.imageUrl(for: selectedImageType),
+                    placeholderText: selectedImageType == .suspiciousMap ? "의심 부위 지도" : "원본 이미지"
+                )
             }
             .padding(20)
             .gradientBoxStyle()
             
-            if selectedImageType == .suspiciousMap {
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 5) {
-                        Circle()
-                            .foregroundStyle(.blue01)
-                            .frame(width: 10, height: 10)
-                        
-                        Text("무좀 의심/감염 영역")
-                            .pretendardFont(.Caption)
-                            .foregroundStyle(.gray01)
-                    }
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 5) {
+                    Circle()
+                        .foregroundStyle(.blue01)
+                        .frame(width: 10, height: 10)
                     
-                    HStack(spacing: 5) {
-                        Circle()
-                            .foregroundStyle(.red01)
-                            .frame(width: 10, height: 10)
-                        
-                        Text("염증/피부 반응 영역")
-                            .pretendardFont(.Caption)
-                            .foregroundStyle(.gray01)
-                    }
+                    Text("무좀 의심/감염 영역")
+                        .pretendardFont(.Caption)
+                        .foregroundStyle(.gray01)
+                }
+                
+                HStack(spacing: 5) {
+                    Circle()
+                        .foregroundStyle(.red01)
+                        .frame(width: 10, height: 10)
+                    
+                    Text("염증/피부 반응 영역")
+                        .pretendardFont(.Caption)
+                        .foregroundStyle(.gray01)
                 }
             }
         }
