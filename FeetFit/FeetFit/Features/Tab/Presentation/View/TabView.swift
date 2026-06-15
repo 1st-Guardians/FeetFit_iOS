@@ -9,10 +9,13 @@ import SwiftUI
 
 struct TabBar: View {
     
-    // MARK: - Propery
+    // MARK: - Property
     
-    @State var tabCase: TabCase
-    @State var isShowMyPage: Bool = false
+    @State private var tabCase: TabCase
+    @State private var isShowMyPage: Bool = false
+    
+    // ReportView를 강제로 새로 만들기 위한 ID
+    @State private var reportResetID = UUID()
 
     init(initialTab: TabCase = .home) {
         _tabCase = State(initialValue: initialTab)
@@ -28,17 +31,22 @@ struct TabBar: View {
                 })
             }
         }
+        .onChange(of: tabCase) { _, newValue in
+            if newValue == .report {
+                reportResetID = UUID()
+            }
+        }
     }
     
     private func tabLabel(_ tab: TabCase) -> some View {
-        VStack(alignment: .center, content: {
+        VStack(alignment: .center) {
             tab.icon
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
             
             Text(tab.title)
-        })
+        }
     }
     
     @ViewBuilder
@@ -46,12 +54,16 @@ struct TabBar: View {
         switch tab {
         case .home:
             HomeContainer()
+            
         case .report:
             NavigationStack {
                 ReportView()
+                    .id(reportResetID)
             }
+            
         case .recommend:
             RecommendListView()
+            
         case .mypage:
             MyPageContainer()
         }
