@@ -27,6 +27,12 @@ struct FootMeasurementConnectingView: View {
             
             Spacer()
         }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolBarCollection.BackBtn {
+                router.reset()
+            }
+        }
         .onAppear {
             viewModel.onMoveToProgress = {
                 router.push(.measurementProgress)
