@@ -11,12 +11,15 @@ struct WeekCalendarView: View {
     // MARK: - Properties
     
     private let measuredDates: [Date]
+    private let onDateSelected: ((Date) -> Void)?
     private let calendar = Calendar.current
-    
+
     init(
-        measuredDates: [Date] = []
+        measuredDates: [Date] = [],
+        onDateSelected: ((Date) -> Void)? = nil
     ) {
         self.measuredDates = measuredDates
+        self.onDateSelected = onDateSelected
     }
     
     private var weekDates: [Date] {
@@ -67,11 +70,11 @@ struct WeekCalendarView: View {
             calendar.isDate($0, inSameDayAs: date)
         }
         
-        return VStack(spacing: 8) {
+        let cell = VStack(spacing: 8) {
             Text(weekdayText(from: date))
                 .pretendardFont(.BlockText)
-                .foregroundStyle(weekdayColor(from: date))
-            
+                .foregroundStyle(hasMeasuredRecord ? weekdayColor(from: date) : .gray)
+
             Text(dayText(from: date))
                 .pretendardFont(.Description)
                 .frame(width: 36, height: 36)
@@ -81,11 +84,22 @@ struct WeekCalendarView: View {
                             .fill(.gray03)
                     }
                 }
-                .foregroundStyle(dayTextColor(
-                    hasMeasuredRecord: hasMeasuredRecord
-                ))
+                .foregroundStyle(dayTextColor(hasMeasuredRecord: hasMeasuredRecord))
         }
         .frame(maxWidth: .infinity)
+
+        return Group {
+            if hasMeasuredRecord {
+                Button {
+                    onDateSelected?(date)
+                } label: {
+                    cell
+                }
+                .buttonStyle(.plain)
+            } else {
+                cell
+            }
+        }
     }
     
     private func weekdayText(from date: Date) -> String {

@@ -42,6 +42,10 @@ struct HomeContainer: View {
                     case .measurementFinish:
                         FootMeasurementFinishView()
                             .toolbar(.hidden, for: .tabBar)
+
+                    case .report(let date):
+                        ResultView(selectedDate: date)
+                            .toolbar(.hidden, for: .tabBar)
                     }
                 }
         }
