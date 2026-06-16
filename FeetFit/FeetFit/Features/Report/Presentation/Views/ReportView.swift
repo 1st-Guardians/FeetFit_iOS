@@ -17,6 +17,7 @@ struct ReportView: View {
             switch selectedMenu {
             case .resultReport:
                 ResultView(selectedDate: selectedDate)
+                    .id(Calendar.current.startOfDay(for: selectedDate))
 
             case .summary:
                 SummaryView()
@@ -33,7 +34,9 @@ struct ReportView: View {
                     selectedDate: $selectedDate,
                     measuredDates: calendarViewModel.measuredDates,
                     onMonthChange: { monthDate in
-                        Task { await calendarViewModel.fetchMeasuredDates(for: monthDate) }
+                        Task {
+                            await calendarViewModel.fetchMeasuredDates(for: monthDate)
+                        }
                     }
                 )
             }

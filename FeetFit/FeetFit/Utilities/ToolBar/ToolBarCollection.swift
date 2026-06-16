@@ -104,6 +104,7 @@ struct ToolBarCollection {
 
         let measuredDates: [Date]
         var onMonthChange: ((Date) -> Void)? = nil
+        var onSelectDate: (() -> Void)? = nil
 
         @State private var isPresented: Bool = false
 
@@ -119,6 +120,7 @@ struct ToolBarCollection {
                         selectedDate: $selectedDate,
                         measuredDates: measuredDates,
                         onSelect: {
+                            onSelectDate?()
                             isPresented = false
                         },
                         onMonthChange: onMonthChange
