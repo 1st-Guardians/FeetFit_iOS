@@ -9,6 +9,7 @@ import SwiftUI
 
 struct StretchingView: View {
     @StateObject private var viewModel = StretchingViewModel()
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -40,23 +41,35 @@ struct StretchingView: View {
     private var listView: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(viewModel.todos.indices, id: \.self) { index in
-                Button {
-                    viewModel.todos[index].isCompleted.toggle()
-                } label: {
-                    HStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    Button {
+                        viewModel.todos[index].isCompleted.toggle()
+                    } label: {
                         Image(systemName: viewModel.todos[index].isCompleted ? "checkmark.circle.fill" : "circle")
                             .font(.system(size: 16))
-
-                        Text(viewModel.todos[index].title)
-                            .pretendardFont(.Description)
-                            .strikethrough(viewModel.todos[index].isCompleted, color: .gray02)
-
-                        Spacer()
+                            .foregroundStyle(viewModel.todos[index].isCompleted ? .gray02 : .black01)
                     }
-                    .foregroundStyle(viewModel.todos[index].isCompleted ? .gray02 : .black01)
-                    .padding(.vertical, 4)
+                    .buttonStyle(.plain)
+
+                    Text(viewModel.todos[index].title)
+                        .pretendardFont(.Description)
+                        .strikethrough(viewModel.todos[index].isCompleted, color: .gray02)
+                        .foregroundStyle(viewModel.todos[index].isCompleted ? .gray02 : .black01)
+
+                    Spacer()
+
+                    Button {
+                        if let url = URL(string: viewModel.todos[index].youtubeUrl) {
+                            openURL(url)
+                        }
+                    } label: {
+                        Image(systemName: "play.circle")
+                            .font(.system(size: 20))
+                            .foregroundStyle(viewModel.todos[index].isCompleted ? .gray02 : .blue01)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .padding(.vertical, 4)
                 .frame(height: 50)
 
                 if index != viewModel.todos.indices.last {
