@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HealthNewsView: View {
     @StateObject private var viewModel = HealthNewsViewModel()
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -55,18 +56,25 @@ struct HealthNewsView: View {
     }
 
     private func newsRow(_ news: HealthNews) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(news.publisher)
-                .pretendardFont(.Caption)
-                .foregroundStyle(.gray)
+        Button {
+            if let url = URL(string: news.url) {
+                openURL(url)
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(news.publisher)
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.gray)
 
-            Text(news.title)
-                .pretendardFont(.Description)
-                .foregroundStyle(.black)
-                .lineLimit(1)
+                Text(news.title)
+                    .pretendardFont(.Description)
+                    .foregroundStyle(.black)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 12)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 12)
+        .buttonStyle(.plain)
     }
 }
 
