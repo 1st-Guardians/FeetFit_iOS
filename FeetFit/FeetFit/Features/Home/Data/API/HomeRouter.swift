@@ -11,6 +11,7 @@ import Moya
 
 enum HomeRouter {
     case getStretchingTodos
+    case getArticles
 }
 
 extension HomeRouter: APITargetType {
@@ -18,19 +19,23 @@ extension HomeRouter: APITargetType {
         switch self {
         case .getStretchingTodos:
             return "/api/stretching-todos"
+        case .getArticles:
+            return "/api/articles"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .getStretchingTodos:
+        case .getStretchingTodos,
+             .getArticles:
             return .get
         }
     }
 
     var task: Task {
         switch self {
-        case .getStretchingTodos:
+        case .getStretchingTodos,
+             .getArticles:
             return .requestPlain
         }
     }

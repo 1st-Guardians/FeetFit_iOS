@@ -8,34 +8,42 @@
 import SwiftUI
 
 struct HealthNewsView: View {
-    
-    // MARK: - Properties
-    
-    private let newsList: [HealthNews] = [
-        HealthNews(company: "동아일보", title: "최근 족저근막염 환자 15.4% 증가..."),
-        HealthNews(company: "세계비즈", title: "키높이 신발 유행에 무지외반증↑... 심한 경우 수술 필요"),
-        HealthNews(company: "코메디닷컴", title: "무지외반, 족저근막... 늘어가는 현대인 발병"),
-        HealthNews(company: "동아일보", title: "최근 족저근막염 환자 15.4% 증가...")
-    ]
-    
-    // MARK: - Body
-    
+    @StateObject private var viewModel = HealthNewsViewModel()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("건강 이슈")
                 .pretendardFont(.BlockTitle)
                 .padding(.leading, 8)
-            
-            listView
+
+            if !viewModel.articles.isEmpty {
+                listView
+            } else {
+                emptyView
+            }
+        }
+        .task {
+            await viewModel.fetchArticles()
         }
     }
-    
+
+    // MARK: - SubView
+
+    private var emptyView: some View {
+        Text("아직 연결된 건강 이슈가 없어요.\n발 상태를 측정해 보세요.")
+            .multilineTextAlignment(.center)
+            .pretendardFont(.Description)
+            .frame(height: 150)
+            .frame(maxWidth: .infinity)
+            .mainBoxStyle()
+    }
+
     private var listView: some View {
         VStack(spacing: 0) {
-            ForEach(Array(newsList.enumerated()), id: \.element.id) { index, news in
+            ForEach(Array(viewModel.articles.enumerated()), id: \.element.id) { index, news in
                 newsRow(news)
-                
-                if index != newsList.count - 1 {
+
+                if index != viewModel.articles.count - 1 {
                     Divider()
                 }
             }
@@ -45,13 +53,13 @@ struct HealthNewsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .mainBoxStyle()
     }
-    
+
     private func newsRow(_ news: HealthNews) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(news.company)
+            Text(news.publisher)
                 .pretendardFont(.Caption)
                 .foregroundStyle(.gray)
-            
+
             Text(news.title)
                 .pretendardFont(.Description)
                 .foregroundStyle(.black)
