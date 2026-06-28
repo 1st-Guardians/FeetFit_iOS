@@ -78,8 +78,7 @@ struct HomeView: View {
                     router.push(.measurement)
 
                 case .measuredToday:
-                    // TODO: 결과 확인하러 가기
-                    break
+                    router.push(.report(Date()))
                 }
             }) {
                 Text(status.buttonText)
