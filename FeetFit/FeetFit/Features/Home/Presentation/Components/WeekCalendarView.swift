@@ -9,73 +9,62 @@ import SwiftUI
 
 struct WeekCalendarView: View {
     // MARK: - Properties
-    
-    private let measuredDates: [Date]
+
+    private let dailyStatuses: [DailyStatus]
+    private let today: String
     private let onDateSelected: ((Date) -> Void)?
-    private let calendar = Calendar.current
 
     init(
-        measuredDates: [Date] = [],
+        dailyStatuses: [DailyStatus] = [],
+        today: String = "",
         onDateSelected: ((Date) -> Void)? = nil
     ) {
-        self.measuredDates = measuredDates
+        self.dailyStatuses = dailyStatuses
+        self.today = today
         self.onDateSelected = onDateSelected
     }
-    
-    private var weekDates: [Date] {
-        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: Date()) else {
-            return []
-        }
-        
-        return (0..<7).compactMap {
-            calendar.date(byAdding: .day, value: $0, to: weekInterval.start)
-        }
-    }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             weekTitle
-            
+
             HStack(spacing: 8) {
-                ForEach(weekDates, id: \.self) { date in
-                    dayView(date)
+                ForEach(Array(dailyStatuses.enumerated()), id: \.offset) { index, status in
+                    dayView(status, weekdayIndex: index)
                 }
             }
         }
         .padding(20)
         .mainBoxStyle()
     }
-    
+
     // MARK: - SubView
-    
+
     private var weekTitle: some View {
         HStack(alignment: .bottom, spacing: 8) {
             Text(monthTitle)
                 .pretendardFont(.SubTitle)
-            
+
             Text(yearTitle)
                 .pretendardFont(.SectionTitle)
                 .padding(.bottom, 2)
         }
         .padding(.horizontal, 12)
     }
-    
-    // MARK: - Functions
-    
-    private func dayView(_ date: Date) -> some View {
-        let isToday = calendar.isDateInToday(date)
-        let hasMeasuredRecord = measuredDates.contains {
-            calendar.isDate($0, inSameDayAs: date)
-        }
-        
-        let cell = VStack(spacing: 8) {
-            Text(weekdayText(from: date))
-                .pretendardFont(.BlockText)
-                .foregroundStyle(hasMeasuredRecord ? weekdayColor(from: date) : .gray)
 
-            Text(dayText(from: date))
+    // MARK: - Functions
+
+    private func dayView(_ status: DailyStatus, weekdayIndex: Int) -> some View {
+        let isToday = (status.date == today)
+
+        let cell = VStack(spacing: 8) {
+            Text(status.dayOfWeekKor)
+                .pretendardFont(.BlockText)
+                .foregroundStyle(weekdayColor(for: weekdayIndex))
+
+            Text(dayText(from: status.date))
                 .pretendardFont(.Description)
                 .frame(width: 36, height: 36)
                 .background {
@@ -84,14 +73,16 @@ struct WeekCalendarView: View {
                             .fill(.gray03)
                     }
                 }
-                .foregroundStyle(dayTextColor(hasMeasuredRecord: hasMeasuredRecord))
+                .foregroundStyle(status.hasMeasurement ? weekdayColor(for: weekdayIndex) : Color.gray)
         }
         .frame(maxWidth: .infinity)
 
         return Group {
-            if hasMeasuredRecord {
+            if status.hasMeasurement {
                 Button {
-                    onDateSelected?(date)
+                    if let date = Self.dateFormatter.date(from: status.date) {
+                        onDateSelected?(date)
+                    }
                 } label: {
                     cell
                 }
@@ -101,75 +92,59 @@ struct WeekCalendarView: View {
             }
         }
     }
-    
-    private func weekdayText(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "E"
-        return formatter.string(from: date)
-    }
-    
-    private func dayText(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "d"
-        return formatter.string(from: date)
-    }
-    
-    private func weekdayColor(from date: Date) -> Color {
-        let weekday = calendar.component(.weekday, from: date)
-        
-        switch weekday {
-        case 1:
-            return .red01
-        case 7:
-            return .blue01
-        default:
-            return .gray01
+
+    private func weekdayColor(for index: Int) -> Color {
+        switch index {
+        case 0: return .red01
+        case 6: return .blue01
+        default: return .gray01
         }
     }
-    
-    private func dayTextColor(
-        hasMeasuredRecord: Bool
-    ) -> Color {
-        if hasMeasuredRecord {
-            return .primary
-        }
-        
-        return .gray
+
+    private func dayText(from dateStr: String) -> String {
+        guard let date = Self.dateFormatter.date(from: dateStr) else { return "" }
+        return Self.dayNumberFormatter.string(from: date)
     }
-    
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.timeZone = TimeZone(identifier: "Asia/Seoul")
+        return f
+    }()
+
+    private static let dayNumberFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d"
+        f.timeZone = TimeZone(identifier: "Asia/Seoul")
+        return f
+    }()
+
     private var monthTitle: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "M월"
-        
         return formatter.string(from: Date())
     }
-    
+
     private var yearTitle: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "yyyy"
-        
         return formatter.string(from: Date())
     }
 }
 
 #Preview("Preview") {
-    struct ContentView: View {
-        private let measuredDates: [Date] = [
-            Date(),
-            Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-            Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+    WeekCalendarView(
+        dailyStatuses: [
+            DailyStatus(date: "2026-06-22", dayOfWeekKor: "일", hasMeasurement: false),
+            DailyStatus(date: "2026-06-23", dayOfWeekKor: "월", hasMeasurement: true),
+            DailyStatus(date: "2026-06-24", dayOfWeekKor: "화", hasMeasurement: false),
+            DailyStatus(date: "2026-06-25", dayOfWeekKor: "수", hasMeasurement: true),
+            DailyStatus(date: "2026-06-26", dayOfWeekKor: "목", hasMeasurement: false),
+            DailyStatus(date: "2026-06-27", dayOfWeekKor: "금", hasMeasurement: false),
+            DailyStatus(date: "2026-06-28", dayOfWeekKor: "토", hasMeasurement: false)
         ]
-        
-        var body: some View {
-            WeekCalendarView(
-                measuredDates: measuredDates
-            )
-        }
-    }
-    
-    return ContentView()
+    )
 }

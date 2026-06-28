@@ -10,43 +10,29 @@ import SwiftUI
 struct HomeView: View {
     // MARK: - Properties
     @Environment(NavigationRouter<HomeRoute>.self) private var router
-    @StateObject private var calendarViewModel = CalendarViewModel()
+    @StateObject private var weeklyStatusViewModel = WeeklyStatusViewModel()
 
-    private var measuredDates: [Date] { calendarViewModel.measuredDates }
-
-    private var homeStatus: HomeStatus {
-        if measuredDates.isEmpty {
-            return .noRecord
-        }
-        
-        let calendar = Calendar.current
-        let hasTodayRecord = measuredDates.contains {
-            calendar.isDateInToday($0)
-        }
-        
-        return hasTodayRecord ? .measuredToday : .notMeasuredToday
-    }
-    
     var body: some View {
         ZStack {
             background
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     topSection
                         .padding(.vertical, 26)
-                    
+
                     WeekCalendarView(
-                        measuredDates: measuredDates,
+                        dailyStatuses: weeklyStatusViewModel.weeklyStatus?.dailyStatuses ?? [],
+                        today: weeklyStatusViewModel.weeklyStatus?.today ?? "",
                         onDateSelected: { date in
                             router.push(.report(date))
                         }
                     )
-                    
+
                     StretchingView()
-                    
+
                     HealthNewsView()
-                    
+
                     TodayShoesRecommendView()
                     Spacer()
                 }
@@ -58,12 +44,12 @@ struct HomeView: View {
             .navigationBarBackButtonHidden()
         }
         .task {
-            await calendarViewModel.fetchMeasuredDates(for: Date())
+            await weeklyStatusViewModel.fetchWeeklyStatus()
         }
     }
-    
+
     // MARK: - SubView
-    
+
     private var background: some View {
         VStack {
             Rectangle()
@@ -74,28 +60,31 @@ struct HomeView: View {
             Spacer()
         }
     }
-    
+
     private var topSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(homeStatus.title)
+        let status = weeklyStatusViewModel.homeStatus
+
+        return VStack(alignment: .leading, spacing: 10) {
+            Text(status.title)
                 .pretendardFont(.SubTitle)
-            
-            Text(homeStatus.description)
+
+            Text(status.description)
                 .pretendardFont(.Description)
-            
+
             Spacer().frame(height: 10)
-            
+
             Button(action: {
-                switch homeStatus {
+                switch status {
                 case .noRecord, .notMeasuredToday:
                     router.push(.measurement)
-                    
+
                 case .measuredToday:
-                    // TODO: 결과 확인하러 가기
-                    break
+                    if let date = weeklyStatusViewModel.todayDate {
+                        router.push(.report(date))
+                    }
                 }
             }) {
-                Text(homeStatus.buttonText)
+                Text(status.buttonText)
                     .pretendardFont(.Description)
                     .padding(.horizontal, 15)
                     .padding(.vertical, 10)
