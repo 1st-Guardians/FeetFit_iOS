@@ -14,6 +14,11 @@ final class WeeklyStatusViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
+    var todayDate: Date? {
+        guard let today = weeklyStatus?.today else { return nil }
+        return Self.dateFormatter.date(from: today)
+    }
+
     var homeStatus: HomeStatus {
         guard let status = weeklyStatus else { return .noRecord }
         let todayHasMeasurement = status.dailyStatuses
@@ -23,6 +28,13 @@ final class WeeklyStatusViewModel: ObservableObject {
         if status.hasWeeklyMeasurement { return .notMeasuredToday }
         return .noRecord
     }
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.timeZone = TimeZone(identifier: "Asia/Seoul")
+        return f
+    }()
 
     func fetchWeeklyStatus() async {
         isLoading = true
