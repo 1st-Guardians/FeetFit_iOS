@@ -43,7 +43,7 @@ struct StretchingView: View {
             ForEach(viewModel.todos.indices, id: \.self) { index in
                 HStack(spacing: 10) {
                     Button {
-                        viewModel.todos[index].isCompleted.toggle()
+                        viewModel.toggleCompletion(at: index)
                     } label: {
                         Image(systemName: viewModel.todos[index].isCompleted ? "checkmark.circle.fill" : "circle")
                             .font(.system(size: 16))

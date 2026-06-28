@@ -26,4 +26,29 @@ final class StretchingViewModel: ObservableObject {
 
         isLoading = false
     }
+
+    func toggleCompletion(at index: Int) {
+        let todoId = todos[index].id
+        let previousIsCompleted = todos[index].isCompleted
+        let newIsCompleted = !previousIsCompleted
+
+        todos[index].isCompleted = newIsCompleted
+
+        Task {
+            do {
+                let updated = try await HomeAPI.shared.updateTodoCompletion(
+                    todoId: todoId,
+                    isCompleted: newIsCompleted
+                )
+                if let idx = todos.firstIndex(where: { $0.id == todoId }) {
+                    todos[idx] = updated
+                }
+            } catch {
+                if let idx = todos.firstIndex(where: { $0.id == todoId }) {
+                    todos[idx].isCompleted = previousIsCompleted
+                }
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
 }
