@@ -8,31 +8,36 @@
 import SwiftUI
 
 struct TodayShoesRecommendView: View {
-    private var shoesList: [String] = []
-    
+    @StateObject private var viewModel = ShoeRecommendViewModel()
+    @Environment(\.openURL) private var openURL
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("오늘의 측정 결과로 신발 추천 받기")
                     .pretendardFont(.BlockTitle)
                 Spacer()
-                
-                if !shoesList.isEmpty {
+
+                if !viewModel.shoes.isEmpty {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14))
                 }
             }
             .padding(.horizontal, 8)
-            
-            if !shoesList.isEmpty {
+
+            if !viewModel.shoes.isEmpty {
                 listView
             } else {
                 emptyView
             }
         }
+        .task {
+            await viewModel.fetchRecommendations()
+        }
     }
-    
+
     // MARK: - SubView
+
     private var emptyView: some View {
         VStack(spacing: 10) {
             Text("아직 발 상태를 측정하지 않았어요")
@@ -45,11 +50,26 @@ struct TodayShoesRecommendView: View {
         .frame(maxWidth: .infinity)
         .mainBoxStyle()
     }
-    
+
     private var listView: some View {
-        VStack {
-            // TODO: 신발 리스트
+        VStack(spacing: 0) {
+            ForEach(Array(viewModel.shoes.enumerated()), id: \.element.id) { index, shoe in
+                Button {
+                    if let url = URL(string: shoe.shoeURL) {
+                        openURL(url)
+                    }
+                } label: {
+                    ShoeInfoView(shoe: shoe)
+                }
+                .buttonStyle(.plain)
+
+                if index != viewModel.shoes.count - 1 {
+                    Divider()
+                        .padding(.horizontal, 20)
+                }
+            }
         }
+        .mainBoxStyle()
     }
 }
 

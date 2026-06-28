@@ -79,6 +79,67 @@ final class HomeAPI {
         }
     }
 
+    func fetchShoeRecommendations() async throws -> [ShoeInfo] {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.request(.getShoeRecommendations) { result in
+                switch result {
+                case .success(let response):
+                    print("Shoe Recommendations statusCode:", response.statusCode)
+
+                    do {
+                        let decoded = try JSONDecoder().decode(
+                            BaseResponse<ShoeRecommendationsResultDTO>.self,
+                            from: response.data
+                        )
+
+                        guard decoded.isSuccess else {
+                            continuation.resume(
+                                throwing: APIError.serverError(decoded.message)
+                            )
+                            return
+                        }
+
+                        guard let result = decoded.result else {
+                            continuation.resume(
+                                throwing: APIError.serverError("추천 신발 응답이 비어 있습니다.")
+                            )
+                            return
+                        }
+
+                        continuation.resume(returning: result.shoes.map { $0.toDomain })
+                    } catch {
+                        print("Shoe Recommendations decoding error:", error)
+                        continuation.resume(throwing: APIError.decodingError)
+                    }
+
+                case .failure(let error):
+                    if let response = error.response {
+                        print("Shoe Recommendations failure statusCode:", response.statusCode)
+
+                        let errorResponse = try? JSONDecoder().decode(
+                            APIErrorResponse.self,
+                            from: response.data
+                        )
+
+                        if response.statusCode == 401 {
+                            continuation.resume(throwing: APIError.unauthorized)
+                            return
+                        }
+
+                        continuation.resume(
+                            throwing: APIError.serverError(
+                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            )
+                        )
+                        return
+                    }
+
+                    continuation.resume(throwing: APIError.from(error))
+                }
+            }
+        }
+    }
+
     func fetchArticles() async throws -> [HealthNews] {
         try await withCheckedThrowingContinuation { continuation in
             provider.request(.getArticles) { result in

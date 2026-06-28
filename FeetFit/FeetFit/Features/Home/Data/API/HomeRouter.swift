@@ -13,6 +13,7 @@ enum HomeRouter {
     case getStretchingTodos
     case getArticles
     case patchTodoCompletion(todoId: Int, isCompleted: Bool)
+    case getShoeRecommendations
 }
 
 extension HomeRouter: APITargetType {
@@ -24,13 +25,16 @@ extension HomeRouter: APITargetType {
             return "/api/articles"
         case .patchTodoCompletion(let todoId, _):
             return "/api/stretching-todos/\(todoId)/completion"
+        case .getShoeRecommendations:
+            return "/api/shoes/recommendations/top3"
         }
     }
 
     var method: Moya.Method {
         switch self {
         case .getStretchingTodos,
-             .getArticles:
+             .getArticles,
+             .getShoeRecommendations:
             return .get
         case .patchTodoCompletion:
             return .patch
@@ -40,7 +44,8 @@ extension HomeRouter: APITargetType {
     var task: Task {
         switch self {
         case .getStretchingTodos,
-             .getArticles:
+             .getArticles,
+             .getShoeRecommendations:
             return .requestPlain
         case .patchTodoCompletion(_, let isCompleted):
             return .requestParameters(
