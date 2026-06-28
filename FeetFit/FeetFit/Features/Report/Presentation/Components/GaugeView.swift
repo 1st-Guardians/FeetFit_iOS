@@ -89,18 +89,26 @@ struct GaugeView: View {
                             )
                         )
                     
-                    HStack(alignment: type.alignment, spacing: 2) {
-                        if type == .smell {
-                            Text("\(current, specifier: "%.2f")")
-                                .pretendardFont(.ScoreText)
-                        } else {
-                            Text("\(Int(current))")
-                                .pretendardFont(.ScoreText)
+                    HStack(alignment: .bottom, spacing: 2) {
+                        if !(type == .athletesFoot) {
+                            Text("약")
+                                .pretendardFont(.SectionTitle)
+                                .padding(.bottom, 8)
                         }
                         
-                        Text(type.unit)
-                            .pretendardFont(type.unitFont)
-                            .padding(.bottom, 8)
+                        HStack(alignment: type.alignment, spacing: 2) {
+                            if type == .smell {
+                                Text("\(current, specifier: "%.2f")")
+                                    .pretendardFont(.ScoreText)
+                            } else {
+                                Text("\(Int(current))")
+                                    .pretendardFont(.ScoreText)
+                            }
+                            
+                            Text(type.unit)
+                                .pretendardFont(type.unitFont)
+                                .padding(.bottom, type == .halluxValgus ? 0 : 8)
+                        }
                     }
                     .offset(y: 25)
                     .foregroundStyle(.black01)

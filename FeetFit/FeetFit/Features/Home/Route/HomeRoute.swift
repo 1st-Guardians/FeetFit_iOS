@@ -14,4 +14,5 @@ enum HomeRoute: Hashable {
     case measurementProgress
     case measurementExporting
     case measurementFinish
+    case report(Date)
 }

@@ -10,14 +10,10 @@ import SwiftUI
 struct HomeView: View {
     // MARK: - Properties
     @Environment(NavigationRouter<HomeRoute>.self) private var router
-    
-    // 임시
-    private let measuredDates: [Date] = [
-//        Date(),
-//        Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-//        Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-    ]
-    
+    @StateObject private var calendarViewModel = CalendarViewModel()
+
+    private var measuredDates: [Date] { calendarViewModel.measuredDates }
+
     private var homeStatus: HomeStatus {
         if measuredDates.isEmpty {
             return .noRecord
@@ -40,7 +36,12 @@ struct HomeView: View {
                     topSection
                         .padding(.vertical, 26)
                     
-                    WeekCalendarView(measuredDates: measuredDates)
+                    WeekCalendarView(
+                        measuredDates: measuredDates,
+                        onDateSelected: { date in
+                            router.push(.report(date))
+                        }
+                    )
                     
                     StretchingView()
                     
@@ -55,6 +56,9 @@ struct HomeView: View {
             .foregroundStyle(.black01)
             .frame(maxWidth: .infinity, alignment: .leading)
             .navigationBarBackButtonHidden()
+        }
+        .task {
+            await calendarViewModel.fetchMeasuredDates(for: Date())
         }
     }
     

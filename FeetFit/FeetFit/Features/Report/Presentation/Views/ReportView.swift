@@ -8,35 +8,36 @@
 import SwiftUI
 
 struct ReportView: View {
+    @StateObject private var calendarViewModel = CalendarViewModel()
     @State private var selectedMenu: ReportMenuType = .resultReport
     @State private var selectedDate: Date = Date()
-    
-    private let measuredDates: [Date] = [
-        Date(),
-        Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
-        Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-        Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
-        Calendar.current.date(byAdding: .day, value: -4, to: Date())!,
-        Calendar.current.date(byAdding: .day, value: -5, to: Date())!
-    ]
-    
+
     var body: some View {
         VStack {
             switch selectedMenu {
             case .resultReport:
                 ResultView(selectedDate: selectedDate)
-                
+                    .id(Calendar.current.startOfDay(for: selectedDate))
+
             case .summary:
                 SummaryView()
             }
         }
+        .task {
+            await calendarViewModel.fetchMeasuredDates(for: selectedDate)
+        }
         .toolbar {
             ToolBarCollection.ReportMenu(selection: $selectedMenu)
-            
+
             if selectedMenu == .resultReport {
                 ToolBarCollection.CalendarBtn(
                     selectedDate: $selectedDate,
-                    measuredDates: measuredDates
+                    measuredDates: calendarViewModel.measuredDates,
+                    onMonthChange: { monthDate in
+                        Task {
+                            await calendarViewModel.fetchMeasuredDates(for: monthDate)
+                        }
+                    }
                 )
             }
         }

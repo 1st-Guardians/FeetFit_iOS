@@ -101,11 +101,13 @@ struct ToolBarCollection {
 
     struct CalendarBtn: ToolbarContent {
         @Binding var selectedDate: Date
-        
+
         let measuredDates: [Date]
-        
+        var onMonthChange: ((Date) -> Void)? = nil
+        var onSelectDate: (() -> Void)? = nil
+
         @State private var isPresented: Bool = false
-        
+
         var body: some ToolbarContent {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -118,8 +120,10 @@ struct ToolBarCollection {
                         selectedDate: $selectedDate,
                         measuredDates: measuredDates,
                         onSelect: {
+                            onSelectDate?()
                             isPresented = false
-                        }
+                        },
+                        onMonthChange: onMonthChange
                     )
                     .frame(width: 340)
                     .presentationCompactAdaptation(.popover)

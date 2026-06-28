@@ -19,6 +19,14 @@ struct FootMeasurementProgressView: View {
             
             Spacer()
         }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolBarCollection.BackBtn {
+                viewModel.onMoveToFinish = nil
+                viewModel.disconnect()
+                router.reset()
+            }
+        }
         .onAppear {
             viewModel.onMoveToFinish = {
                 router.push(.measurementFinish)

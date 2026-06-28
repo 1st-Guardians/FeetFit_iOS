@@ -82,10 +82,9 @@ struct HalluxValgusResultView: View {
             } placeholder: {
                 ProgressView()
                     .frame(maxWidth: .infinity)
-                    .frame(height: 200)
+                    .frame(height: 150)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 200)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         } else {
             Rectangle()

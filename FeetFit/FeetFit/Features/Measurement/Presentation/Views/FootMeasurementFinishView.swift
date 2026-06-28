@@ -16,13 +16,19 @@ struct FootMeasurementFinishView: View {
                 message: "데이터 전송이\n완료되었습니다"
             )
             .padding(.bottom, 277)
-            
+
             MainButton("홈으로 돌아가기", action: {
                 router.reset()
             })
             .padding(.horizontal, 18)
-            
+
             Spacer()
+        }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolBarCollection.BackBtn {
+                router.reset()
+            }
         }
     }
 }
