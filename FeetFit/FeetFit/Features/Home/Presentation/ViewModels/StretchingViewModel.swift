@@ -14,6 +14,8 @@ final class StretchingViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
+    private var tapSequences: [Int: Int] = [:]
+
     func fetchTodos() async {
         isLoading = true
         errorMessage = nil
@@ -32,6 +34,9 @@ final class StretchingViewModel: ObservableObject {
         let previousIsCompleted = todos[index].isCompleted
         let newIsCompleted = !previousIsCompleted
 
+        tapSequences[todoId, default: 0] += 1
+        let seq = tapSequences[todoId]!
+
         todos[index].isCompleted = newIsCompleted
 
         Task {
@@ -40,10 +45,12 @@ final class StretchingViewModel: ObservableObject {
                     todoId: todoId,
                     isCompleted: newIsCompleted
                 )
+                guard tapSequences[todoId] == seq else { return }
                 if let idx = todos.firstIndex(where: { $0.id == todoId }) {
                     todos[idx] = updated
                 }
             } catch {
+                guard tapSequences[todoId] == seq else { return }
                 if let idx = todos.firstIndex(where: { $0.id == todoId }) {
                     todos[idx].isCompleted = previousIsCompleted
                 }
