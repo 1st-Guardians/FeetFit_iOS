@@ -11,13 +11,16 @@ struct WeekCalendarView: View {
     // MARK: - Properties
 
     private let dailyStatuses: [DailyStatus]
+    private let today: String
     private let onDateSelected: ((Date) -> Void)?
 
     init(
         dailyStatuses: [DailyStatus] = [],
+        today: String = "",
         onDateSelected: ((Date) -> Void)? = nil
     ) {
         self.dailyStatuses = dailyStatuses
+        self.today = today
         self.onDateSelected = onDateSelected
     }
 
@@ -54,7 +57,7 @@ struct WeekCalendarView: View {
     // MARK: - Functions
 
     private func dayView(_ status: DailyStatus, weekdayIndex: Int) -> some View {
-        let isToday = (status.date == todayString)
+        let isToday = (status.date == today)
 
         let cell = VStack(spacing: 8) {
             Text(status.dayOfWeekKor)
@@ -101,10 +104,6 @@ struct WeekCalendarView: View {
     private func dayText(from dateStr: String) -> String {
         guard let date = Self.dateFormatter.date(from: dateStr) else { return "" }
         return Self.dayNumberFormatter.string(from: date)
-    }
-
-    private var todayString: String {
-        Self.dateFormatter.string(from: Date())
     }
 
     private static let dateFormatter: DateFormatter = {

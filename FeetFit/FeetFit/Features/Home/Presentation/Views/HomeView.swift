@@ -23,6 +23,7 @@ struct HomeView: View {
 
                     WeekCalendarView(
                         dailyStatuses: weeklyStatusViewModel.weeklyStatus?.dailyStatuses ?? [],
+                        today: weeklyStatusViewModel.weeklyStatus?.today ?? "",
                         onDateSelected: { date in
                             router.push(.report(date))
                         }
