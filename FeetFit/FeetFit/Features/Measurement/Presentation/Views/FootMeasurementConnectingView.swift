@@ -30,6 +30,8 @@ struct FootMeasurementConnectingView: View {
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn {
+                viewModel.onMoveToProgress = nil
+                viewModel.disconnect()
                 router.reset()
             }
         }

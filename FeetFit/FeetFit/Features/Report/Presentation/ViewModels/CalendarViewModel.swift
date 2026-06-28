@@ -13,25 +13,33 @@ final class CalendarViewModel: ObservableObject {
     @Published var measuredDates: [Date] = []
     @Published var isLoadingMeasuredDates: Bool = false
     @Published var errorMessage: String?
-    
+
+    private var fetchSequence = 0
+
     func fetchMeasuredDates(for monthDate: Date) async {
+        fetchSequence += 1
+        let seq = fetchSequence
+
         isLoadingMeasuredDates = true
         errorMessage = nil
-        
+
         let calendar = Calendar.current
         let year = calendar.component(.year, from: monthDate)
         let month = calendar.component(.month, from: monthDate)
-        
+
         do {
-            measuredDates = try await ReportAPI.shared.fetchMeasuredDates(
+            let dates = try await ReportAPI.shared.fetchMeasuredDates(
                 year: year,
                 month: month
             )
+            guard fetchSequence == seq else { return }
+            measuredDates = dates
         } catch {
+            guard fetchSequence == seq else { return }
             errorMessage = error.localizedDescription
             measuredDates = []
         }
-        
+
         isLoadingMeasuredDates = false
     }
 }
