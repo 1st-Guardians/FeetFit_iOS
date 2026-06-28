@@ -11,6 +11,7 @@ import Moya
 
 enum MeasurementRouter {
     case postSessions
+    case getWeeklyStatus
 }
 
 extension MeasurementRouter: APITargetType {
@@ -18,19 +19,24 @@ extension MeasurementRouter: APITargetType {
         switch self {
         case .postSessions:
             return "/api/measurement-sessions"
+        case .getWeeklyStatus:
+            return "/api/measurement-sessions/weekly-status"
         }
     }
-    
+
     var method: Moya.Method {
         switch self {
         case .postSessions:
             return .post
+        case .getWeeklyStatus:
+            return .get
         }
     }
-    
+
     var task: Task {
         switch self {
-        case .postSessions:
+        case .postSessions,
+             .getWeeklyStatus:
             return .requestPlain
         }
     }
