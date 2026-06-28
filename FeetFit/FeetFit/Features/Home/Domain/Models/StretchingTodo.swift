@@ -5,10 +5,13 @@
 //  Created by 김미주 on 5/20/26.
 //
 
-import SwiftUI
+import Foundation
 
 struct StretchingTodo: Identifiable {
-    let id = UUID()
+    let id: Int
     let title: String
-    var isCompleted: Bool = false
+    let healthType: String
+    let youtubeUrl: String
+    var isCompleted: Bool
+    let todoDate: String
 }
