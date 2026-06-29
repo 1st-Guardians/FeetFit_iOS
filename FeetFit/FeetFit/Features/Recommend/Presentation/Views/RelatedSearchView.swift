@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RelatedSearchView: View {
     let shoes: [ShoeInfo]
+    let onShoeTap: (ShoeInfo) -> Void
     
     private var hasResult: Bool {
         !shoes.isEmpty
@@ -25,8 +26,11 @@ struct RelatedSearchView: View {
             
             if hasResult {
                 ScrollView {
-                    ShoeListView(shoes: shoes)
-                        .padding(.bottom, 70)
+                    ShoeListView(
+                        shoes: shoes,
+                        onShoeTap: onShoeTap
+                    )
+                    .padding(.bottom, 70)
                 }
             } else {
                 Spacer()
@@ -38,5 +42,8 @@ struct RelatedSearchView: View {
 }
 
 #Preview {
-    RelatedSearchView(shoes: [])
+    RelatedSearchView(
+        shoes: [],
+        onShoeTap: { _ in }
+    )
 }
