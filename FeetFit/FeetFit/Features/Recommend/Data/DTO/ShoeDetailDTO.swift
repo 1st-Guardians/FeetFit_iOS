@@ -32,19 +32,22 @@ struct ShoeFitReasonDTO: Decodable {
 
 extension ShoeDetailResultDTO {
     func toDomain() -> ShoeDetailInfo {
-        let fitPoints = reasons.enumerated().map { index, reason in
-            ShoeFitPoint(
+        let fitPoints = reasons.enumerated().compactMap { index, reason -> ShoeFitPoint? in
+            guard let type = reason.reasonType.toFitPointType() else { return nil }
+            return ShoeFitPoint(
                 id: index,
-                type: reason.reasonType.toFitPointType(),
+                type: type,
                 status: reason.riskLevel.toMainBoxStatus()
             )
         }
-        
-        let analysisCards = reasons.enumerated().map { index, reason in
-            ShoeFitAnalysis(
+
+        let analysisCards = reasons.enumerated().compactMap { index, reason -> ShoeFitAnalysis? in
+            let status = reason.riskLevel.toMainBoxStatus()
+            if case .none = status { return nil }
+            return ShoeFitAnalysis(
                 id: index,
                 title: reason.title,
-                status: reason.riskLevel.toMainBoxStatus(),
+                status: status,
                 reviewQuotes: reason.reviewTexts,
                 description: reason.reviewSummary
             )
@@ -69,29 +72,21 @@ extension ShoeDetailResultDTO {
 }
 
 private extension String {
-    func toFitPointType() -> ShoeFitPointType {
+    func toFitPointType() -> ShoeFitPointType? {
         switch self {
-        case "FOREFOOT":
-            return .width
-        case "HEEL":
-            return .heel
-        case "INSOLE":
-            return .insole
-        default:
-            return .width
+        case "FOREFOOT": return .width
+        case "HEEL": return .heel
+        case "INSOLE": return .insole
+        default: return nil
         }
     }
-    
+
     func toMainBoxStatus() -> MainBoxStatus {
         switch self {
-        case "LOW":
-            return .good
-        case "MEDIUM":
-            return .warn
-        case "HIGH":
-            return .bad
-        default:
-            return .good
+        case "LOW": return .good
+        case "MEDIUM": return .warn
+        case "HIGH": return .bad
+        default: return .none
         }
     }
 }

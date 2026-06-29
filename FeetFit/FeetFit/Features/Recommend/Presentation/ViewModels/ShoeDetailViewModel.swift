@@ -26,59 +26,61 @@ final class ShoeDetailViewModel: ObservableObject {
     }
     
     func fetchDetail() {
+        shoe = nil
         isLoading = true
         errorMessage = nil
-        
+
         shoeProvider.request(.getShoeDetail(shoeId: shoeId)) { [weak self] result in
             guard let self else { return }
-            
-            DispatchQueue.main.async {
-                self.isLoading = false
-            }
-            
+
             switch result {
             case .success(let response):
                 do {
                     print("신발 상세 조회 statusCode:", response.statusCode)
-                    
+
                     let decodedData = try JSONDecoder().decode(
                         BaseResponse<ShoeDetailResultDTO>.self,
                         from: response.data
                     )
-                    
+
                     guard decodedData.isSuccess else {
                         DispatchQueue.main.async {
+                            self.isLoading = false
                             self.errorMessage = decodedData.message
                             ToastManager.shared.show(decodedData.message)
                         }
                         return
                     }
-                    
+
                     guard let result = decodedData.result else {
                         DispatchQueue.main.async {
+                            self.isLoading = false
                             self.errorMessage = "신발 상세 응답이 비어 있습니다."
                             ToastManager.shared.show("신발 상세 응답이 비어 있습니다.")
                         }
                         return
                     }
-                    
+
                     DispatchQueue.main.async {
+                        self.isLoading = false
                         self.shoe = result.toDomain()
                     }
-                    
+
                 } catch {
                     print("신발 상세 디코더 오류:", error)
-                    
+
                     DispatchQueue.main.async {
+                        self.isLoading = false
                         self.errorMessage = "신발 상세 정보를 처리하지 못했습니다."
                         ToastManager.shared.show("신발 상세 정보를 처리하지 못했습니다.")
                     }
                 }
-                
+
             case .failure(let error):
                 print("신발 상세 API 오류:", error)
-                
+
                 DispatchQueue.main.async {
+                    self.isLoading = false
                     self.errorMessage = "신발 상세 정보를 불러오지 못했습니다."
                     ToastManager.shared.show("신발 상세 정보를 불러오지 못했습니다.")
                 }
