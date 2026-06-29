@@ -14,9 +14,11 @@ struct ShoeDetailInfo: Identifiable, Codable {
     let name: String
     let price: Int
     let rating: Double
-    let fitScore: Int
+    let fitScore: Double?
     let interestCount: Int
+    let reviewCount: Int
     let imageURL: String
+    let shoeURL: String
     
     let summary: String
     let fitPoints: [ShoeFitPoint]
@@ -31,6 +33,10 @@ struct ShoeDetailInfo: Identifiable, Codable {
     }
     
     var formattedFitScore: String {
-        "\(fitScore)%"
+        guard let fitScore else {
+            return "-"
+        }
+        
+        return String(format: "%.1f", fitScore)
     }
 }

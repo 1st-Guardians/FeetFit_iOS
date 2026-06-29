@@ -9,11 +9,17 @@ import SwiftUI
 
 struct ShoeListView: View {
     let shoes: [ShoeInfo]
+    var onShoeTap: (ShoeInfo) -> Void = { _ in }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(shoes.indices, id: \.self) { index in
-                ShoeInfoView(shoe: shoes[index])
+                Button {
+                    onShoeTap(shoes[index])
+                } label: {
+                    ShoeInfoView(shoe: shoes[index])
+                }
+                .buttonStyle(.plain)
                 
                 if index != shoes.indices.last {
                     Divider()

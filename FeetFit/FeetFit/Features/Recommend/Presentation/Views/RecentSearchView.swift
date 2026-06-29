@@ -29,7 +29,7 @@ struct RecentSearchView: View {
                     .padding(.top, 12)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(recentKeywords, id: \.self) { keyword in
                             HStack(spacing: 8) {
                                 Button {
@@ -51,6 +51,7 @@ struct RecentSearchView: View {
                                 }
                                 .buttonStyle(.plain)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 12)
                             
@@ -58,12 +59,14 @@ struct RecentSearchView: View {
                                 .padding(.horizontal, 20)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white)
     }
 }

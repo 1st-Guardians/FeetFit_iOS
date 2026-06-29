@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchResultView: View {
     let shoes: [ShoeInfo]
+    let onShoeTap: (ShoeInfo) -> Void
     
     private var hasResult: Bool {
         !shoes.isEmpty
@@ -25,8 +26,11 @@ struct SearchResultView: View {
             
             if hasResult {
                 ScrollView {
-                    ShoeListView(shoes: shoes)
-                        .padding(.bottom, 70)
+                    ShoeListView(
+                        shoes: shoes,
+                        onShoeTap: onShoeTap
+                    )
+                    .padding(.bottom, 70)
                 }
             } else {
                 Text("해당하는 검색 결과가 없습니다.")
@@ -44,5 +48,8 @@ struct SearchResultView: View {
 }
 
 #Preview {
-    SearchResultView(shoes: [])
+    SearchResultView(
+        shoes: [],
+        onShoeTap: { _ in }
+    )
 }

@@ -8,29 +8,25 @@
 import SwiftUI
 
 struct RecommendListView: View {
+    @ObservedObject var viewModel: RecommendListViewModel
+    
+    let onShoeTap: (ShoeInfo) -> Void
+    
     @State private var searchText: String = ""
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
     
-    @State private var recentKeywords: [String] = ["나이키", "척테일러"]
-    
-    @StateObject private var viewModel = RecommendListViewModel()
-    
-    private var filteredShoes: [ShoeInfo] {
-        let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard !keyword.isEmpty else {
+    private var currentShoes: [ShoeInfo] {
+        switch searchMode {
+        case .list:
             return viewModel.shoes
+            
+        case .recent:
+            return []
+            
+        case .related, .result:
+            return viewModel.searchResults
         }
-
-        return viewModel.shoes.filter {
-            $0.brand.localizedCaseInsensitiveContains(keyword) ||
-            $0.name.localizedCaseInsensitiveContains(keyword)
-        }
-    }
-
-    private var sortedShoes: [ShoeInfo] {
-        filteredShoes
     }
     
     var body: some View {
@@ -47,13 +43,11 @@ struct RecommendListView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
         }
-        .task {
-            await viewModel.fetchShoes()
+        .onAppear {
+            viewModel.fetchInitialData()
         }
         .onChange(of: viewModel.selectedSortType) { _, _ in
-            Task {
-                await viewModel.reloadShoes()
-            }
+            viewModel.reloadShoes()
         }
         .onChange(of: searchText) { _, newValue in
             handleSearchTextChange(newValue)
@@ -68,22 +62,29 @@ struct RecommendListView: View {
             
         case .recent:
             RecentSearchView(
-                recentKeywords: recentKeywords,
+                recentKeywords: viewModel.recentKeywords,
                 onSelectKeyword: { keyword in
-                    submittedSearchText = keyword
                     searchText = keyword
+                    submittedSearchText = keyword
                     searchMode = .result
+                    viewModel.searchShoes(keyword: keyword, page: 0)
                 },
                 onDeleteKeyword: { keyword in
-                    recentKeywords.removeAll { $0 == keyword }
+                    viewModel.removeRecentKeyword(keyword)
                 }
             )
             
         case .related:
-            RelatedSearchView(shoes: sortedShoes)
+            RelatedSearchView(
+                shoes: currentShoes,
+                onShoeTap: onShoeTap
+            )
             
         case .result:
-            SearchResultView(shoes: sortedShoes)
+            SearchResultView(
+                shoes: currentShoes,
+                onShoeTap: onShoeTap
+            )
         }
     }
     
@@ -94,9 +95,13 @@ struct RecommendListView: View {
             VStack(alignment: .leading, spacing: 0) {
                 topGroup
                     .padding([.bottom, .horizontal], 16)
+                
                 ScrollView {
-                    ShoeListView(shoes: sortedShoes)
-                        .padding(.bottom, 70)
+                    ShoeListView(
+                        shoes: viewModel.shoes,
+                        onShoeTap: onShoeTap
+                    )
+                    .padding(.bottom, 70)
                 }
             }
         }
@@ -121,11 +126,11 @@ struct RecommendListView: View {
                 .padding(.leading, 12)
             
             VStack(alignment: .leading, spacing: 0) {
-                Text("내 발에 맞는 신발을 추천해드릴게요")
+                Text("\(viewModel.nickname.isEmpty ? "내" : "\(viewModel.nickname)님의") 발에 맞는 신발을 추천해드릴게요")
                     .pretendardFont(.BlockTitle)
                     .padding(.bottom, 10)
                 
-                Text("발 측정 결과를 기반으로 적합도, 별점, 관심도 순으로 신발을 확인할 수 있어요.")
+                Text(viewModel.footTypeText ?? "발 측정 결과를 기반으로 적합도, 별점, 관심도 순으로 신발을 확인할 수 있어요.")
                     .pretendardFont(.BlockText)
             }
             .padding(20)
@@ -166,14 +171,18 @@ struct RecommendListView: View {
         
         if keyword.isEmpty {
             searchMode = .recent
+            viewModel.fetchSearchHistory()
         } else {
             searchMode = .related
+            viewModel.searchShoes(keyword: keyword, page: 0)
         }
     }
     
     private func handleSearchClear() {
         searchText = ""
+        submittedSearchText = ""
         searchMode = .list
+        viewModel.clearSearchResults()
     }
     
     private func handleSearchSubmit() {
@@ -181,11 +190,13 @@ struct RecommendListView: View {
         
         guard !keyword.isEmpty else {
             searchMode = .recent
+            viewModel.fetchSearchHistory()
             return
         }
         
         submittedSearchText = keyword
         searchMode = .result
+        viewModel.searchShoes(keyword: keyword, page: 0)
     }
     
     private func handleSearchTextChange(_ newValue: String) {
@@ -193,9 +204,11 @@ struct RecommendListView: View {
         
         guard !keyword.isEmpty else {
             submittedSearchText = ""
+            viewModel.clearSearchResults()
             
             if searchMode != .list {
                 searchMode = .recent
+                viewModel.fetchSearchHistory()
             }
             return
         }
@@ -214,5 +227,8 @@ struct RecommendListView: View {
 }
 
 #Preview {
-    RecommendListView()
+    RecommendListView(
+        viewModel: RecommendListViewModel(),
+        onShoeTap: { _ in }
+    )
 }

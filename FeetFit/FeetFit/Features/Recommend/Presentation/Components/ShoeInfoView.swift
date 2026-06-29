@@ -49,9 +49,12 @@ struct ShoeInfoView: View {
                 AsyncImage(url: url) { image in
                     image
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
+                        .frame(width: 78, height: 78)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                 } placeholder: {
                     ProgressView()
+                        .frame(width: 78, height: 78)
                 }
             } else {
                 Rectangle()
@@ -61,10 +64,10 @@ struct ShoeInfoView: View {
                             .font(.system(size: 24))
                             .foregroundStyle(.gray02)
                     }
+                    .frame(width: 78, height: 78)
             }
         }
         .frame(width: 78, height: 78)
         .mainBoxStyle()
     }
 }
-
