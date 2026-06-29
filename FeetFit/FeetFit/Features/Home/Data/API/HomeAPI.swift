@@ -88,7 +88,7 @@ final class HomeAPI {
 
                     do {
                         let decoded = try JSONDecoder().decode(
-                            BaseResponse<ShoeRecommendationsResultDTO>.self,
+                            BaseResponse<ShoeRecommendationResultDTO>.self,
                             from: response.data
                         )
 
@@ -106,7 +106,7 @@ final class HomeAPI {
                             return
                         }
 
-                        continuation.resume(returning: result.shoes.map { $0.toDomain })
+                        continuation.resume(returning: result.shoes.map { $0.toDomain() })
                     } catch {
                         print("Shoe Recommendations decoding error:", error)
                         continuation.resume(throwing: APIError.decodingError)
