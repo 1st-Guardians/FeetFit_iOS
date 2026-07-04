@@ -27,6 +27,7 @@ final class RecommendListViewModel: ObservableObject {
     
     private var searchCurrentPage: Int = 0
     private var searchHasNext: Bool = false
+    private var activeSearchKeyword: String = ""
     
     private let shoeProvider = APIManager.shared.createProvider(
         for: ShoeRoute.self,
@@ -121,9 +122,10 @@ final class RecommendListViewModel: ObservableObject {
     }
     
     func loadNextPageIfNeeded(currentShoe: ShoeInfo) {
+        guard !isLoading else { return }
         guard hasNext else { return }
         guard currentShoe.id == shoes.last?.id else { return }
-        
+
         fetchShoes(page: currentPage + 1)
     }
     
@@ -172,7 +174,15 @@ final class RecommendListViewModel: ObservableObject {
             clearSearchResults()
             return
         }
-        
+
+        activeSearchKeyword = trimmedKeyword
+
+        if page == 0 {
+            searchResults = []
+            searchCurrentPage = 0
+            searchHasNext = false
+        }
+
         shoeProvider.request(
             .searchShoes(
                 keyword: trimmedKeyword,
@@ -181,46 +191,49 @@ final class RecommendListViewModel: ObservableObject {
             )
         ) { [weak self] result in
             guard let self else { return }
-            
+            guard trimmedKeyword == self.activeSearchKeyword else { return }
+
             switch result {
             case .success(let response):
                 do {
                     print("신발 검색 statusCode:", response.statusCode)
-                    
+
                     let decodedData = try JSONDecoder().decode(
                         BaseResponse<ShoeSearchResultDTO>.self,
                         from: response.data
                     )
-                    
+
                     guard decodedData.isSuccess else {
                         DispatchQueue.main.async {
+                            guard trimmedKeyword == self.activeSearchKeyword else { return }
                             self.errorMessage = decodedData.message
                             ToastManager.shared.show(decodedData.message)
                         }
                         return
                     }
-                    
+
                     guard let result = decodedData.result else {
                         return
                     }
-                    
+
                     let mappedShoes = result.results.map { $0.toDomain() }
-                    
+
                     DispatchQueue.main.async {
+                        guard trimmedKeyword == self.activeSearchKeyword else { return }
                         if page == 0 {
                             self.searchResults = mappedShoes
                         } else {
                             self.searchResults += mappedShoes
                         }
-                        
+
                         self.searchCurrentPage = result.currentPage
                         self.searchHasNext = result.hasNext
                     }
-                    
+
                 } catch {
                     print("신발 검색 디코더 오류:", error)
                 }
-                
+
             case .failure(let error):
                 print("신발 검색 API 오류:", error)
             }
