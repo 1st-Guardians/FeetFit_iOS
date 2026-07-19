@@ -10,16 +10,20 @@ import SwiftUI
 struct ShoeListView: View {
     let shoes: [ShoeInfo]
     var onShoeTap: (ShoeInfo) -> Void = { _ in }
+    var onShoeAppear: (ShoeInfo) -> Void = { _ in }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(shoes.indices, id: \.self) { index in
                 Button {
                     onShoeTap(shoes[index])
                 } label: {
-                    ShoeInfoView(shoe: shoes[index])
+                     ShoeInfoView(shoe: shoes[index])
                 }
                 .buttonStyle(.plain)
+                .onAppear {
+                    onShoeAppear(shoes[index])
+                }
                 
                 if index != shoes.indices.last {
                     Divider()
@@ -28,4 +32,8 @@ struct ShoeListView: View {
             }
         }
     }
+}
+
+#Preview {
+    ShoeListView(shoes: [])
 }
