@@ -16,19 +16,6 @@ struct RecommendListView: View {
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
     
-    private var relatedShoes: [ShoeInfo] {
-        let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard !keyword.isEmpty else {
-            return []
-        }
-        
-        return viewModel.shoes.filter {
-            $0.brand.localizedCaseInsensitiveContains(keyword) ||
-            $0.name.localizedCaseInsensitiveContains(keyword)
-        }
-    }
-    
     private var currentShoes: [ShoeInfo] {
         switch searchMode {
         case .list:
@@ -38,7 +25,7 @@ struct RecommendListView: View {
             return []
             
         case .related:
-            return relatedShoes
+            return viewModel.relatedSearchResults
             
         case .result:
             return viewModel.searchResults
@@ -174,7 +161,7 @@ struct RecommendListView: View {
             .padding(.bottom, 18)
             
             HStack {
-                Text("\(viewModel.totalElements)개")
+                Text("\(viewModel.shoes.count)개")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
                 
@@ -193,6 +180,7 @@ struct RecommendListView: View {
             viewModel.fetchSearchHistory()
         } else {
             searchMode = .related
+            viewModel.searchShoeSuggestions(keyword: keyword, page: 0)
         }
     }
     
@@ -201,6 +189,7 @@ struct RecommendListView: View {
         submittedSearchText = ""
         searchMode = .list
         viewModel.clearSearchResults()
+        viewModel.clearRelatedSearchResults()
     }
     
     private func handleSearchSubmit() {
@@ -223,6 +212,7 @@ struct RecommendListView: View {
         guard !keyword.isEmpty else {
             submittedSearchText = ""
             viewModel.clearSearchResults()
+            viewModel.clearRelatedSearchResults()
             
             if searchMode != .list {
                 searchMode = .recent
@@ -234,12 +224,14 @@ struct RecommendListView: View {
         if searchMode == .result {
             if keyword != submittedSearchText {
                 searchMode = .related
+                viewModel.searchShoeSuggestions(keyword: keyword, page: 0)
             }
             return
         }
         
         if searchMode == .list || searchMode == .recent || searchMode == .related {
             searchMode = .related
+            viewModel.searchShoeSuggestions(keyword: keyword, page: 0)
         }
     }
 }

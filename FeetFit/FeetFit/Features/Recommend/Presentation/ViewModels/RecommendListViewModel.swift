@@ -12,6 +12,7 @@ import Moya
 final class RecommendListViewModel: ObservableObject {
     @Published var shoes: [ShoeInfo] = []
     @Published var searchResults: [ShoeInfo] = []
+    @Published var relatedSearchResults: [ShoeInfo] = []
     @Published var recentSearchHistories: [ShoeSearchHistoryDTO] = []
     
     @Published var topRecommendedShoes: [ShoeInfo] = []
@@ -21,13 +22,16 @@ final class RecommendListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var selectedSortType: ShoeSortType = .fit
-    @Published var totalElements: Int = 0
     
     private var currentPage: Int = 0
     private var hasNext: Bool = false
     
     private var searchCurrentPage: Int = 0
     private var searchHasNext: Bool = false
+    
+    private var relatedSearchCurrentPage: Int = 0
+    private var relatedSearchHasNext: Bool = false
+    private var latestSuggestionKeyword: String = ""
     
     private let shoeProvider = APIManager.shared.createProvider(
         for: ShoeRoute.self,
@@ -95,7 +99,6 @@ final class RecommendListViewModel: ObservableObject {
                         
                         self.currentPage = result.currentPage
                         self.hasNext = result.hasNext
-                        self.totalElements = result.totalElements
                     }
                     
                 } catch {
@@ -230,6 +233,73 @@ final class RecommendListViewModel: ObservableObject {
         }
     }
     
+    func searchShoeSuggestions(keyword: String, page: Int = 0) {
+        let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedKeyword.isEmpty else {
+            clearRelatedSearchResults()
+            return
+        }
+        
+        latestSuggestionKeyword = trimmedKeyword
+        
+        shoeProvider.request(
+            .searchShoeSuggestions(
+                keyword: trimmedKeyword,
+                page: page,
+                size: 20
+            )
+        ) { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let response):
+                do {
+                    print("연관 검색어 조회 statusCode:", response.statusCode)
+                    
+                    let decodedData = try JSONDecoder().decode(
+                        BaseResponse<ShoeSearchResultDTO>.self,
+                        from: response.data
+                    )
+                    
+                    guard decodedData.isSuccess else {
+                        DispatchQueue.main.async {
+                            self.errorMessage = decodedData.message
+                        }
+                        return
+                    }
+                    
+                    guard let result = decodedData.result else {
+                        return
+                    }
+                    
+                    let mappedShoes = result.results.map { $0.toDomain() }
+                    
+                    DispatchQueue.main.async {
+                        guard self.latestSuggestionKeyword == trimmedKeyword else {
+                            return
+                        }
+                        
+                        if page == 0 {
+                            self.relatedSearchResults = mappedShoes
+                        } else {
+                            self.relatedSearchResults += mappedShoes
+                        }
+                        
+                        self.relatedSearchCurrentPage = result.currentPage
+                        self.relatedSearchHasNext = result.hasNext
+                    }
+                    
+                } catch {
+                    print("연관 검색어 디코더 오류:", error)
+                }
+                
+            case .failure(let error):
+                print("연관 검색어 API 오류:", error)
+            }
+        }
+    }
+    
     func fetchSearchHistory() {
         shoeProvider.request(.getSearchHistory) { [weak self] result in
             guard let self else { return }
@@ -316,6 +386,13 @@ final class RecommendListViewModel: ObservableObject {
         searchResults = []
         searchCurrentPage = 0
         searchHasNext = false
+    }
+    
+    func clearRelatedSearchResults() {
+        relatedSearchResults = []
+        relatedSearchCurrentPage = 0
+        relatedSearchHasNext = false
+        latestSuggestionKeyword = ""
     }
     
     func fetchFootTypeText() {

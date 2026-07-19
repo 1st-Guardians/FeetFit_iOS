@@ -18,7 +18,7 @@ struct ShoeListView: View {
                 Button {
                     onShoeTap(shoes[index])
                 } label: {
-                     ShoeInfoView(shoe: shoes[index])
+                    ShoeInfoView(shoe: shoes[index])
                 }
                 .buttonStyle(.plain)
                 .onAppear {
