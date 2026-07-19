@@ -161,7 +161,7 @@ struct RecommendListView: View {
             .padding(.bottom, 18)
             
             HStack {
-                Text("\(viewModel.shoes.count)개")
+                Text("\(viewModel.totalElements)개")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
                 

@@ -22,16 +22,18 @@ final class RecommendListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var selectedSortType: ShoeSortType = .fit
+    @Published var totalElements: Int = 0
     
     private var currentPage: Int = 0
     private var hasNext: Bool = false
     
     private var searchCurrentPage: Int = 0
     private var searchHasNext: Bool = false
+    private var activeSearchKeyword: String = ""
     
     private var relatedSearchCurrentPage: Int = 0
     private var relatedSearchHasNext: Bool = false
-    private var latestSuggestionKeyword: String = ""
+    private var activeSuggestionKeyword: String = ""
     
     private let shoeProvider = APIManager.shared.createProvider(
         for: ShoeRoute.self,
@@ -99,6 +101,7 @@ final class RecommendListViewModel: ObservableObject {
                         
                         self.currentPage = result.currentPage
                         self.hasNext = result.hasNext
+                        self.totalElements = result.totalElements
                     }
                     
                 } catch {
@@ -174,9 +177,18 @@ final class RecommendListViewModel: ObservableObject {
     
     func searchShoes(keyword: String, page: Int = 0) {
         let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         guard !trimmedKeyword.isEmpty else {
             clearSearchResults()
             return
+        }
+        
+        activeSearchKeyword = trimmedKeyword
+        
+        if page == 0 {
+            searchResults = []
+            searchCurrentPage = 0
+            searchHasNext = false
         }
         
         shoeProvider.request(
@@ -187,6 +199,7 @@ final class RecommendListViewModel: ObservableObject {
             )
         ) { [weak self] result in
             guard let self else { return }
+            guard trimmedKeyword == self.activeSearchKeyword else { return }
             
             switch result {
             case .success(let response):
@@ -200,6 +213,7 @@ final class RecommendListViewModel: ObservableObject {
                     
                     guard decodedData.isSuccess else {
                         DispatchQueue.main.async {
+                            guard trimmedKeyword == self.activeSearchKeyword else { return }
                             self.errorMessage = decodedData.message
                             ToastManager.shared.show(decodedData.message)
                         }
@@ -213,6 +227,8 @@ final class RecommendListViewModel: ObservableObject {
                     let mappedShoes = result.results.map { $0.toDomain() }
                     
                     DispatchQueue.main.async {
+                        guard trimmedKeyword == self.activeSearchKeyword else { return }
+                        
                         if page == 0 {
                             self.searchResults = mappedShoes
                         } else {
@@ -241,7 +257,13 @@ final class RecommendListViewModel: ObservableObject {
             return
         }
         
-        latestSuggestionKeyword = trimmedKeyword
+        activeSuggestionKeyword = trimmedKeyword
+        
+        if page == 0 {
+            relatedSearchResults = []
+            relatedSearchCurrentPage = 0
+            relatedSearchHasNext = false
+        }
         
         shoeProvider.request(
             .searchShoeSuggestions(
@@ -251,6 +273,7 @@ final class RecommendListViewModel: ObservableObject {
             )
         ) { [weak self] result in
             guard let self else { return }
+            guard trimmedKeyword == self.activeSuggestionKeyword else { return }
             
             switch result {
             case .success(let response):
@@ -264,6 +287,7 @@ final class RecommendListViewModel: ObservableObject {
                     
                     guard decodedData.isSuccess else {
                         DispatchQueue.main.async {
+                            guard trimmedKeyword == self.activeSuggestionKeyword else { return }
                             self.errorMessage = decodedData.message
                         }
                         return
@@ -276,9 +300,7 @@ final class RecommendListViewModel: ObservableObject {
                     let mappedShoes = result.results.map { $0.toDomain() }
                     
                     DispatchQueue.main.async {
-                        guard self.latestSuggestionKeyword == trimmedKeyword else {
-                            return
-                        }
+                        guard trimmedKeyword == self.activeSuggestionKeyword else { return }
                         
                         if page == 0 {
                             self.relatedSearchResults = mappedShoes
@@ -386,13 +408,14 @@ final class RecommendListViewModel: ObservableObject {
         searchResults = []
         searchCurrentPage = 0
         searchHasNext = false
+        activeSearchKeyword = ""
     }
     
     func clearRelatedSearchResults() {
         relatedSearchResults = []
         relatedSearchCurrentPage = 0
         relatedSearchHasNext = false
-        latestSuggestionKeyword = ""
+        activeSuggestionKeyword = ""
     }
     
     func fetchFootTypeText() {
