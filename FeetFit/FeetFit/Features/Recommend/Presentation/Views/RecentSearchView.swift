@@ -3,14 +3,14 @@
 //  FeetFit
 //
 //  Created by 이채은 on 5/26/26.
-//
+//[
 
 import SwiftUI
 
 struct RecentSearchView: View {
-    let recentKeywords: [String]
+    let histories: [ShoeSearchHistoryDTO]
     let onSelectKeyword: (String) -> Void
-    let onDeleteKeyword: (String) -> Void
+    let onDeleteHistory: (Int) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -21,7 +21,7 @@ struct RecentSearchView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 13)
             
-            if recentKeywords.isEmpty {
+            if histories.isEmpty {
                 Text("최근 검색 기록이 없습니다.")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
@@ -30,10 +30,10 @@ struct RecentSearchView: View {
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(recentKeywords, id: \.self) { keyword in
+                        ForEach(histories) { history in
                             HStack(spacing: 8) {
                                 Button {
-                                    onDeleteKeyword(keyword)
+                                    onDeleteHistory(history.id)
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
                                         .font(.system(size: 16))
@@ -42,9 +42,9 @@ struct RecentSearchView: View {
                                 .buttonStyle(.plain)
                                 
                                 Button {
-                                    onSelectKeyword(keyword)
+                                    onSelectKeyword(history.keyword)
                                 } label: {
-                                    Text(keyword)
+                                    Text(history.keyword)
                                         .pretendardFont(.BlockText)
                                         .foregroundStyle(.black)
                                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -73,8 +73,11 @@ struct RecentSearchView: View {
 
 #Preview {
     RecentSearchView(
-        recentKeywords: ["나이키", "척테일러"],
+        histories: [
+            ShoeSearchHistoryDTO(id: 1, keyword: "나이키"),
+            ShoeSearchHistoryDTO(id: 2, keyword: "척테일러")
+        ],
         onSelectKeyword: { _ in },
-        onDeleteKeyword: { _ in }
+        onDeleteHistory: { _ in }
     )
 }

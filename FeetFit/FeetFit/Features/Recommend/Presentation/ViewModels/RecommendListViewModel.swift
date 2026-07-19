@@ -12,7 +12,7 @@ import Moya
 final class RecommendListViewModel: ObservableObject {
     @Published var shoes: [ShoeInfo] = []
     @Published var searchResults: [ShoeInfo] = []
-    @Published var recentKeywords: [String] = []
+    @Published var recentSearchHistories: [ShoeSearchHistoryDTO] = []
     
     @Published var topRecommendedShoes: [ShoeInfo] = []
     @Published var footTypeText: String?
@@ -263,7 +263,7 @@ final class RecommendListViewModel: ObservableObject {
                     }
                     
                     DispatchQueue.main.async {
-                        self.recentKeywords = result.histories.map { $0.keyword }
+                        self.recentSearchHistories = result.histories
                     }
                     
                 } catch {
@@ -276,8 +276,50 @@ final class RecommendListViewModel: ObservableObject {
         }
     }
     
-    func removeRecentKeyword(_ keyword: String) {
-        recentKeywords.removeAll { $0 == keyword }
+    func deleteSearchHistory(historyId: Int) {
+        shoeProvider.request(.deleteSearchHistory(historyId: historyId)) { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let response):
+                do {
+                    print("검색 기록 삭제 statusCode:", response.statusCode)
+                    
+                    let decodedData = try JSONDecoder().decode(
+                        BaseResponse<EmptyResultDTO>.self,
+                        from: response.data
+                    )
+                    
+                    guard decodedData.isSuccess else {
+                        DispatchQueue.main.async {
+                            self.errorMessage = decodedData.message
+                            ToastManager.shared.show(decodedData.message)
+                        }
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.recentSearchHistories.removeAll { $0.id == historyId }
+                    }
+                    
+                } catch {
+                    print("검색 기록 삭제 디코더 오류:", error)
+                    
+                    DispatchQueue.main.async {
+                        self.errorMessage = "검색 기록 삭제 응답을 처리하지 못했습니다."
+                        ToastManager.shared.show("검색 기록 삭제 응답을 처리하지 못했습니다.")
+                    }
+                }
+                
+            case .failure(let error):
+                print("검색 기록 삭제 API 오류:", error)
+                
+                DispatchQueue.main.async {
+                    self.errorMessage = "검색 기록을 삭제하지 못했습니다."
+                    ToastManager.shared.show("검색 기록을 삭제하지 못했습니다.")
+                }
+            }
+        }
     }
     
     func clearSearchResults() {

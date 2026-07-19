@@ -16,6 +16,7 @@ enum ShoeRoute {
     case getShoeDetail(shoeId: Int)
     case searchShoes(keyword: String, page: Int, size: Int)
     case getSearchHistory
+    case deleteSearchHistory(historyId: Int)
     case getFootTypeText
 }
 
@@ -40,6 +41,9 @@ extension ShoeRoute: APITargetType {
         case .getSearchHistory:
             return "/api/shoes/search/history"
             
+        case .deleteSearchHistory(let historyId):
+            return "/api/shoes/search/history/\(historyId)"
+            
         case .getFootTypeText:
             return "/api/reports/foot-type-text"
         }
@@ -57,6 +61,9 @@ extension ShoeRoute: APITargetType {
             
         case .registerClick:
             return .post
+            
+        case .deleteSearchHistory:
+            return .delete
         }
     }
     
@@ -66,6 +73,7 @@ extension ShoeRoute: APITargetType {
              .registerClick,
              .getShoeDetail,
              .getSearchHistory,
+             .deleteSearchHistory,
              .getFootTypeText:
             return .requestPlain
             

@@ -62,15 +62,14 @@ struct RecommendListView: View {
             
         case .recent:
             RecentSearchView(
-                recentKeywords: viewModel.recentKeywords,
+                histories: viewModel.recentSearchHistories,
                 onSelectKeyword: { keyword in
-                    searchText = keyword
                     submittedSearchText = keyword
+                    searchText = keyword
                     searchMode = .result
-                    viewModel.searchShoes(keyword: keyword, page: 0)
                 },
-                onDeleteKeyword: { keyword in
-                    viewModel.removeRecentKeyword(keyword)
+                onDeleteHistory: { historyId in
+                    viewModel.deleteSearchHistory(historyId: historyId)
                 }
             )
             
