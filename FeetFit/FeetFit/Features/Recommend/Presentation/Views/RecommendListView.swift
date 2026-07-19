@@ -24,7 +24,10 @@ struct RecommendListView: View {
         case .recent:
             return []
             
-        case .related, .result:
+        case .related:
+            return viewModel.relatedSearchResults
+            
+        case .result:
             return viewModel.searchResults
         }
     }
@@ -67,6 +70,7 @@ struct RecommendListView: View {
                     submittedSearchText = keyword
                     searchText = keyword
                     searchMode = .result
+                    viewModel.searchShoes(keyword: keyword, page: 0)
                 },
                 onDeleteHistory: { historyId in
                     viewModel.deleteSearchHistory(historyId: historyId)
@@ -98,7 +102,10 @@ struct RecommendListView: View {
                 ScrollView {
                     ShoeListView(
                         shoes: viewModel.shoes,
-                        onShoeTap: onShoeTap
+                        onShoeTap: onShoeTap,
+                        onShoeAppear: { shoe in
+                            viewModel.loadNextPageIfNeeded(currentShoe: shoe)
+                        }
                     )
                     .padding(.bottom, 70)
                 }
@@ -154,7 +161,7 @@ struct RecommendListView: View {
             .padding(.bottom, 18)
             
             HStack {
-                Text("\(viewModel.shoes.count)개")
+                Text("\(viewModel.totalElements)개")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
                 
@@ -173,7 +180,7 @@ struct RecommendListView: View {
             viewModel.fetchSearchHistory()
         } else {
             searchMode = .related
-            viewModel.searchShoes(keyword: keyword, page: 0)
+            viewModel.searchShoeSuggestions(keyword: keyword, page: 0)
         }
     }
     
@@ -182,6 +189,7 @@ struct RecommendListView: View {
         submittedSearchText = ""
         searchMode = .list
         viewModel.clearSearchResults()
+        viewModel.clearRelatedSearchResults()
     }
     
     private func handleSearchSubmit() {
@@ -204,6 +212,7 @@ struct RecommendListView: View {
         guard !keyword.isEmpty else {
             submittedSearchText = ""
             viewModel.clearSearchResults()
+            viewModel.clearRelatedSearchResults()
             
             if searchMode != .list {
                 searchMode = .recent
@@ -215,12 +224,14 @@ struct RecommendListView: View {
         if searchMode == .result {
             if keyword != submittedSearchText {
                 searchMode = .related
+                viewModel.searchShoeSuggestions(keyword: keyword, page: 0)
             }
             return
         }
         
-        if searchMode == .list || searchMode == .recent {
+        if searchMode == .list || searchMode == .recent || searchMode == .related {
             searchMode = .related
+            viewModel.searchShoeSuggestions(keyword: keyword, page: 0)
         }
     }
 }
