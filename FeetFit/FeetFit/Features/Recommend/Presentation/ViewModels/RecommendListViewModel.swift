@@ -35,16 +35,41 @@ final class RecommendListViewModel: ObservableObject {
     private var relatedSearchHasNext: Bool = false
     private var activeSuggestionKeyword: String = ""
     
+    private var didLoadInitialData: Bool = false
+    
     private let shoeProvider = APIManager.shared.createProvider(
         for: ShoeRoute.self,
         withAuth: true
     )
     
     func fetchInitialData() {
-        fetchFootTypeText()
-        fetchTopRecommendations()
-        fetchShoes(page: 0)
+        guard !didLoadInitialData else { return }
+        didLoadInitialData = true
+        
         fetchSearchHistory()
+        
+        fetchFootTypeText { [weak self] hasMeasurement in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                self.selectedSortType = hasMeasurement ? .fit : .rating
+                
+                if hasMeasurement {
+                    self.fetchTopRecommendations()
+                } else {
+                    self.topRecommendedShoes = []
+                }
+                
+                self.fetchShoes(page: 0)
+            }
+        }
+    }
+    
+    func updateSortType(_ sortType: ShoeSortType) {
+        guard selectedSortType != sortType else { return }
+        
+        selectedSortType = sortType
+        fetchShoes(page: 0)
     }
     
     func fetchShoes(page: Int = 0) {
@@ -418,7 +443,7 @@ final class RecommendListViewModel: ObservableObject {
         activeSuggestionKeyword = ""
     }
     
-    func fetchFootTypeText() {
+    func fetchFootTypeText(completion: ((Bool) -> Void)? = nil) {
         shoeProvider.request(.getFootTypeText) { [weak self] result in
             guard let self else { return }
             
@@ -433,24 +458,43 @@ final class RecommendListViewModel: ObservableObject {
                     )
                     
                     guard decodedData.isSuccess else {
+                        DispatchQueue.main.async {
+                            completion?(false)
+                        }
                         return
                     }
                     
                     guard let result = decodedData.result else {
+                        DispatchQueue.main.async {
+                            completion?(false)
+                        }
                         return
                     }
+                    
+                    let hasMeasurement = !(result.typeText ?? "")
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .isEmpty
                     
                     DispatchQueue.main.async {
                         self.nickname = result.nickname
                         self.footTypeText = result.typeText
+                        completion?(hasMeasurement)
                     }
                     
                 } catch {
                     print("발 타입 문구 디코더 오류:", error)
+                    
+                    DispatchQueue.main.async {
+                        completion?(false)
+                    }
                 }
                 
             case .failure(let error):
                 print("발 타입 문구 API 오류:", error)
+                
+                DispatchQueue.main.async {
+                    completion?(false)
+                }
             }
         }
     }
