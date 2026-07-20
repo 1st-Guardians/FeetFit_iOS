@@ -49,9 +49,6 @@ struct RecommendListView: View {
         .onAppear {
             viewModel.fetchInitialData()
         }
-        .onChange(of: viewModel.selectedSortType) { _, _ in
-            viewModel.reloadShoes()
-        }
         .onChange(of: searchText) { _, newValue in
             handleSearchTextChange(newValue)
         }
@@ -167,7 +164,16 @@ struct RecommendListView: View {
                 
                 Spacer()
                 
-                ShoeSortMenuButton(selectedSortType: $viewModel.selectedSortType)
+                ShoeSortMenuButton(
+                    selectedSortType: Binding(
+                        get: {
+                            viewModel.selectedSortType
+                        },
+                        set: { newValue in
+                            viewModel.updateSortType(newValue)
+                        }
+                    )
+                )
             }
         }
     }
