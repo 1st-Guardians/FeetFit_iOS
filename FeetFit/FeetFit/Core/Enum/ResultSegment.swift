@@ -8,9 +8,9 @@
 import Foundation
 
 enum ResultSegment: String, CaseIterable, Identifiable {
-    case overall = "종합 평가"
+    case overall = "종합평가"
     case halluxValgus = "무지외반"
-    case athletesFoot = "무좀"
+    case athletesFoot = "피부반응"
     
     var id: String {
         rawValue

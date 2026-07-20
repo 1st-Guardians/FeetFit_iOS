@@ -29,7 +29,7 @@ extension Font {
         let lineSpacing: CGFloat
 
         static var ScoreText: PretendardStyle {
-            PretendardStyle(font: .pretendard(type: .semibold, size: 42), lineSpacing: 0)
+            PretendardStyle(font: .pretendard(type: .semibold, size: 35), lineSpacing: 0)
         }
         static var Title: PretendardStyle {
             PretendardStyle(font: .pretendard(type: .bold, size: 24), lineSpacing: 8)

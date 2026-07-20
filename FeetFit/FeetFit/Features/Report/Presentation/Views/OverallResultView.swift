@@ -29,7 +29,6 @@ struct OverallResultView: View {
                     balanceSection(result)
                     pressureSection(result)
                     sizeSection(result)
-                    smellSection(result)
                     environmentSection(result)
                     manageTipSection(result)
                 }
@@ -82,14 +81,15 @@ struct OverallResultView: View {
         value: Int,
         imageUrl: String?
     ) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
-            VStack(spacing: 10) {
+        VStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .pretendardFont(.BlockTitle)
 
                 Text("\(value)%")
                     .pretendardFont(.ScoreText)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             pressureImageView(imageUrl)
         }
@@ -105,7 +105,7 @@ struct OverallResultView: View {
             AsyncImage(url: url) { image in
                 image
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
             } placeholder: {
                 ProgressView()
                     .frame(maxWidth: .infinity)
@@ -129,21 +129,6 @@ struct OverallResultView: View {
                 .background(.gray02)
 
             FootSizeTableView(rows: result.footSizeRows)
-        }
-        .padding(20)
-        .mainBoxStyle()
-    }
-
-    private func smellSection(_ result: DailyFootAnalysisResultDTO) -> some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text("발 냄새")
-                .pretendardFont(.BlockTitle)
-
-            GaugeView(type: .smell, current: result.footOdourCGFloat)
-                .frame(maxWidth: .infinity, alignment: .center)
-
-            Text(result.footOdourComment)
-                .pretendardFont(.BlockText)
         }
         .padding(20)
         .mainBoxStyle()

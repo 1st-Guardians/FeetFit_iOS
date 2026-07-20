@@ -132,7 +132,6 @@ struct ScoreView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(description)
                 .pretendardFont(.BlockText)
-                .lineLimit(5)
             
             Label(differenceText, systemImage: differenceIcon)
                 .pretendardFont(.BlockText)

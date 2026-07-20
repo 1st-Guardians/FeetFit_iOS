@@ -47,6 +47,7 @@ struct SummaryView: View {
                 Text(viewModel.totalScoreText)
                     .pretendardFont(.SubTitle)
 
+                // TODO: 발냄새, 무좀 수정 필요
                 TooltipButton(
                     message: """
                     각 항목은 **0~100점**으로 환산되며, 상태가 안정적일수록 높은 점수를 받아요.
