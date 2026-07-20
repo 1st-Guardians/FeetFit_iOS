@@ -44,9 +44,9 @@ extension MetricScoreDTO {
         case "HALLUX_VALGUS":
             return "무지외반"
         case "ATHLETES_FOOT":
-            return "무좀"
+            return "무좀 위험도"
         case "FOOT_ODOR":
-            return "발냄새"
+            return "피부 자극도"
         case "FOOT_ENVIRONMENT":
             return "환경 상태"
         default:

@@ -13,7 +13,7 @@ struct StretchingView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("스트레칭 TODO")
+            Text("발 관리 TODO")
                 .pretendardFont(.BlockTitle)
                 .padding(.leading, 8)
 
@@ -30,7 +30,7 @@ struct StretchingView: View {
 
     // MARK: - SubView
     private var emptyView: some View {
-        Text("아직 생성된 스트레칭 TODO가 없어요.\n발 상태를 측정해 보세요.")
+        Text("아직 생성된 발 관리 TODO가 없어요.\n발 상태를 측정해 보세요.")
             .multilineTextAlignment(.center)
             .pretendardFont(.Description)
             .frame(height: 150)
@@ -63,7 +63,7 @@ struct StretchingView: View {
                             openURL(url)
                         }
                     } label: {
-                        Image(systemName: "play.circle")
+                        Image(systemName: "play.rectangle")
                             .font(.system(size: 20))
                             .foregroundStyle(viewModel.todos[index].isCompleted ? .gray02 : .blue01)
                     }

@@ -213,9 +213,9 @@ struct AthletesFootResultView: View {
                     .pretendardFont(.BlockText)
             }
 
-            // 피부 반응 안정도
+            // 피부 자극 안정도
             VStack(alignment: .leading, spacing: 10) {
-                Text("피부 반응 안정도")
+                Text("피부 자극 안정도")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
                 GaugeView(
