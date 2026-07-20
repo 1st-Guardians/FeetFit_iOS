@@ -15,7 +15,9 @@ enum ShoeRoute {
     case registerClick(shoeId: Int)
     case getShoeDetail(shoeId: Int)
     case searchShoes(keyword: String, page: Int, size: Int)
+    case searchShoeSuggestions(keyword: String, page: Int, size: Int)
     case getSearchHistory
+    case deleteSearchHistory(historyId: Int)
     case getFootTypeText
 }
 
@@ -37,8 +39,14 @@ extension ShoeRoute: APITargetType {
         case .searchShoes:
             return "/api/shoes/search"
             
+        case .searchShoeSuggestions:
+            return "/api/shoes/search/suggestions"
+            
         case .getSearchHistory:
             return "/api/shoes/search/history"
+            
+        case .deleteSearchHistory(let historyId):
+            return "/api/shoes/search/history/\(historyId)"
             
         case .getFootTypeText:
             return "/api/reports/foot-type-text"
@@ -51,12 +59,16 @@ extension ShoeRoute: APITargetType {
              .getShoes,
              .getShoeDetail,
              .searchShoes,
+             .searchShoeSuggestions,
              .getSearchHistory,
              .getFootTypeText:
             return .get
             
         case .registerClick:
             return .post
+            
+        case .deleteSearchHistory:
+            return .delete
         }
     }
     
@@ -66,6 +78,7 @@ extension ShoeRoute: APITargetType {
              .registerClick,
              .getShoeDetail,
              .getSearchHistory,
+             .deleteSearchHistory,
              .getFootTypeText:
             return .requestPlain
             
@@ -79,7 +92,8 @@ extension ShoeRoute: APITargetType {
                 encoding: URLEncoding.queryString
             )
             
-        case .searchShoes(let keyword, let page, let size):
+        case .searchShoes(let keyword, let page, let size),
+             .searchShoeSuggestions(let keyword, let page, let size):
             return .requestParameters(
                 parameters: [
                     "keyword": keyword,
