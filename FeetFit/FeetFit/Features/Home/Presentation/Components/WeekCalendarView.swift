@@ -12,16 +12,27 @@ struct WeekCalendarView: View {
 
     private let dailyStatuses: [DailyStatus]
     private let today: String
+    private let isLoading: Bool
     private let onDateSelected: ((Date) -> Void)?
+
+    private static let placeholderStatuses: [DailyStatus] = (0..<7).map { offset in
+        DailyStatus(date: "placeholder-\(offset)", dayOfWeekKor: "", hasMeasurement: false)
+    }
 
     init(
         dailyStatuses: [DailyStatus] = [],
         today: String = "",
+        isLoading: Bool = false,
         onDateSelected: ((Date) -> Void)? = nil
     ) {
         self.dailyStatuses = dailyStatuses
         self.today = today
+        self.isLoading = isLoading
         self.onDateSelected = onDateSelected
+    }
+
+    private var displayedStatuses: [DailyStatus] {
+        isLoading || dailyStatuses.isEmpty ? Self.placeholderStatuses : dailyStatuses
     }
 
     // MARK: - Body
@@ -31,10 +42,11 @@ struct WeekCalendarView: View {
             weekTitle
 
             HStack(spacing: 8) {
-                ForEach(Array(dailyStatuses.enumerated()), id: \.offset) { index, status in
+                ForEach(Array(displayedStatuses.enumerated()), id: \.offset) { index, status in
                     dayView(status, weekdayIndex: index)
                 }
             }
+            .redacted(reason: isLoading ? .placeholder : [])
         }
         .padding(20)
         .mainBoxStyle()

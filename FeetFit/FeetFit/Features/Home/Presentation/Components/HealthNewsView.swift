@@ -33,7 +33,8 @@ struct HealthNewsView: View {
     private var emptyView: some View {
         Text("아직 연결된 건강 이슈가 없어요.\n발 상태를 측정해 보세요.")
             .multilineTextAlignment(.center)
-            .pretendardFont(.Description)
+            .pretendardFont(.BlockText)
+            .foregroundStyle(.gray01)
             .frame(height: 150)
             .frame(maxWidth: .infinity)
             .mainBoxStyle()

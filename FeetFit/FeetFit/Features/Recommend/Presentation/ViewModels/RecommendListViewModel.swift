@@ -45,7 +45,8 @@ final class RecommendListViewModel: ObservableObject {
     func fetchInitialData() {
         guard !didLoadInitialData else { return }
         didLoadInitialData = true
-        
+        isLoading = true
+
         fetchSearchHistory()
         
         fetchFootTypeText { [weak self] hasMeasurement in
