@@ -10,10 +10,8 @@ import Foundation
 struct MeasurementSocketMessageDTO: Decodable {
     let eventType: String
     let measurementSessionId: Int
-    let userId: Int
-    let deviceId: Int
-    let deviceName: String
-    let status: String
+    let status: MeasurementStatus
+    let statusMessage: String
     let shouldDisconnect: Bool
     let sentAt: String
 }
