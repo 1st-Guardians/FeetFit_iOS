@@ -10,11 +10,18 @@ import SwiftUI
 struct ShoeDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: ShoeDetailViewModel
-    
+    @State private var selectedSegment: ShoeDetailSegment = .productInfo
+
     init(shoeId: Int) {
         _viewModel = StateObject(wrappedValue: ShoeDetailViewModel(shoeId: shoeId))
     }
-    
+
+    #if DEBUG
+    init(previewShoe: ShoeDetailInfo) {
+        _viewModel = StateObject(wrappedValue: ShoeDetailViewModel(mockShoe: previewShoe))
+    }
+    #endif
+
     var body: some View {
         Group {
             if let shoe = viewModel.shoe {
@@ -47,48 +54,76 @@ struct ShoeDetailView: View {
             }
         }
         .onAppear {
+            guard viewModel.shoe == nil else { return }
             viewModel.fetchDetail()
         }
     }
     
     private func detailContent(shoe: ShoeDetailInfo) -> some View {
-        return ZStack(alignment: .top) {
-            productImage(urlString: shoe.imageURL)
-            
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    Spacer().frame(height: 165)
-                    
-                    VStack(alignment: .leading, spacing: 32) {
-                        topGroup(shoe: shoe)
-                        
-                        VStack(alignment: .leading, spacing: 20) {
-                            pointSummarySection(shoe: shoe)
-                            
-                            fitPointSection(shoe: shoe)
-                        }
-                        .padding(.horizontal, 8)
-                        
-                        VStack(alignment: .leading, spacing: 16) {
-                            fitScoreTitle(shoe: shoe)
-                            
-                            analysisCardList(shoe: shoe)
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background {
-                        UnevenRoundedRectangle(
-                            topLeadingRadius: 40,
-                            bottomLeadingRadius: 0,
-                            bottomTrailingRadius: 0,
-                            topTrailingRadius: 40
-                        )
-                        .fill(.white)
-                    }
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                productImage(urlString: shoe.imageURL)
+
+                VStack(alignment: .leading, spacing: 20) {
+                    topGroup(shoe: shoe)
+
+                    segmentControl
+                        .padding(.top, 20)
+
+                    segmentContent(shoe: shoe)
                 }
+                .padding(.horizontal, 16)
             }
         }
+        .ignoresSafeArea()
+    }
+
+    private var segmentControl: some View {
+        Picker("상세 정보 탭", selection: $selectedSegment) {
+            ForEach(ShoeDetailSegment.allCases) { segment in
+                Text(segment.rawValue)
+                    .tag(segment)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+
+    @ViewBuilder
+    private func segmentContent(shoe: ShoeDetailInfo) -> some View {
+        switch selectedSegment {
+        case .productInfo:
+            segmentPlaceholder("상품정보 페이지를 준비 중이에요.")
+
+        case .fitScore:
+            fitScoreContent(shoe: shoe)
+
+        case .compare:
+            segmentPlaceholder("신발비교 페이지를 준비 중이에요.")
+        }
+    }
+
+    private func fitScoreContent(shoe: ShoeDetailInfo) -> some View {
+        VStack(alignment: .leading, spacing: 32) {
+            VStack(alignment: .leading, spacing: 20) {
+                pointSummarySection(shoe: shoe)
+
+                fitPointSection(shoe: shoe)
+            }
+            .padding(.horizontal, 8)
+
+            VStack(alignment: .leading, spacing: 16) {
+                fitScoreTitle(shoe: shoe)
+
+                analysisCardList(shoe: shoe)
+            }
+        }
+    }
+
+    private func segmentPlaceholder(_ message: String) -> some View {
+        Text(message)
+            .pretendardFont(.BlockText)
+            .foregroundStyle(.gray01)
+            .frame(maxWidth: .infinity, minHeight: 200)
     }
     
     private func productImage(urlString: String) -> some View {
@@ -121,22 +156,21 @@ struct ShoeDetailView: View {
     
     private func topGroup(shoe: ShoeDetailInfo) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(shoe.name)
-                .pretendardFont(.SubTitle)
-            
             Text(shoe.brand)
                 .pretendardFont(.BlockText)
             
-            Text(shoe.formattedPrice)
-                .pretendardFont(.Title)
-                .padding(.top, 4)
+            Text(shoe.name)
+                .pretendardFont(.SubTitle)
             
             ratingSection(shoe: shoe)
-                .padding(.top, 8)
+                .padding(.vertical, 8)
+            
+            Text(shoe.formattedPrice)
+                .pretendardFont(.Title)
         }
         .foregroundStyle(.black01)
         .padding(.horizontal, 8)
-        .padding(.top, 40)
+        .padding(.top, 24)
     }
     
     private func ratingSection(shoe: ShoeDetailInfo) -> some View {
@@ -216,6 +250,6 @@ struct ShoeDetailView: View {
 
 #Preview {
     NavigationStack {
-        ShoeDetailView(shoeId: 1)
+        ShoeDetailView(previewShoe: .mock)
     }
 }
