@@ -13,7 +13,14 @@ struct RadarChartItem: Identifiable {
     let id = UUID()
     let title: String
     let value: Double
-    
+    let valueLabel: String?
+
+    init(title: String, value: Double, valueLabel: String? = nil) {
+        self.title = title
+        self.value = value
+        self.valueLabel = valueLabel
+    }
+
     /// value는 0.0 ~ 1.0 사이로 보정해서 사용
     var normalizedValue: Double {
         min(max(value, 0.0), 1.0)
@@ -214,7 +221,7 @@ private extension RadarChartView {
                         .pretendardFont(.Caption)
                         .foregroundStyle(.black01)
                     
-                    Text("\(Int(items[index].normalizedValue * 100))")
+                    Text(items[index].valueLabel ?? "\(Int(items[index].normalizedValue * 100))")
                         .pretendardFont(.Caption)
                         .foregroundStyle(.gray02)
                 }
