@@ -14,7 +14,7 @@ enum MeasurementStatus: String, Codable {
     case waitingForPressure = "WAITING_FOR_PRESSURE"
     case readyForPressure = "READY_FOR_PRESSURE"
     case measuringPressure = "MEASURING_PRESSURE"
-    case processing = "PROCESSING"
+    case analyzing = "PROCESSING"
     case completed = "COMPLETED"
     case failed = "FAILED"
 
@@ -33,7 +33,7 @@ enum MeasurementStatus: String, Codable {
             return "압력 측정 준비가 완료되었습니다.\n압력 측정을 시작합니다."
         case .measuringPressure:
             return "발 압력을 측정하고 있습니다.\n잠시 움직이지 말아 주세요."
-        case .processing:
+        case .analyzing:
             return "측정이 완료되었습니다.\n결과를 분석하고 있습니다."
         case .completed:
             return "분석이 완료되었습니다.\n결과를 확인해 주세요."

@@ -14,7 +14,7 @@ struct FootMeasurementProgressView: View {
     var body: some View {
         VStack(spacing: 0) {
             LoadingMessageView(
-                message: viewModel.measurementStatus?.guideMessage ?? viewModel.measurementStatusText
+                message: displayMessage
             )
             .padding(.bottom, 277)
 
@@ -44,6 +44,14 @@ struct FootMeasurementProgressView: View {
 
     // MARK: - SubView
 
+    private var displayMessage: String {
+        if viewModel.measurementStatus == .failed, let errorMessage = viewModel.errorMessage {
+            return errorMessage
+        }
+
+        return viewModel.measurementStatus?.guideMessage ?? viewModel.measurementStatusText
+    }
+
     @ViewBuilder
     private var actionButton: some View {
         switch viewModel.measurementStatus {
@@ -64,6 +72,15 @@ struct FootMeasurementProgressView: View {
                 }
             )
             .disabled(viewModel.isStatusUpdateInFlight)
+
+        case .failed:
+            MainButton(
+                "다시 측정하기",
+                action: {
+                    viewModel.onMoveToFinish = nil
+                    router.replace(with: .measurement)
+                }
+            )
 
         default:
             EmptyView()

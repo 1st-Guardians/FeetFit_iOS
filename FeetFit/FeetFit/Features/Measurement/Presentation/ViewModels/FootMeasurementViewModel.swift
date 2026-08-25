@@ -179,7 +179,7 @@ final class FootMeasurementViewModel {
             print("eventType:", message.eventType)
             print("sessionId:", message.measurementSessionId)
             print("status:", message.status.rawValue)
-            print("statusMessage:", message.statusMessage)
+            print("statusMessage:", message.statusMessage ?? "nil")
             print("shouldDisconnect:", message.shouldDisconnect)
 
             // UI는 eventType이 아니라 status를 기준으로 동작한다.
@@ -198,7 +198,14 @@ final class FootMeasurementViewModel {
                 onMoveToFinish?()
 
             case .failed:
-                errorMessage = message.statusMessage
+                // 표시 우선순위: 백엔드가 준 사용자용 문구 > 실패 사유별 로컬 폴백 문구 > statusMessage > 기본 문구
+                errorMessage = message.failureMessage
+                    ?? message.failureReason?.fallbackMessage
+                    ?? message.statusMessage
+                    ?? MeasurementStatus.failed.guideMessage
+
+                print("측정 실패 - failureReason:", message.failureReason?.rawValue ?? "nil")
+                print("측정 실패 - failureDetail:", message.failureDetail ?? "nil")
 
                 if message.shouldDisconnect {
                     socketManager.disconnect()
@@ -206,7 +213,7 @@ final class FootMeasurementViewModel {
 
             case .waitingForPhoto, .readyForPhoto, .capturingPhoto,
                  .waitingForPressure, .readyForPressure, .measuringPressure,
-                 .processing:
+                 .analyzing:
                 // 중간 상태는 measurementStatus 갱신 외에 별도 화면 전환이 없다.
                 break
             }
