@@ -106,9 +106,6 @@ struct ShoeDetailView: View {
 
         case .fitScore:
             fitScoreContent(shoe: shoe)
-
-        case .compare:
-            segmentPlaceholder("신발비교 페이지를 준비 중이에요.")
         }
     }
 
