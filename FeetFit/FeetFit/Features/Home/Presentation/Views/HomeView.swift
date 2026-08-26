@@ -24,6 +24,7 @@ struct HomeView: View {
                     WeekCalendarView(
                         dailyStatuses: weeklyStatusViewModel.weeklyStatus?.dailyStatuses ?? [],
                         today: weeklyStatusViewModel.weeklyStatus?.today ?? "",
+                        isLoading: weeklyStatusViewModel.weeklyStatus == nil,
                         onDateSelected: { date in
                             router.push(.report(date))
                         }
@@ -68,8 +69,14 @@ struct HomeView: View {
             Text(status.title)
                 .pretendardFont(.SubTitle)
 
-            Text(status.description)
-                .pretendardFont(.Description)
+            ZStack(alignment: .topLeading) {
+                Text(HomeStatus.noRecord.description)
+                    .pretendardFont(.Description)
+                    .opacity(0)
+
+                Text(status.description)
+                    .pretendardFont(.Description)
+            }
 
             Spacer().frame(height: 10)
 
@@ -97,4 +104,5 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
+        .environmentObject(TabRouter())
 }

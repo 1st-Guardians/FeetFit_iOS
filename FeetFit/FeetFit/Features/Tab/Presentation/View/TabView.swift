@@ -10,19 +10,19 @@ import SwiftUI
 struct TabBar: View {
     
     // MARK: - Property
-    
-    @State private var tabCase: TabCase
+
+    @StateObject private var tabRouter: TabRouter
     @State private var isShowMyPage: Bool = false
-    
+
     // ReportView를 강제로 새로 만들기 위한 ID
     @State private var reportResetID = UUID()
 
     init(initialTab: TabCase = .home) {
-        _tabCase = State(initialValue: initialTab)
+        _tabRouter = StateObject(wrappedValue: TabRouter(selectedTab: initialTab))
     }
 
     var body: some View {
-        TabView(selection: $tabCase) {
+        TabView(selection: $tabRouter.selectedTab) {
             ForEach(TabCase.allCases) { tab in
                 Tab(value: tab, role: tab.tabRoloe, content: {
                     tabView(tab)
@@ -31,7 +31,8 @@ struct TabBar: View {
                 })
             }
         }
-        .onChange(of: tabCase) { _, newValue in
+        .environmentObject(tabRouter)
+        .onChange(of: tabRouter.selectedTab) { _, newValue in
             if newValue == .report {
                 reportResetID = UUID()
             }

@@ -15,3 +15,10 @@ struct MeasurementSessionResultDTO: Decodable {
     let createdAt: String
     let webSocketTopic: String
 }
+
+// 상태 변경 PATCH(/api/measurement-sessions/{id}/status) 응답
+struct MeasurementSessionStatusResultDTO: Decodable {
+    let id: Int
+    let status: MeasurementStatus
+    let measurementDurationSec: Int?
+}

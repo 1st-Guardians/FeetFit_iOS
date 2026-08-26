@@ -15,7 +15,11 @@ final class FootMeasurementViewModel {
     var errorMessage: String?
     var session: MeasurementSessionResultDTO?
 
-    var measurementStatusText = "발 측정 준비 중..."
+    var measurementSessionId: Int?
+    var measurementStatus: MeasurementStatus?
+    var isStatusUpdateInFlight = false
+
+    var measurementStatusText = "발 측정\n준비 중..."
     var isMeasurementCompleted = false
 
     var onMoveToProgress: (() -> Void)?
@@ -44,7 +48,7 @@ final class FootMeasurementViewModel {
             Task { @MainActor in
                 self?.isLoading = false
                 self?.errorMessage = error.localizedDescription
-                self?.measurementStatusText = "WebSocket 연결이 끊겼어요"
+                self?.measurementStatusText = "WebSocket 연결이\n끊겼어요"
             }
         }
     }
@@ -58,8 +62,10 @@ final class FootMeasurementViewModel {
         isLoading = true
         errorMessage = nil
         session = nil
+        measurementSessionId = nil
+        measurementStatus = nil
         isMeasurementCompleted = false
-        measurementStatusText = "기기와 연결 중이에요"
+        measurementStatusText = "기기와\n연결 중이에요"
 
         socketManager.connect()
     }
@@ -79,28 +85,76 @@ final class FootMeasurementViewModel {
     @MainActor
     private func startMeasurementSession() async {
         do {
-            measurementStatusText = "측정 세션 생성 중..."
+            measurementStatusText = "측정 세션\n생성 중..."
 
             let result = try await MeasurementAPI.shared.postMeasurementSessions()
 
             self.session = result
+            self.measurementSessionId = result.id
+            // POST 응답의 status를 최초 UI 상태로 즉시 반영한다.
+            // 서버가 세션 생성 직후 WebSocket으로 상태를 발행할 수 있어,
+            // SUBSCRIBE 전에 온 최초 메시지를 놓치더라도 화면은 이미 올바른 상태를 보여준다.
+            self.measurementStatus = result.status
 
             print("측정 세션 생성 성공")
             print("session id:", result.id)
             print("topic:", result.webSocketTopic)
+            print("초기 status:", result.status.rawValue)
 
             socketManager.subscribe(
                 to: result.webSocketTopic,
                 sessionId: result.id
             )
 
-            measurementStatusText = "발 측정 중..."
+        } catch {
+            errorMessage = error.localizedDescription
+            measurementStatusText = "측정 시작에\n실패했어요"
+            print("측정 세션 생성 실패:", error)
+        }
+    }
+
+    // MARK: - 사용자 준비 완료 액션
+
+    @MainActor
+    func confirmPhotoReady() async {
+        await patchStatus(.readyForPhoto)
+    }
+
+    @MainActor
+    func confirmPressureReady() async {
+        await patchStatus(.readyForPressure)
+    }
+
+    @MainActor
+    private func patchStatus(_ status: MeasurementStatus) async {
+        guard !isStatusUpdateInFlight else { return }
+
+        guard let measurementSessionId else {
+            print("measurementSessionId가 없어 상태 변경 요청을 보낼 수 없음")
+            return
+        }
+
+        isStatusUpdateInFlight = true
+        errorMessage = nil
+
+        do {
+            let result = try await MeasurementAPI.shared.patchMeasurementSessionStatus(
+                sessionId: measurementSessionId,
+                status: status
+            )
+
+            print("측정 상태 PATCH 성공:", result.status.rawValue)
+
+            // source of truth는 이후 도착하는 WebSocket 상태 메시지이지만,
+            // 버튼을 누른 직후 화면이 즉시 반응하도록 임시로 반영해 둔다.
+            self.measurementStatus = result.status
 
         } catch {
             errorMessage = error.localizedDescription
-            measurementStatusText = "측정 시작 실패"
-            print("측정 세션 생성 실패:", error)
+            print("측정 상태 PATCH 실패:", error)
         }
+
+        isStatusUpdateInFlight = false
     }
 
     // MARK: - WebSocket 메시지 처리
@@ -124,18 +178,25 @@ final class FootMeasurementViewModel {
             print("측정 메시지 파싱 성공")
             print("eventType:", message.eventType)
             print("sessionId:", message.measurementSessionId)
-            print("status:", message.status)
+            print("status:", message.status.rawValue)
+            print("statusMessage:", message.statusMessage ?? "nil")
             print("shouldDisconnect:", message.shouldDisconnect)
 
-            switch message.eventType {
-            case "MEASUREMENT_STARTED":
-                measurementStatusText = "발 측정 중..."
+            // 소켓 매니저가 싱글턴이라, 재시도 등으로 세션이 바뀐 뒤에도
+            // 이전 세션의 지연 메시지가 새 세션 상태를 덮어쓰지 않도록 세션 ID를 확인한다.
+            guard message.measurementSessionId == measurementSessionId else {
+                print("현재 세션(\(measurementSessionId?.description ?? "nil"))과 다른 세션(\(message.measurementSessionId))의 메시지라 무시함")
+                return
+            }
 
-            case "MEASUREMENT_COMPLETED":
-                measurementStatusText = "측정 완료!"
+            // UI는 eventType이 아니라 status를 기준으로 동작한다.
+            measurementStatus = message.status
+
+            switch message.status {
+            case .completed:
                 isMeasurementCompleted = true
 
-                print("MEASUREMENT_COMPLETED 수신 → 측정 완료 화면으로 이동")
+                print("COMPLETED 수신 → 측정 완료 화면으로 이동")
 
                 if message.shouldDisconnect {
                     socketManager.disconnect()
@@ -143,16 +204,25 @@ final class FootMeasurementViewModel {
 
                 onMoveToFinish?()
 
-            case "MEASUREMENT_FAILED":
-                measurementStatusText = "측정 실패"
-                errorMessage = "측정에 실패했습니다."
+            case .failed:
+                // 표시 우선순위: 백엔드가 준 사용자용 문구 > 실패 사유별 로컬 폴백 문구 > statusMessage > 기본 문구
+                errorMessage = message.failureMessage
+                    ?? message.failureReason?.fallbackMessage
+                    ?? message.statusMessage
+                    ?? MeasurementStatus.failed.guideMessage
+
+                print("측정 실패 - failureReason:", message.failureReason?.rawValue ?? "nil")
+                print("측정 실패 - failureDetail:", message.failureDetail ?? "nil")
 
                 if message.shouldDisconnect {
                     socketManager.disconnect()
                 }
 
-            default:
-                print("알 수 없는 eventType:", message.eventType)
+            case .waitingForPhoto, .readyForPhoto, .capturingPhoto,
+                 .waitingForPressure, .readyForPressure, .measuringPressure,
+                 .analyzing:
+                // 중간 상태는 measurementStatus 갱신 외에 별도 화면 전환이 없다.
+                break
             }
 
         } catch {

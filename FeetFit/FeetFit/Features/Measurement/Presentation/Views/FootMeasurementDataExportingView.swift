@@ -13,7 +13,7 @@ struct FootMeasurementDataExportingView: View {
     var body: some View {
         VStack(spacing: 0) {
             LoadingMessageView(
-                message: "데이터 보내는 중..."
+                message: "데이터 보내는 중...\n "
             )
 
             Spacer()

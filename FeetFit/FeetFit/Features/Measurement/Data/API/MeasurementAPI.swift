@@ -108,4 +108,69 @@ final class MeasurementAPI {
             }
         }
     }
+
+    // 측정 상태 변경 (사용자 준비 완료 액션)
+    func patchMeasurementSessionStatus(
+        sessionId: Int,
+        status: MeasurementStatus
+    ) async throws -> MeasurementSessionStatusResultDTO {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.request(.patchSessionStatus(sessionId: sessionId, status: status)) { result in
+                switch result {
+                case .success(let response):
+                    print("Measurement Session Status statusCode:", response.statusCode)
+
+                    do {
+                        let decoded = try JSONDecoder().decode(
+                            BaseResponse<MeasurementSessionStatusResultDTO>.self,
+                            from: response.data
+                        )
+
+                        guard decoded.isSuccess else {
+                            continuation.resume(
+                                throwing: APIError.serverError(decoded.message)
+                            )
+                            return
+                        }
+
+                        guard let result = decoded.result else {
+                            continuation.resume(
+                                throwing: APIError.serverError("측정 상태 응답이 비어 있습니다.")
+                            )
+                            return
+                        }
+
+                        continuation.resume(returning: result)
+                    } catch {
+                        print("Measurement Session Status decoding error:", error)
+                        continuation.resume(throwing: APIError.decodingError)
+                    }
+
+                case .failure(let error):
+                    if let response = error.response {
+                        print("Measurement Session Status failure statusCode:", response.statusCode)
+
+                        let errorResponse = try? JSONDecoder().decode(
+                            APIErrorResponse.self,
+                            from: response.data
+                        )
+
+                        if response.statusCode == 401 {
+                            continuation.resume(throwing: APIError.unauthorized)
+                            return
+                        }
+
+                        continuation.resume(
+                            throwing: APIError.serverError(
+                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            )
+                        )
+                        return
+                    }
+
+                    continuation.resume(throwing: APIError.from(error))
+                }
+            }
+        }
+    }
 }

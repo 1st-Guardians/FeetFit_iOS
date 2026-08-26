@@ -24,7 +24,15 @@ final class ShoeDetailViewModel: ObservableObject {
     init(shoeId: Int) {
         self.shoeId = shoeId
     }
-    
+
+    #if DEBUG
+    init(mockShoe: ShoeDetailInfo) {
+        self.shoeId = mockShoe.id
+        self.shoe = mockShoe
+    }
+    #endif
+
+
     func fetchDetail() {
         shoe = nil
         isLoading = true

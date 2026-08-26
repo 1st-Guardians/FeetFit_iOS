@@ -14,7 +14,7 @@ struct FootMeasurementConnectingView: View {
     var body: some View {
         VStack(spacing: 0) {
             LoadingMessageView(
-                message: viewModel.isLoading ? "기기와 연결 중이에요" : "기기를 연결해 주세요"
+                message: viewModel.isLoading ? "기기와 연결 중이에요\n " : "기기를 연결해 주세요\n "
             )
             .padding(.bottom, 277)
             

@@ -95,16 +95,22 @@ struct RecommendListView: View {
             VStack(alignment: .leading, spacing: 0) {
                 topGroup
                     .padding([.bottom, .horizontal], 16)
-                
-                ScrollView {
-                    ShoeListView(
-                        shoes: viewModel.shoes,
-                        onShoeTap: onShoeTap,
-                        onShoeAppear: { shoe in
-                            viewModel.loadNextPageIfNeeded(currentShoe: shoe)
-                        }
-                    )
-                    .padding(.bottom, 70)
+
+                if viewModel.shoes.isEmpty && viewModel.isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 40)
+                } else {
+                    ScrollView {
+                        ShoeListView(
+                            shoes: viewModel.shoes,
+                            onShoeTap: onShoeTap,
+                            onShoeAppear: { shoe in
+                                viewModel.loadNextPageIfNeeded(currentShoe: shoe)
+                            }
+                        )
+                        .padding(.bottom, 70)
+                    }
                 }
             }
         }

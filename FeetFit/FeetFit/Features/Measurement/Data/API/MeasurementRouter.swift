@@ -12,6 +12,7 @@ import Moya
 enum MeasurementRouter {
     case postSessions
     case getWeeklyStatus
+    case patchSessionStatus(sessionId: Int, status: MeasurementStatus)
 }
 
 extension MeasurementRouter: APITargetType {
@@ -21,6 +22,8 @@ extension MeasurementRouter: APITargetType {
             return "/api/measurement-sessions"
         case .getWeeklyStatus:
             return "/api/measurement-sessions/weekly-status"
+        case .patchSessionStatus(let sessionId, _):
+            return "/api/measurement-sessions/\(sessionId)/status"
         }
     }
 
@@ -30,6 +33,8 @@ extension MeasurementRouter: APITargetType {
             return .post
         case .getWeeklyStatus:
             return .get
+        case .patchSessionStatus:
+            return .patch
         }
     }
 
@@ -38,6 +43,11 @@ extension MeasurementRouter: APITargetType {
         case .postSessions,
              .getWeeklyStatus:
             return .requestPlain
+        case .patchSessionStatus(_, let status):
+            return .requestParameters(
+                parameters: ["status": status.rawValue],
+                encoding: URLEncoding.queryString
+            )
         }
     }
 }

@@ -14,9 +14,13 @@ struct FootMeasurementProgressView: View {
     var body: some View {
         VStack(spacing: 0) {
             LoadingMessageView(
-                message: viewModel.measurementStatusText
+                message: displayMessage
             )
-            
+            .padding(.bottom, 277)
+
+            actionButton
+                .padding(.horizontal, 18)
+
             Spacer()
         }
         .navigationBarBackButtonHidden()
@@ -35,6 +39,52 @@ struct FootMeasurementProgressView: View {
         .task {
             print("ProgressView 진입 → 측정 세션 생성 시작")
             await viewModel.startMeasurementSessionIfNeeded()
+        }
+    }
+
+    // MARK: - SubView
+
+    private var displayMessage: String {
+        if viewModel.measurementStatus == .failed, let errorMessage = viewModel.errorMessage {
+            return errorMessage
+        }
+
+        return viewModel.measurementStatus?.guideMessage ?? viewModel.measurementStatusText
+    }
+
+    @ViewBuilder
+    private var actionButton: some View {
+        switch viewModel.measurementStatus {
+        case .waitingForPhoto:
+            MainButton(
+                viewModel.isStatusUpdateInFlight ? "요청 중..." : "사진 촬영 준비 완료",
+                action: {
+                    Task { await viewModel.confirmPhotoReady() }
+                }
+            )
+            .disabled(viewModel.isStatusUpdateInFlight)
+
+        case .waitingForPressure:
+            MainButton(
+                viewModel.isStatusUpdateInFlight ? "요청 중..." : "압력 측정 준비 완료",
+                action: {
+                    Task { await viewModel.confirmPressureReady() }
+                }
+            )
+            .disabled(viewModel.isStatusUpdateInFlight)
+
+        case .failed:
+            MainButton(
+                "다시 측정하기",
+                action: {
+                    viewModel.onMoveToFinish = nil
+                    viewModel.disconnect()
+                    router.replace(with: .measurement)
+                }
+            )
+
+        default:
+            EmptyView()
         }
     }
 }
