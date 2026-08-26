@@ -182,6 +182,13 @@ final class FootMeasurementViewModel {
             print("statusMessage:", message.statusMessage ?? "nil")
             print("shouldDisconnect:", message.shouldDisconnect)
 
+            // 소켓 매니저가 싱글턴이라, 재시도 등으로 세션이 바뀐 뒤에도
+            // 이전 세션의 지연 메시지가 새 세션 상태를 덮어쓰지 않도록 세션 ID를 확인한다.
+            guard message.measurementSessionId == measurementSessionId else {
+                print("현재 세션(\(measurementSessionId?.description ?? "nil"))과 다른 세션(\(message.measurementSessionId))의 메시지라 무시함")
+                return
+            }
+
             // UI는 eventType이 아니라 status를 기준으로 동작한다.
             measurementStatus = message.status
 

@@ -78,6 +78,7 @@ struct FootMeasurementProgressView: View {
                 "다시 측정하기",
                 action: {
                     viewModel.onMoveToFinish = nil
+                    viewModel.disconnect()
                     router.replace(with: .measurement)
                 }
             )
