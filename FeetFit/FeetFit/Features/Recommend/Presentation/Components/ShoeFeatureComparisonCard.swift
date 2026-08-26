@@ -107,7 +107,7 @@ struct ShoeFeatureComparisonCard: View {
 // MARK: - ComparisonBar
 
 /// 0...1 범위의 두 값을 가로 바 위 마커로 비교해서 보여주는 재사용 가능한 그래프.
-/// 파란색 채워진 원 = 비교군 평균, 흰색 채움 + 파란색 테두리 원 = 신발 값.
+/// 파란색 채워진 원 = 신발 값, 흰색 채움 + 파란색 테두리 원 = 비교군 평균.
 struct ComparisonBar: View {
     let comparisonValue: CGFloat
     let shoeValue: CGFloat
@@ -125,12 +125,12 @@ struct ComparisonBar: View {
                     .fill(Color.gray03)
                     .frame(height: trackHeight)
                     .frame(maxWidth: .infinity)
-                
+
                 marker(filled: false)
-                    .offset(x: usableWidth * clamp(shoeValue))
+                    .offset(x: usableWidth * clamp(comparisonValue))
 
                 marker(filled: true)
-                    .offset(x: usableWidth * clamp(comparisonValue))
+                    .offset(x: usableWidth * clamp(shoeValue))
             }
         }
         .frame(height: markerDiameter)
