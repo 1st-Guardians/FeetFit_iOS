@@ -28,6 +28,8 @@ struct OverallResultView: View {
                     conditionSection(result)
                     balanceSection(result)
                     pressureSection(result)
+                    plantarFootprintSection(result)
+                    plantarFootprintDescriptionSection(result)
                     sizeSection(result)
                     environmentSection(result)
                     manageTipSection(result)
@@ -95,6 +97,44 @@ struct OverallResultView: View {
         }
         .padding(20)
         .mainBoxStyle()
+    }
+
+    private func plantarFootprintSection(_ result: DailyFootAnalysisResultDTO) -> some View {
+        HStack(spacing: 15) {
+            makeFootprintItem(
+                title: "왼발 눌림",
+                imageUrl: result.leftPlantarFootprintImageUrl
+            )
+
+            makeFootprintItem(
+                title: "오른발 눌림",
+                imageUrl: result.rightPlantarFootprintImageUrl
+            )
+        }
+    }
+
+    private func makeFootprintItem(
+        title: String,
+        imageUrl: String?
+    ) -> some View {
+        VStack(spacing: 20) {
+            Text(title)
+                .pretendardFont(.BlockTitle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            pressureImageView(imageUrl)
+        }
+        .padding(20)
+        .mainBoxStyle()
+    }
+
+    private func plantarFootprintDescriptionSection(_ result: DailyFootAnalysisResultDTO) -> some View {
+        MainBox(
+            title: "발 눌림 분석",
+            status: .none,
+            listContent: [],
+            content: result.plantarFootprintAnalysisText
+        )
     }
 
     @ViewBuilder

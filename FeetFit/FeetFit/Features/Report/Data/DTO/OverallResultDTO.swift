@@ -28,6 +28,10 @@ struct DailyFootAnalysisResultDTO: Decodable {
     let leftPressureImageUrl: String?
     let rightPressureImageUrl: String?
 
+    let leftPlantarFootprintImageUrl: String?
+    let rightPlantarFootprintImageUrl: String?
+    let plantarFootprintAnalysisText: String
+
     let userFootSize: Int
     let measuredLeftFootSizeMm: Double?
     let measuredRightFootSizeMm: Double?
@@ -35,9 +39,6 @@ struct DailyFootAnalysisResultDTO: Decodable {
     let rightFootSizeDiff: Double?
     let leftFootWidthMm: Double?
     let rightFootWidthMm: Double?
-
-    let footOdourPpm: Double
-    let footOdourComment: String
 
     let avgTemperatureCelsius: Double
     let avgHumidityPercent: Double
@@ -77,10 +78,6 @@ extension DailyFootAnalysisResultDTO {
 
     var rightPressureInt: Int {
         Int(rightPressurePercent.rounded())
-    }
-
-    var footOdourCGFloat: CGFloat {
-        CGFloat(footOdourPpm)
     }
 
     var temperatureValue: Double {
