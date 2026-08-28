@@ -15,6 +15,7 @@ struct ShoeRecommendationDTO: Decodable {
     let id: Int
     let brandName: String
     let shoeName: String
+    let modelCode: String?
     let price: Int
     let musinsaUrl: String?
     let imageUrl: String

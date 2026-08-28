@@ -19,7 +19,8 @@ struct ShoeDTO: Decodable {
     let id: Int
     let brandName: String
     let shoeName: String
-    let shoeUrl: String?
+    let modelCode: String?
+    let musinsaUrl: String?
     let price: Int
     let imageUrl: String
     let overallRating: Double
@@ -40,7 +41,7 @@ extension ShoeDTO {
             interestCount: clickCount ?? 0,
             reviewCount: reviewCount ?? 0,
             imageURL: imageUrl,
-            shoeURL: shoeUrl ?? ""
+            shoeURL: musinsaUrl ?? ""
         )
     }
 }
