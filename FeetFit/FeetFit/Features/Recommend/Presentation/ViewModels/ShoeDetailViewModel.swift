@@ -87,6 +87,24 @@ final class ShoeDetailViewModel: ObservableObject {
             case .failure(let error):
                 print("신발 상세 API 오류:", error)
 
+                if let response = error.response {
+                    print("신발 상세 API 실패 statusCode:", response.statusCode)
+
+                    let errorResponse = try? JSONDecoder().decode(
+                        APIErrorResponse.self,
+                        from: response.data
+                    )
+
+                    let message = errorResponse?.message ?? "신발 상세 정보를 불러오지 못했습니다."
+
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+                        self.errorMessage = message
+                        ToastManager.shared.show(message)
+                    }
+                    return
+                }
+
                 DispatchQueue.main.async {
                     self.isLoading = false
                     self.errorMessage = "신발 상세 정보를 불러오지 못했습니다."

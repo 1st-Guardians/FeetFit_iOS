@@ -11,7 +11,8 @@ struct ShoeDetailResultDTO: Decodable {
     let id: Int
     let brandName: String
     let shoeName: String
-    let shoeUrl: String
+    let modelCode: String?
+    let musinsaUrl: String?
     let price: Int
     let imageUrl: String
     let overallRating: Double
@@ -63,7 +64,7 @@ extension ShoeDetailResultDTO {
             interestCount: clickCount,
             reviewCount: reviewCount,
             imageURL: imageUrl,
-            shoeURL: shoeUrl,
+            shoeURL: musinsaUrl ?? "",
             summary: pointSummary ?? "아직 사용자 발 분석 기반 착용 포인트가 없습니다.",
             fitPoints: fitPoints,
             analysisCards: analysisCards,
