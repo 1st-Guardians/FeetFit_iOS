@@ -56,6 +56,23 @@ final class ReportAPI {
                 case .failure(let error):
                     if let response = error.response {
                         print("Report failure statusCode:", response.statusCode)
+
+                        let errorResponse = try? JSONDecoder().decode(
+                            APIErrorResponse.self,
+                            from: response.data
+                        )
+
+                        if response.statusCode == 401 {
+                            continuation.resume(throwing: APIError.unauthorized)
+                            return
+                        }
+
+                        continuation.resume(
+                            throwing: APIError.serverError(
+                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            )
+                        )
+                        return
                     }
 
                     continuation.resume(throwing: APIError.from(error))
@@ -63,7 +80,7 @@ final class ReportAPI {
             }
         }
     }
-    
+
     // 종합 결과 리포트
     func fetchDailyFootAnalysis(date: String) async throws -> DailyFootAnalysisResultDTO {
         try await withCheckedThrowingContinuation { continuation in

@@ -45,7 +45,7 @@ extension MetricScoreDTO {
             return "무지외반"
         case "ATHLETES_FOOT":
             return "무좀 위험도"
-        case "FOOT_ODOR":
+        case "SKIN_IRRITATION":
             return "피부 자극도"
         case "FOOT_ENVIRONMENT":
             return "환경 상태"
