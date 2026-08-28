@@ -124,6 +124,7 @@ struct ShoeDetailView: View {
                     ShoeFeatureComparisonSection(comparisons: viewModel.featureComparisons)
                 }
             }
+            .padding(.bottom, 100)
         } else {
             segmentPlaceholder("상품정보 페이지를 준비 중이에요.")
         }

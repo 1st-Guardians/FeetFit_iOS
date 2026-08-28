@@ -141,7 +141,24 @@ final class RecommendListViewModel: ObservableObject {
                 
             case .failure(let error):
                 print("신발 목록 API 오류:", error)
-                
+
+                if let response = error.response {
+                    print("신발 목록 API 실패 statusCode:", response.statusCode)
+
+                    let errorResponse = try? JSONDecoder().decode(
+                        APIErrorResponse.self,
+                        from: response.data
+                    )
+
+                    let message = errorResponse?.message ?? "신발 목록을 불러오지 못했습니다."
+
+                    DispatchQueue.main.async {
+                        self.errorMessage = message
+                        ToastManager.shared.show(message)
+                    }
+                    return
+                }
+
                 DispatchQueue.main.async {
                     self.errorMessage = "신발 목록을 불러오지 못했습니다."
                     ToastManager.shared.show("신발 목록을 불러오지 못했습니다.")
@@ -149,7 +166,7 @@ final class RecommendListViewModel: ObservableObject {
             }
         }
     }
-    
+
     func reloadShoes() {
         fetchShoes(page: 0)
     }
@@ -197,6 +214,19 @@ final class RecommendListViewModel: ObservableObject {
                 
             case .failure(let error):
                 print("TOP3 추천 API 오류:", error)
+
+                if let response = error.response {
+                    print("TOP3 추천 API 실패 statusCode:", response.statusCode)
+
+                    let errorResponse = try? JSONDecoder().decode(
+                        APIErrorResponse.self,
+                        from: response.data
+                    )
+
+                    if let message = errorResponse?.message {
+                        print("TOP3 추천 API 실패 메시지:", message)
+                    }
+                }
             }
         }
     }
