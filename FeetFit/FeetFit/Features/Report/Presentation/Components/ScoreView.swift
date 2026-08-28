@@ -71,10 +71,17 @@ struct ScoreView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            HStack(spacing: 20) {
-                chartView
+            VStack(spacing: 20) {
+                VStack(spacing: 8) {
+                    chartView
+                    
+                    Label(differenceText, systemImage: differenceIcon)
+                        .pretendardFont(.BlockText)
+                        .foregroundStyle(.blue01)
+                }
                 
-                textSection
+                Text(description)
+                    .pretendardFont(.BlockText)
             }
         }
         .foregroundStyle(.black01)
@@ -126,18 +133,6 @@ struct ScoreView: View {
             startPoint: UnitPoint(x: 0.04, y: 0.73),
             endPoint: UnitPoint(x: 0.97, y: 0.28)
         )
-    }
-    
-    private var textSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(description)
-                .pretendardFont(.BlockText)
-            
-            Label(differenceText, systemImage: differenceIcon)
-                .pretendardFont(.BlockText)
-                .foregroundStyle(.blue01)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

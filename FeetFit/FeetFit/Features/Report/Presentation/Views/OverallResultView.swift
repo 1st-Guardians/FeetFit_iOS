@@ -60,7 +60,7 @@ struct OverallResultView: View {
     private func balanceSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         ScoreView(
             score: result.balanceScoreInt,
-            title: "자세 균형",
+            title: "자세균형 점수",
             description: result.balanceComment,
             difference: result.balanceScoreDiffInt
         )
