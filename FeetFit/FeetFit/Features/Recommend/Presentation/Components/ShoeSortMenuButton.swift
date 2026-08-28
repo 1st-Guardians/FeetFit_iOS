@@ -29,15 +29,15 @@ struct ShoeSortMenuButton: View {
             HStack(spacing: 4) {
                 Text(selectedSortType.rawValue)
                     .pretendardFont(.Description)
-                
+
                 Image(systemName: "chevron.down")
                     .font(.system(size: 11))
             }
             .foregroundStyle(.black)
             .padding(.horizontal, 20)
             .padding(.vertical, 13)
-            .glassEffect(in: .capsule)
         }
+        .glassEffect(in: .capsule)
         .buttonStyle(.plain)
     }
 }
