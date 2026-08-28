@@ -514,14 +514,27 @@ final class RecommendListViewModel: ObservableObject {
                 
             case .failure(let error):
                 print("발 타입 문구 API 오류:", error)
-                
+
+                if let response = error.response {
+                    let errorResponse = try? JSONDecoder().decode(
+                        APIErrorResponse.self,
+                        from: response.data
+                    )
+
+                    if let message = errorResponse?.message {
+                        DispatchQueue.main.async {
+                            ToastManager.shared.show(message)
+                        }
+                    }
+                }
+
                 DispatchQueue.main.async {
                     completion?(false)
                 }
             }
         }
     }
-    
+
     func registerShoeClick(shoeId: Int) {
         shoeProvider.request(.registerClick(shoeId: shoeId)) { result in
             switch result {
