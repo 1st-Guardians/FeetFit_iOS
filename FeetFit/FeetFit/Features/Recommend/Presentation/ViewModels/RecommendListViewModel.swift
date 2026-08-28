@@ -271,10 +271,32 @@ final class RecommendListViewModel: ObservableObject {
                 
             case .failure(let error):
                 print("신발 검색 API 오류:", error)
+
+                if let response = error.response {
+                    let errorResponse = try? JSONDecoder().decode(
+                        APIErrorResponse.self,
+                        from: response.data
+                    )
+
+                    let message = errorResponse?.message ?? "신발 검색에 실패했습니다."
+
+                    DispatchQueue.main.async {
+                        guard trimmedKeyword == self.activeSearchKeyword else { return }
+                        self.errorMessage = message
+                        ToastManager.shared.show(message)
+                    }
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    guard trimmedKeyword == self.activeSearchKeyword else { return }
+                    self.errorMessage = "신발 검색에 실패했습니다."
+                    ToastManager.shared.show("신발 검색에 실패했습니다.")
+                }
             }
         }
     }
-    
+
     func searchShoeSuggestions(keyword: String, page: Int = 0) {
         let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         
