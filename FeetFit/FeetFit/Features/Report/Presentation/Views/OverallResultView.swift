@@ -41,7 +41,10 @@ struct OverallResultView: View {
                     pressureAndFootprintSection(result)
                     sizeSection(result)
                     environmentSection(result)
-                    manageTipSection(result)
+
+                    if let careTips = result.careTips, !careTips.isEmpty {
+                        manageTipSection(result)
+                    }
                 }
             }
             .padding(.vertical, 16)

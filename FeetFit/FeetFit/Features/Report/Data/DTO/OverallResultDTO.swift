@@ -141,7 +141,7 @@ extension DailyFootAnalysisResultDTO {
         conditionLevel: "ATTENTION_NEEDED",
         conditionComments: [
             "오른발에 압력이 조금 더 실려 있어요.",
-            "발 냄새 위험도는 낮은 편이에요."
+            "양발 발볼 너비 차이가 있어 신발 선택 시 유의가 필요해요."
         ],
         balanceScore: 72,
         balanceComment: "자세 균형에 대한 내용입니다.",
