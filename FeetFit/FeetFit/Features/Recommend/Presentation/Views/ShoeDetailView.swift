@@ -45,6 +45,7 @@ struct ShoeDetailView: View {
         .onAppear {
             guard viewModel.shoe == nil else { return }
             viewModel.fetchDetail()
+            viewModel.fetchCharacteristics()
         }
     }
 
@@ -102,7 +103,7 @@ struct ShoeDetailView: View {
     private func segmentContent(shoe: ShoeDetailInfo) -> some View {
         switch selectedSegment {
         case .productInfo:
-            productInfoContent(shoe: shoe)
+            productInfoContent
 
         case .fitScore:
             fitScoreContent(shoe: shoe)
@@ -112,15 +113,15 @@ struct ShoeDetailView: View {
     // MARK: - 상품 정보
 
     @ViewBuilder
-    private func productInfoContent(shoe: ShoeDetailInfo) -> some View {
-        if shoe.specProfile != nil || shoe.featureComparisons != nil {
+    private var productInfoContent: some View {
+        if viewModel.specProfile != nil || !viewModel.featureComparisons.isEmpty {
             VStack(alignment: .leading, spacing: 32) {
-                if let specProfile = shoe.specProfile {
+                if let specProfile = viewModel.specProfile {
                     ShoeSpecSummarySection(specProfile: specProfile)
                 }
 
-                if let comparisons = shoe.featureComparisons, !comparisons.isEmpty {
-                    ShoeFeatureComparisonSection(comparisons: comparisons)
+                if !viewModel.featureComparisons.isEmpty {
+                    ShoeFeatureComparisonSection(comparisons: viewModel.featureComparisons)
                 }
             }
         } else {

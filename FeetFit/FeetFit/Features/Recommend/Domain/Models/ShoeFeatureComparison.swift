@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct ShoeFeatureComparison: Identifiable, Codable {
+struct ShoeFeatureComparison: Identifiable {
     let id = UUID()
 
     let title: String
@@ -45,70 +45,57 @@ struct ShoeFeatureComparison: Identifiable, Codable {
 
 #if DEBUG
 extension ShoeFeatureComparison {
+    // /api/shoes/{shoeId}/characteristics 예시 응답값 기준으로 계산한 목업
     static let samples: [ShoeFeatureComparison] = [
         ShoeFeatureComparison(
-            title: "쿠션감",
-            levelText: "높음",
-            description: "발을 디뎠을 때 폭신하게 눌리는 편이에요.",
-            minimumLabel: "단단함",
-            maximumLabel: "부드러움",
-            comparisonValue: 0.5,
-            shoeValue: 0.65,
-            note: "※ AC 값은 낮을수록 더 부드러움"
+            title: ShoeSpecAttribute.widthSpace.rawValue,
+            levelText: ShoeSpecLevel.medium.title,
+            description: ShoeSpecAttribute.widthSpace.description(for: .medium),
+            minimumLabel: ShoeSpecAttribute.widthSpace.minimumLabel,
+            maximumLabel: ShoeSpecAttribute.widthSpace.maximumLabel,
+            comparisonValue: 0.49,
+            shoeValue: 0.37,
+            note: "US 9 기준 측정값 93.4 mm (평균 95.2 mm)"
         ),
         ShoeFeatureComparison(
-            title: "충격 완화",
-            levelText: "높음",
-            description: "착지할 때 발과 관절에 전해지는 충격을 잘 흡수해 줘요.",
-            minimumLabel: "낮음",
-            maximumLabel: "높음",
-            comparisonValue: 0.5,
-            shoeValue: 0.72
-        ),
-        ShoeFeatureComparison(
-            title: "반발력",
-            levelText: "낮음",
-            description: "지면을 밀어내는 힘이 약한 편이라 안정적인 걸음에 적합해요.",
-            minimumLabel: "낮음",
-            maximumLabel: "높음",
+            title: ShoeSpecAttribute.toeboxSpace.rawValue,
+            levelText: ShoeSpecLevel.low.title,
+            description: ShoeSpecAttribute.toeboxSpace.description(for: .low),
+            minimumLabel: ShoeSpecAttribute.toeboxSpace.minimumLabel,
+            maximumLabel: ShoeSpecAttribute.toeboxSpace.maximumLabel,
             comparisonValue: 0.55,
-            shoeValue: 0.3
+            shoeValue: 0.26,
+            note: "US 9 기준 측정값 71.2 mm (평균 75.4 mm)"
         ),
         ShoeFeatureComparison(
-            title: "발볼 여유",
-            levelText: "보통",
-            description: "표준적인 발볼 너비에 맞춰 설계돼 있어요.",
-            minimumLabel: "좁음",
-            maximumLabel: "넓음",
-            comparisonValue: 0.45,
-            shoeValue: 0.5
+            title: ShoeSpecAttribute.heelHold.rawValue,
+            levelText: ShoeSpecLevel.high.title,
+            description: ShoeSpecAttribute.heelHold.description(for: .high),
+            minimumLabel: ShoeSpecAttribute.heelHold.minimumLabel,
+            maximumLabel: ShoeSpecAttribute.heelHold.maximumLabel,
+            comparisonValue: 0.57,
+            shoeValue: 0.84,
+            note: "US 9 기준 측정값 8.1 score (평균 6.5 score)"
         ),
         ShoeFeatureComparison(
-            title: "앞코 여유",
-            levelText: "높음",
-            description: "발가락 앞쪽 공간이 넉넉해 장시간 착용해도 답답함이 적어요.",
-            minimumLabel: "좁음",
-            maximumLabel: "넓음",
+            title: ShoeSpecAttribute.cushion.rawValue,
+            levelText: ShoeSpecLevel.low.title,
+            description: ShoeSpecAttribute.cushion.description(for: .low),
+            minimumLabel: ShoeSpecAttribute.cushion.minimumLabel,
+            maximumLabel: ShoeSpecAttribute.cushion.maximumLabel,
             comparisonValue: 0.5,
-            shoeValue: 0.78
+            shoeValue: 0.31,
+            note: "US 9 기준 측정값 30.0 HA (평균 35.0 HA)"
         ),
         ShoeFeatureComparison(
-            title: "뒤꿈치 고정감",
-            levelText: "높음",
-            description: "뒤꿈치를 안정적으로 잡아줘 걷거나 뛸 때 흔들림이 적어요.",
-            minimumLabel: "낮음",
-            maximumLabel: "높음",
-            comparisonValue: 0.5,
-            shoeValue: 0.8
-        ),
-        ShoeFeatureComparison(
-            title: "통기성",
-            levelText: "보통",
-            description: "적당한 통기성으로 무난하게 신을 수 있어요.",
-            minimumLabel: "낮음",
-            maximumLabel: "높음",
-            comparisonValue: 0.5,
-            shoeValue: 0.48
+            title: ShoeSpecAttribute.breathability.rawValue,
+            levelText: ShoeSpecLevel.medium.title,
+            description: ShoeSpecAttribute.breathability.description(for: .medium),
+            minimumLabel: ShoeSpecAttribute.breathability.minimumLabel,
+            maximumLabel: ShoeSpecAttribute.breathability.maximumLabel,
+            comparisonValue: 0.53,
+            shoeValue: 0.5,
+            note: "US 9 기준 측정값 3.0 score (평균 3.1 score)"
         )
     ]
 }

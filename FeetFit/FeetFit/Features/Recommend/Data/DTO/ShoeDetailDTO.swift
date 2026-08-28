@@ -67,9 +67,7 @@ extension ShoeDetailResultDTO {
             shoeURL: musinsaUrl ?? "",
             summary: pointSummary ?? "아직 사용자 발 분석 기반 착용 포인트가 없습니다.",
             fitPoints: fitPoints,
-            analysisCards: analysisCards,
-            specProfile: nil,
-            featureComparisons: nil
+            analysisCards: analysisCards
         )
     }
 }

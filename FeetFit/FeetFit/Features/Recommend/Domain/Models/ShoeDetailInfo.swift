@@ -9,7 +9,7 @@ import Foundation
 
 struct ShoeDetailInfo: Identifiable, Codable {
     let id: Int
-    
+
     let brand: String
     let name: String
     let price: Int
@@ -19,21 +19,19 @@ struct ShoeDetailInfo: Identifiable, Codable {
     let reviewCount: Int
     let imageURL: String
     let shoeURL: String
-    
+
     let summary: String
     let fitPoints: [ShoeFitPoint]
     let analysisCards: [ShoeFitAnalysis]
-    let specProfile: ShoeSpecProfile?
-    let featureComparisons: [ShoeFeatureComparison]?
 
     var formattedPrice: String {
         price.formatted() + "원"
     }
-    
+
     var formattedRating: String {
         String(format: "%.1f", rating)
     }
-    
+
     var formattedFitScore: String {
         guard let fitScore else {
             return "-"
@@ -84,17 +82,7 @@ extension ShoeDetailInfo {
                 reviewQuotes: ["깔창이 좀 얇아요"],
                 description: "깔창의 압력 분산 성능이 낮은 편으로, 장시간 착용 시 발바닥 피로도가 높아질 수 있습니다."
             )
-        ],
-        specProfile: ShoeSpecProfile(
-            cushionSoftness: .high,
-            shockAbsorption: .high,
-            rebound: .medium,
-            forefootSpace: .medium,
-            toeBoxSpace: .low,
-            heelStability: .high,
-            breathability: .medium
-        ),
-        featureComparisons: ShoeFeatureComparison.samples
+        ]
     )
 }
 #endif
