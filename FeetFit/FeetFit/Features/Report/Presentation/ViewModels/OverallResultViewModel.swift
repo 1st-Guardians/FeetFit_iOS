@@ -13,6 +13,18 @@ final class OverallResultViewModel: ObservableObject {
     @Published var result: DailyFootAnalysisResultDTO?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    let isMock: Bool
+
+    init() {
+        self.isMock = false
+    }
+
+    #if DEBUG
+    init(mockResult: DailyFootAnalysisResultDTO) {
+        self.isMock = true
+        self.result = mockResult
+    }
+    #endif
 
     func fetchDailyFootAnalysis(date: Date = Date()) async {
         isLoading = true

@@ -11,6 +11,17 @@ struct OverallResultView: View {
     let selectedDate: Date
     @StateObject private var viewModel = OverallResultViewModel()
 
+    init(selectedDate: Date) {
+        self.selectedDate = selectedDate
+    }
+
+    #if DEBUG
+    init(selectedDate: Date, previewResult: DailyFootAnalysisResultDTO) {
+        self.selectedDate = selectedDate
+        _viewModel = StateObject(wrappedValue: OverallResultViewModel(mockResult: previewResult))
+    }
+    #endif
+
     var body: some View {
         ScrollView {
             VStack(spacing: 15) {
@@ -27,9 +38,7 @@ struct OverallResultView: View {
                 } else if let result = viewModel.result {
                     conditionSection(result)
                     balanceSection(result)
-                    pressureSection(result)
-                    plantarFootprintSection(result)
-                    plantarFootprintDescriptionSection(result)
+                    pressureAndFootprintSection(result)
                     sizeSection(result)
                     environmentSection(result)
                     manageTipSection(result)
@@ -40,10 +49,12 @@ struct OverallResultView: View {
         }
         .scrollIndicators(.hidden)
         .task(id: selectedDate) {
+            guard !viewModel.isMock else { return }
             await viewModel.fetchDailyFootAnalysis(date: selectedDate)
         }
     }
 
+    // TODO: 발 컨디션 삭제
     private func conditionSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         MainBox(
             title: "오늘의 발 컨디션",
@@ -53,6 +64,7 @@ struct OverallResultView: View {
         )
     }
 
+    // MARK: - 자세 균형
     private func balanceSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         ScoreView(
             score: result.balanceScoreInt,
@@ -62,20 +74,56 @@ struct OverallResultView: View {
         )
     }
 
+    // MARK: - 압력 분포 및 발 눌림
+
+    private func pressureAndFootprintSection(_ result: DailyFootAnalysisResultDTO) -> some View {
+        VStack(alignment: .leading, spacing: 24) {
+            Text("압력 분포 및 발 눌림 분석")
+                .pretendardFont(.BlockTitle)
+            
+            VStack(alignment: .leading, spacing: 16) {
+                pressureSection(result)
+                Text("상세 설명")
+                    .pretendardFont(.BlockText)
+                    .padding(.horizontal, 4)
+            }
+            
+            VStack(alignment: .leading, spacing: 16) {
+                footprintSection(result)
+                Text(result.plantarFootprintAnalysisText)
+                    .pretendardFont(.BlockText)
+                    .padding(.horizontal, 4)
+            }
+        }
+        .foregroundStyle(.black01)
+        .padding(20)
+        .mainBoxStyle()
+    }
+    
     private func pressureSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         HStack(spacing: 15) {
             makePressureItem(
-                title: "왼발 압력 분포",
+                title: "왼발",
                 value: result.leftPressureInt,
                 imageUrl: result.leftPressureImageUrl
             )
 
             makePressureItem(
-                title: "오른발 압력 분포",
+                title: "오른발",
                 value: result.rightPressureInt,
                 imageUrl: result.rightPressureImageUrl
             )
         }
+    }
+
+    private func footprintSection(_ result: DailyFootAnalysisResultDTO) -> some View {
+        HStack(spacing: 20) {
+            pressureImageView(result.leftPlantarFootprintImageUrl)
+
+            pressureImageView(result.rightPlantarFootprintImageUrl)
+        }
+        .padding(20)
+        .gradientBoxStyle()
     }
 
     private func makePressureItem(
@@ -96,45 +144,7 @@ struct OverallResultView: View {
             pressureImageView(imageUrl)
         }
         .padding(20)
-        .mainBoxStyle()
-    }
-
-    private func plantarFootprintSection(_ result: DailyFootAnalysisResultDTO) -> some View {
-        HStack(spacing: 15) {
-            makeFootprintItem(
-                title: "왼발 눌림",
-                imageUrl: result.leftPlantarFootprintImageUrl
-            )
-
-            makeFootprintItem(
-                title: "오른발 눌림",
-                imageUrl: result.rightPlantarFootprintImageUrl
-            )
-        }
-    }
-
-    private func makeFootprintItem(
-        title: String,
-        imageUrl: String?
-    ) -> some View {
-        VStack(spacing: 20) {
-            Text(title)
-                .pretendardFont(.BlockTitle)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            pressureImageView(imageUrl)
-        }
-        .padding(20)
-        .mainBoxStyle()
-    }
-
-    private func plantarFootprintDescriptionSection(_ result: DailyFootAnalysisResultDTO) -> some View {
-        MainBox(
-            title: "발 눌림 분석",
-            status: .none,
-            listContent: [],
-            content: result.plantarFootprintAnalysisText
-        )
+        .gradientBoxStyle()
     }
 
     @ViewBuilder
@@ -160,6 +170,7 @@ struct OverallResultView: View {
         }
     }
 
+    // MARK: - 발 수치
     private func sizeSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("발 수치")
@@ -174,6 +185,7 @@ struct OverallResultView: View {
         .mainBoxStyle()
     }
 
+    // MARK: - 발 환경 상태
     private func environmentSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("발 환경 상태")
@@ -193,12 +205,19 @@ struct OverallResultView: View {
         .mainBoxStyle()
     }
 
+    // MARK: - 관리팁
     private func manageTipSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         MainBox(
             title: "오늘의 관리 팁",
             status: .none,
-            listContent: result.careTips,
+            listContent: result.careTips ?? [],
             content: nil
         )
     }
 }
+
+#if DEBUG
+#Preview {
+    OverallResultView(selectedDate: Date(), previewResult: .mock)
+}
+#endif
