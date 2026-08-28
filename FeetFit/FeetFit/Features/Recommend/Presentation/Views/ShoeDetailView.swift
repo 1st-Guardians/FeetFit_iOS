@@ -137,6 +137,7 @@ struct ShoeDetailView: View {
             ShoeFitSummarySection(shoe: shoe)
             ShoeFitScoreSection(shoe: shoe)
         }
+        .padding(.bottom, 100)
     }
 
     // MARK: - Placeholder

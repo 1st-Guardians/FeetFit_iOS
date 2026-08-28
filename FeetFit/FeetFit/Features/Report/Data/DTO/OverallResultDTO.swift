@@ -16,7 +16,8 @@ struct DailyFootAnalysisResultDTO: Decodable {
     let id: Int
     let measurementSessionId: Int
 
-    let conditionLevel: String
+    // 응답에서 빠질 수 있어 옵셔널로 둔다.
+    let conditionLevel: String?
     let conditionComments: [String]
 
     let balanceScore: Double
