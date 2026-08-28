@@ -107,10 +107,13 @@ struct ShoeFeatureComparisonCard: View {
 // MARK: - ComparisonBar
 
 /// 0...1 범위의 두 값을 가로 바 위 마커로 비교해서 보여주는 재사용 가능한 그래프.
-/// 파란색 채워진 원 = 신발 값, 흰색 채움 + 파란색 테두리 원 = 비교군 평균.
+/// 채워진 원 = 신발(현재) 값, 흰색 채움 + 테두리만 있는 원 = 비교군(이전) 평균.
 struct ComparisonBar: View {
     let comparisonValue: CGFloat
     let shoeValue: CGFloat
+    var color: Color = .blue01
+    /// 지정하면 트랙 왼쪽부터 이 값 위치까지 색이 채워진 바를 함께 표시한다 (기본은 표시 안 함).
+    var fillValue: CGFloat? = nil
 
     private let trackHeight: CGFloat = 6
     private let markerDiameter: CGFloat = 16
@@ -126,6 +129,15 @@ struct ComparisonBar: View {
                     .frame(height: trackHeight)
                     .frame(maxWidth: .infinity)
 
+                if let fillValue {
+                    Capsule()
+                        .fill(color)
+                        .frame(
+                            width: markerDiameter / 2 + usableWidth * clamp(fillValue),
+                            height: trackHeight
+                        )
+                }
+
                 marker(filled: false)
                     .offset(x: usableWidth * clamp(comparisonValue))
 
@@ -138,9 +150,9 @@ struct ComparisonBar: View {
 
     private func marker(filled: Bool) -> some View {
         Circle()
-            .fill(filled ? Color.blue01 : Color.white)
+            .fill(filled ? color : Color.white)
             .overlay(
-                Circle().stroke(Color.blue01, lineWidth: markerBorderWidth)
+                Circle().stroke(color, lineWidth: markerBorderWidth)
             )
             .frame(width: markerDiameter, height: markerDiameter)
     }

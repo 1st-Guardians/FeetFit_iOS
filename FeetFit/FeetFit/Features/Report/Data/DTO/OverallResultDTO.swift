@@ -18,7 +18,7 @@ struct DailyFootAnalysisResultDTO: Decodable {
 
     // 응답에서 빠질 수 있어 옵셔널로 둔다.
     let conditionLevel: String?
-    let conditionComments: [String]
+    let conditionComments: [String]?
 
     let balanceScore: Double
     let balanceComment: String
@@ -40,6 +40,12 @@ struct DailyFootAnalysisResultDTO: Decodable {
     let rightFootSizeDiff: Double?
     let leftFootWidthMm: Double?
     let rightFootWidthMm: Double?
+
+    // 응답에서 빠질 수 있어 옵셔널로 둔다.
+    let beforeTemperatureCelsius: Double?
+    let beforeHumidityPercent: Double?
+    let afterTemperatureCelsius: Double?
+    let afterHumidityPercent: Double?
 
     let avgTemperatureCelsius: Double
     let avgHumidityPercent: Double
@@ -88,6 +94,23 @@ extension DailyFootAnalysisResultDTO {
 
     var humidityValue: Double {
         avgHumidityPercent
+    }
+
+    // before/after 값이 없을 경우 평균값으로 대체해, 이전=이후=평균으로 표시(마커가 같은 위치에 겹침)한다.
+    var beforeTemperatureValue: Double {
+        beforeTemperatureCelsius ?? avgTemperatureCelsius
+    }
+
+    var afterTemperatureValue: Double {
+        afterTemperatureCelsius ?? avgTemperatureCelsius
+    }
+
+    var beforeHumidityValue: Double {
+        beforeHumidityPercent ?? avgHumidityPercent
+    }
+
+    var afterHumidityValue: Double {
+        afterHumidityPercent ?? avgHumidityPercent
     }
 
     var footSizeRows: [FootSizeRow] {
@@ -161,7 +184,11 @@ extension DailyFootAnalysisResultDTO {
         rightFootSizeDiff: 8,
         leftFootWidthMm: 85,
         rightFootWidthMm: 70,
-        avgTemperatureCelsius: 34,
+        beforeTemperatureCelsius: 28,
+        beforeHumidityPercent: 45,
+        afterTemperatureCelsius: 34,
+        afterHumidityPercent: 55,
+        avgTemperatureCelsius: 31,
         avgHumidityPercent: 50,
         careTips: [
             "오른발 앞꿈치 스트레칭을 해주세요.",

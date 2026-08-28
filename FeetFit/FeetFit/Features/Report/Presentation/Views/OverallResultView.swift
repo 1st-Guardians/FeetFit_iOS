@@ -36,7 +36,6 @@ struct OverallResultView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 40)
                 } else if let result = viewModel.result {
-                    conditionSection(result)
                     balanceSection(result)
                     pressureAndFootprintSection(result)
                     sizeSection(result)
@@ -55,16 +54,6 @@ struct OverallResultView: View {
             guard !viewModel.isMock else { return }
             await viewModel.fetchDailyFootAnalysis(date: selectedDate)
         }
-    }
-
-    // TODO: 발 컨디션 삭제
-    private func conditionSection(_ result: DailyFootAnalysisResultDTO) -> some View {
-        MainBox(
-            title: "오늘의 발 컨디션",
-            status: result.conditionStatus,
-            listContent: result.conditionComments,
-            content: nil
-        )
     }
 
     // MARK: - 자세 균형
@@ -86,9 +75,6 @@ struct OverallResultView: View {
             
             VStack(alignment: .leading, spacing: 16) {
                 pressureSection(result)
-                Text("상세 설명")
-                    .pretendardFont(.BlockText)
-                    .padding(.horizontal, 4)
             }
             
             VStack(alignment: .leading, spacing: 16) {
@@ -125,7 +111,6 @@ struct OverallResultView: View {
 
             pressureImageView(result.rightPlantarFootprintImageUrl)
         }
-        .padding(20)
         .gradientBoxStyle()
     }
 
@@ -163,12 +148,11 @@ struct OverallResultView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity)
             }
-            .frame(height: 150)
+            .frame(height: 230)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         } else {
             Rectangle()
                 .fill(.gray02)
-                .frame(height: 150)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
@@ -196,12 +180,16 @@ struct OverallResultView: View {
 
             EnvironmentGaugeView(
                 type: .temperature,
-                value: result.temperatureValue
+                value: result.temperatureValue,
+                beforeValue: result.beforeTemperatureValue,
+                afterValue: result.afterTemperatureValue
             )
 
             EnvironmentGaugeView(
                 type: .humidity,
-                value: result.humidityValue
+                value: result.humidityValue,
+                beforeValue: result.beforeHumidityValue,
+                afterValue: result.afterHumidityValue
             )
         }
         .padding(20)
