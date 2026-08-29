@@ -45,6 +45,7 @@ struct LoadingMessageView: View {
             Text(message)
                 .pretendardFont(.SubTitle)
                 .multilineTextAlignment(.center)
+                .lineLimit(2)
         }
     }
 }

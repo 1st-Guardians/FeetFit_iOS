@@ -6,13 +6,20 @@
 //
 
 import Foundation
+import Moya
 
 @Observable
 final class FootMeasurementViewModel {
     private let socketManager = MeasurementSocketManager.shared
+    private let myPageProvider = APIManager.shared.createProvider(
+        for: MyPageRouter.self,
+        withAuth: true
+    )
 
     var isLoading = false
     var errorMessage: String?
+    /// 실패 상세 사유. failureMessage(제목)와 별개로 상세 설명 영역에 보여준다.
+    var errorDetail: String?
     var session: MeasurementSessionResultDTO?
 
     var measurementSessionId: Int?
@@ -29,7 +36,7 @@ final class FootMeasurementViewModel {
         socketManager.onConnected = { [weak self] in
             guard let self else { return }
 
-            Task { @MainActor in
+            _Concurrency.Task { @MainActor in
                 self.isLoading = false
                 print("CONNECTED 수신 → Progress 화면으로 이동")
                 self.onMoveToProgress?()
@@ -39,13 +46,13 @@ final class FootMeasurementViewModel {
         socketManager.onMeasurementMessage = { [weak self] body in
             guard let self else { return }
 
-            Task { @MainActor in
+            _Concurrency.Task { @MainActor in
                 self.handleMeasurementMessage(body)
             }
         }
 
         socketManager.onError = { [weak self] error in
-            Task { @MainActor in
+            _Concurrency.Task { @MainActor in
                 self?.isLoading = false
                 self?.errorMessage = error.localizedDescription
                 self?.measurementStatusText = "WebSocket 연결이\n끊겼어요"
@@ -61,6 +68,7 @@ final class FootMeasurementViewModel {
 
         isLoading = true
         errorMessage = nil
+        errorDetail = nil
         session = nil
         measurementSessionId = nil
         measurementStatus = nil
@@ -87,6 +95,9 @@ final class FootMeasurementViewModel {
         do {
             measurementStatusText = "측정 세션\n생성 중..."
 
+            // 세션 topic 구독을 지연시키지 않도록, userId 조회는 세션 생성과 병렬로 진행한다.
+            async let userIdTask = fetchUserId()
+
             let result = try await MeasurementAPI.shared.postMeasurementSessions()
 
             self.session = result
@@ -106,10 +117,42 @@ final class FootMeasurementViewModel {
                 sessionId: result.id
             )
 
+            // 세션 topic 메시지가 누락되는 경우를 대비해, 서버가 함께 발행하는
+            // 사용자 topic도 이중으로 구독해 둔다 (동일 상태 메시지가 두 topic으로 온다).
+            if let userId = await userIdTask {
+                socketManager.subscribe(
+                    to: "/topic/users/\(userId)/measurements",
+                    sessionId: result.id
+                )
+                print("사용자 topic 구독 완료: userId", userId)
+            } else {
+                print("userId 조회 실패 → 사용자 topic 구독 생략")
+            }
+
         } catch {
             errorMessage = error.localizedDescription
             measurementStatusText = "측정 시작에\n실패했어요"
             print("측정 세션 생성 실패:", error)
+        }
+    }
+
+    /// 사용자 topic(/topic/users/{userId}/measurements) 구독을 위해 프로필에서 userId만 가져온다.
+    private func fetchUserId() async -> Int? {
+        await withCheckedContinuation { continuation in
+            myPageProvider.request(.getProfile) { result in
+                switch result {
+                case .success(let response):
+                    let decoded = try? JSONDecoder().decode(
+                        BaseResponse<MyPageProfileResult>.self,
+                        from: response.data
+                    )
+                    continuation.resume(returning: decoded?.result?.userId)
+
+                case .failure(let error):
+                    print("userId 조회 실패:", error)
+                    continuation.resume(returning: nil)
+                }
+            }
         }
     }
 
@@ -118,6 +161,11 @@ final class FootMeasurementViewModel {
     @MainActor
     func confirmPhotoReady() async {
         await patchStatus(.readyForPhoto)
+    }
+
+    @MainActor
+    func confirmEnvironmentReady() async {
+        await patchStatus(.readyForEnvironment)
     }
 
     @MainActor
@@ -136,6 +184,7 @@ final class FootMeasurementViewModel {
 
         isStatusUpdateInFlight = true
         errorMessage = nil
+        errorDetail = nil
 
         do {
             let result = try await MeasurementAPI.shared.patchMeasurementSessionStatus(
@@ -205,11 +254,14 @@ final class FootMeasurementViewModel {
                 onMoveToFinish?()
 
             case .failed:
-                // 표시 우선순위: 백엔드가 준 사용자용 문구 > 실패 사유별 로컬 폴백 문구 > statusMessage > 기본 문구
-                errorMessage = message.failureMessage
+                // 제목: 백엔드가 준 사용자용 문구 > 실패 사유별 로컬 폴백 문구 > statusMessage > 기본 문구
+                // 상세: failureDetail을 상세 원인으로 보여준다 (0825 스펙 추가). 오류코드 표기는 사용자에게 노출하지 않는다.
+                let title = message.failureMessage
                     ?? message.failureReason?.fallbackMessage
                     ?? message.statusMessage
                     ?? MeasurementStatus.failed.guideMessage
+                errorMessage = addLineBreakIfNeeded(title)
+                errorDetail = message.failureDetail.map(removingErrorCode)
 
                 print("측정 실패 - failureReason:", message.failureReason?.rawValue ?? "nil")
                 print("측정 실패 - failureDetail:", message.failureDetail ?? "nil")
@@ -219,6 +271,7 @@ final class FootMeasurementViewModel {
                 }
 
             case .waitingForPhoto, .readyForPhoto, .capturingPhoto,
+                 .waitingForEnvironment, .readyForEnvironment, .measuringEnvironment,
                  .waitingForPressure, .readyForPressure, .measuringPressure,
                  .analyzing:
                 // 중간 상태는 measurementStatus 갱신 외에 별도 화면 전환이 없다.
@@ -235,5 +288,24 @@ final class FootMeasurementViewModel {
 
     func disconnect() {
         socketManager.disconnect()
+    }
+
+    // MARK: - 문구 가공
+
+    /// 백엔드가 한 줄로 보내는 failureMessage도 앱 전반의 2줄 안내 문구 배치와 맞도록,
+    /// 이미 줄바꿈이 없으면 첫 문장 뒤에서 한 번 끊어준다.
+    private func addLineBreakIfNeeded(_ text: String) -> String {
+        guard !text.contains("\n") else { return text }
+        guard let range = text.range(of: ". ") else { return text }
+        return text.replacingCharacters(in: range, with: ".\n")
+    }
+
+    /// failureDetail에 붙어 오는 "(오류코드: ~)" 같은 표기는 사용자에게 노출하지 않는다.
+    private func removingErrorCode(_ text: String) -> String {
+        text.replacingOccurrences(
+            of: #"\s*\(오류코드[^)]*\)"#,
+            with: "",
+            options: .regularExpression
+        ).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

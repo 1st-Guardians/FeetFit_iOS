@@ -21,6 +21,15 @@ struct FootMeasurementProgressView: View {
             actionButton
                 .padding(.horizontal, 18)
 
+            if let errorDetailText {
+                Text(errorDetailText)
+                    .pretendardFont(.BlockText)
+                    .foregroundStyle(.gray01)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+            }
+
             Spacer()
         }
         .navigationBarBackButtonHidden()
@@ -52,6 +61,11 @@ struct FootMeasurementProgressView: View {
         return viewModel.measurementStatus?.guideMessage ?? viewModel.measurementStatusText
     }
 
+    private var errorDetailText: String? {
+        guard viewModel.measurementStatus == .failed else { return nil }
+        return viewModel.errorDetail
+    }
+
     @ViewBuilder
     private var actionButton: some View {
         switch viewModel.measurementStatus {
@@ -60,6 +74,15 @@ struct FootMeasurementProgressView: View {
                 viewModel.isStatusUpdateInFlight ? "요청 중..." : "사진 촬영 준비 완료",
                 action: {
                     Task { await viewModel.confirmPhotoReady() }
+                }
+            )
+            .disabled(viewModel.isStatusUpdateInFlight)
+
+        case .waitingForEnvironment:
+            MainButton(
+                viewModel.isStatusUpdateInFlight ? "요청 중..." : "온습도 측정 준비 완료",
+                action: {
+                    Task { await viewModel.confirmEnvironmentReady() }
                 }
             )
             .disabled(viewModel.isStatusUpdateInFlight)
