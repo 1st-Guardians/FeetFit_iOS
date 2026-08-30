@@ -51,7 +51,9 @@ struct ShoeFeatureComparisonCard: View {
 
             ComparisonBar(
                 comparisonValue: feature.comparisonValue,
-                shoeValue: feature.shoeValue
+                comparisonTooltip: feature.comparisonValueLabel,
+                shoeValue: feature.shoeValue,
+                shoeTooltip: feature.shoeValueLabel
             )
 
             if showsScaleLabels {
@@ -96,10 +98,15 @@ struct ShoeFeatureComparisonCard: View {
 /// 채워진 원 = 신발(현재) 값, 흰색 채움 + 테두리만 있는 원 = 비교군(이전) 평균.
 struct ComparisonBar: View {
     let comparisonValue: CGFloat
+    var comparisonTooltip: String? = nil
     let shoeValue: CGFloat
+    var shoeTooltip: String? = nil
     var color: Color = .blue01
     /// 지정하면 트랙 왼쪽부터 이 값 위치까지 색이 채워진 바를 함께 표시한다 (기본은 표시 안 함).
     var fillValue: CGFloat? = nil
+
+    @State private var showsComparisonTooltip = false
+    @State private var showsShoeTooltip = false
 
     private let trackHeight: CGFloat = 6
     private let markerDiameter: CGFloat = 16
@@ -124,23 +131,50 @@ struct ComparisonBar: View {
                         )
                 }
 
-                marker(filled: false)
+                marker(
+                    filled: false,
+                    tooltip: comparisonTooltip,
+                    isPresented: $showsComparisonTooltip
+                )
                     .offset(x: usableWidth * clamp(comparisonValue))
 
-                marker(filled: true)
+                marker(
+                    filled: true,
+                    tooltip: shoeTooltip,
+                    isPresented: $showsShoeTooltip
+                )
                     .offset(x: usableWidth * clamp(shoeValue))
             }
         }
         .frame(height: markerDiameter)
     }
 
-    private func marker(filled: Bool) -> some View {
-        Circle()
-            .fill(filled ? color : Color.white)
-            .overlay(
-                Circle().stroke(color, lineWidth: markerBorderWidth)
-            )
-            .frame(width: markerDiameter, height: markerDiameter)
+    private func marker(
+        filled: Bool,
+        tooltip: String?,
+        isPresented: Binding<Bool>
+    ) -> some View {
+        Button {
+            guard tooltip != nil else { return }
+            isPresented.wrappedValue.toggle()
+        } label: {
+            Circle()
+                .fill(filled ? color : Color.white)
+                .overlay(
+                    Circle().stroke(color, lineWidth: markerBorderWidth)
+                )
+                .frame(width: markerDiameter, height: markerDiameter)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: isPresented) {
+            if let tooltip {
+                Text(tooltip)
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.black01)
+                    .padding(12)
+                    .presentationCompactAdaptation(.popover)
+            }
+        }
     }
 
     private func clamp(_ value: CGFloat) -> CGFloat {

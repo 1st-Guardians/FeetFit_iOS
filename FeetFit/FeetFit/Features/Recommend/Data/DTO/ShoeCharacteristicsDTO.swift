@@ -74,20 +74,27 @@ private extension ShoeCharacteristicDTO {
             minimumLabel: attribute.minimumLabel,
             maximumLabel: attribute.maximumLabel,
             comparisonValue: normalizedAverageValue,
+            comparisonValueLabel: "비교군 평균 \(formattedValue(averageValue))",
             shoeValue: normalizedShoeValue,
+            shoeValueLabel: "현재 신발 \(formattedValue(value))",
             note: noteText(value: value, averageValue: averageValue)
         )
     }
 
     func noteText(value: Double, averageValue: Double) -> String {
-        let unitText = unit ?? ""
-        let measured = "측정값 \(formattedNumber(value)) \(unitText) (평균 \(formattedNumber(averageValue)) \(unitText))"
+        let measured = "측정값 \(formattedValue(value)) (평균 \(formattedValue(averageValue)))"
 
         guard let testedSize, !testedSize.isEmpty else {
             return measured
         }
 
         return "\(testedSize) 기준 \(measured)"
+    }
+
+    func formattedValue(_ number: Double) -> String {
+        let unitText = unit ?? ""
+        guard !unitText.isEmpty else { return formattedNumber(number) }
+        return "\(formattedNumber(number)) \(unitText)"
     }
 
     func formattedNumber(_ number: Double) -> String {

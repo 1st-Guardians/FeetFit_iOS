@@ -175,8 +175,15 @@ struct OverallResultView: View {
     // MARK: - 발 환경 상태
     private func environmentSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("발 환경 상태")
-                .pretendardFont(.BlockTitle)
+            HStack(spacing: 5) {
+                Text("발 환경 상태")
+                    .pretendardFont(.BlockTitle)
+
+                TooltipButton(
+                    message: "온·습도 값은 발 자체의 피부 온도나 수분량이 아닌, 측정 시 발 주변 공간에서 감지된 환경 변화입니다."
+                )
+                .foregroundStyle(.black01)
+            }
 
             EnvironmentGaugeView(
                 type: .temperature,

@@ -27,7 +27,9 @@ struct EnvironmentGaugeView: View {
 
             ComparisonBar(
                 comparisonValue: normalized(beforeValue),
+                comparisonTooltip: "측정 전 \(formattedValue(beforeValue))",
                 shoeValue: normalized(afterValue),
+                shoeTooltip: "측정 후 \(formattedValue(afterValue))",
                 color: type.color,
                 fillValue: normalized(afterValue)
             )
@@ -42,6 +44,16 @@ struct EnvironmentGaugeView: View {
 
     private func normalized(_ rawValue: Double) -> CGFloat {
         CGFloat(min(max(rawValue / type.maxValue, 0), 1))
+    }
+
+    private func formattedValue(_ rawValue: Double) -> String {
+        "\(formattedNumber(rawValue))\(type.unit)"
+    }
+
+    private func formattedNumber(_ number: Double) -> String {
+        number.truncatingRemainder(dividingBy: 1) == 0
+            ? String(Int(number))
+            : String(format: "%.1f", number)
     }
 }
 
