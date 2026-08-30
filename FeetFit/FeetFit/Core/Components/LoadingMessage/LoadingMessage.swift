@@ -17,19 +17,22 @@ struct LoadingMessageView: View {
     private let lottieSize: CGFloat
     private let topPadding: CGFloat
     private let bottomPadding: CGFloat
+    private let messageLineLimit: Int?
     
     init(
         lottieName: String = "FeetFit Loading",
         message: String,
         lottieSize: CGFloat = 100,
         topPadding: CGFloat = 163,
-        bottomPadding: CGFloat = 10
+        bottomPadding: CGFloat = 10,
+        messageLineLimit: Int? = 2
     ) {
         self.lottieName = lottieName
         self.message = message
         self.lottieSize = lottieSize
         self.topPadding = topPadding
         self.bottomPadding = bottomPadding
+        self.messageLineLimit = messageLineLimit
     }
     
     // MARK: - Body
@@ -45,7 +48,9 @@ struct LoadingMessageView: View {
             Text(message)
                 .pretendardFont(.SubTitle)
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
+                .lineLimit(messageLineLimit)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 24)
         }
     }
 }

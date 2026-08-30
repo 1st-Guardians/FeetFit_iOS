@@ -11,19 +11,19 @@ struct FootMeasurementFinishView: View {
     @Environment(NavigationRouter<HomeRoute>.self) private var router
     
     var body: some View {
-        VStack(spacing: 0) {
+        ZStack(alignment: .bottom) {
             LoadingMessageView(
                 message: "데이터 전송이\n완료되었습니다"
             )
-            .padding(.bottom, 277)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             MainButton("홈으로 돌아가기", action: {
                 router.reset()
             })
             .padding(.horizontal, 18)
-
-            Spacer()
+            .padding(.bottom, 40)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn {

@@ -12,26 +12,35 @@ struct FootMeasurementProgressView: View {
     @Bindable var viewModel: FootMeasurementViewModel
     
     var body: some View {
-        VStack(spacing: 0) {
-            LoadingMessageView(
-                message: displayMessage
-            )
-            .padding(.bottom, 277)
+        ZStack(alignment: .bottom) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    LoadingMessageView(
+                        message: displayMessage,
+                        bottomPadding: isFailed ? 8 : 10,
+                        messageLineLimit: isFailed ? nil : 2
+                    )
+
+                    if let errorDetailText {
+                        Text(errorDetailText)
+                            .pretendardFont(.BlockText)
+                            .foregroundStyle(.gray01)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.horizontal, 24)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 120)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             actionButton
                 .padding(.horizontal, 18)
-
-            if let errorDetailText {
-                Text(errorDetailText)
-                    .pretendardFont(.BlockText)
-                    .foregroundStyle(.gray01)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-            }
-
-            Spacer()
+                .padding(.bottom, 40)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn {
@@ -64,6 +73,10 @@ struct FootMeasurementProgressView: View {
     private var errorDetailText: String? {
         guard viewModel.measurementStatus == .failed else { return nil }
         return viewModel.errorDetail
+    }
+
+    private var isFailed: Bool {
+        viewModel.measurementStatus == .failed
     }
 
     @ViewBuilder
