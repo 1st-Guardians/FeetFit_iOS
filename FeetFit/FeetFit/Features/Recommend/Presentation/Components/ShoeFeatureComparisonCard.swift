@@ -28,21 +28,9 @@ struct ShoeFeatureComparisonCard: View {
     // MARK: - SubViews
 
     private var header: some View {
-        HStack(spacing: 8) {
-            Text(feature.title)
-                .pretendardFont(.BlockTitle)
-                .foregroundStyle(.black01)
-
-            HStack(spacing: 4) {
-                Circle()
-                    .fill(statusColor)
-                    .frame(width: 8, height: 8)
-
-                Text(feature.levelText)
-                    .pretendardFont(.Caption)
-                    .foregroundStyle(statusColor)
-            }
-        }
+        Text(feature.title)
+            .pretendardFont(.BlockTitle)
+            .foregroundStyle(.black01)
     }
 
     private var description: some View {
@@ -55,18 +43,22 @@ struct ShoeFeatureComparisonCard: View {
 
     private var comparisonSection: some View {
         HStack(spacing: 12) {
-            Text(feature.minimumLabel)
-                .pretendardFont(.Caption)
-                .foregroundStyle(.gray01)
+            if showsScaleLabels {
+                Text(feature.minimumLabel)
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.gray01)
+            }
 
             ComparisonBar(
                 comparisonValue: feature.comparisonValue,
                 shoeValue: feature.shoeValue
             )
 
-            Text(feature.maximumLabel)
-                .pretendardFont(.Caption)
-                .foregroundStyle(.gray01)
+            if showsScaleLabels {
+                Text(feature.maximumLabel)
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.gray01)
+            }
         }
     }
 
@@ -92,16 +84,10 @@ struct ShoeFeatureComparisonCard: View {
         }
     }
 
-    // MARK: - Helper
-
-    private var statusColor: Color {
-        switch feature.levelText {
-        case "낮음": return .red01
-        case "보통": return .yellow01
-        case "높음": return .green01
-        default: return .gray01
-        }
+    private var showsScaleLabels: Bool {
+        feature.minimumLabel != "낮음" && feature.maximumLabel != "높음"
     }
+
 }
 
 // MARK: - ComparisonBar

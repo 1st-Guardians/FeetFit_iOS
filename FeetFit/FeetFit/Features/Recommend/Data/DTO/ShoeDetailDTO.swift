@@ -27,8 +27,8 @@ struct ShoeFitReasonDTO: Decodable {
     let reasonType: String
     let title: String
     let riskLevel: String
-    let reviewSummary: String
-    let reviewTexts: [String]
+    let reviewSummary: String?
+    let reviewTexts: [String]?
 }
 
 extension ShoeDetailResultDTO {
@@ -49,8 +49,8 @@ extension ShoeDetailResultDTO {
                 id: index,
                 title: reason.title,
                 status: status,
-                reviewQuotes: reason.reviewTexts,
-                description: reason.reviewSummary
+                reviewQuotes: reason.reviewTexts ?? [],
+                description: reason.reviewSummary ?? "관련 리뷰 요약이 아직 없습니다."
             )
         }
         

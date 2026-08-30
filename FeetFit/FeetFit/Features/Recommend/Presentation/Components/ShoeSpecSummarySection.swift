@@ -15,8 +15,7 @@ struct ShoeSpecSummarySection: View {
                 .padding(.leading, 8)
 
             RadarChartView(
-                items: specProfile.radarItems,
-                maxLevel: 3
+                items: specProfile.radarItems
             )
             .padding(.top, 20)
             .padding(.bottom, 12)

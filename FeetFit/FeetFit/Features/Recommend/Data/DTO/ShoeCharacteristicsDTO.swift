@@ -50,8 +50,14 @@ private extension ShoeCharacteristicDTO {
 
     /// 존재하지 않는 특성을 0/LOW 등으로 임의 생성하지 않도록, 필수 값이 하나라도 없으면 이 항목 자체를 건너뛴다.
     func toSpecProfileItem() -> ShoeSpecProfileItem? {
-        guard let attribute, let specLevel else { return nil }
-        return ShoeSpecProfileItem(attribute: attribute, level: specLevel)
+        guard let attribute, let specLevel, let value, let minValue, let maxValue else { return nil }
+        return ShoeSpecProfileItem(
+            attribute: attribute,
+            level: specLevel,
+            value: value,
+            minValue: minValue,
+            maxValue: maxValue
+        )
     }
 
     func toFeatureComparison() -> ShoeFeatureComparison? {
@@ -64,7 +70,6 @@ private extension ShoeCharacteristicDTO {
 
         return ShoeFeatureComparison(
             title: attribute.rawValue,
-            levelText: specLevel.title,
             description: attribute.description(for: specLevel),
             minimumLabel: attribute.minimumLabel,
             maximumLabel: attribute.maximumLabel,

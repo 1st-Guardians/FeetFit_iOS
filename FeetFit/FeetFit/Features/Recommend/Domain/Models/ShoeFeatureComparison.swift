@@ -9,7 +9,6 @@ struct ShoeFeatureComparison: Identifiable {
     let id = UUID()
 
     let title: String
-    let levelText: String
     let description: String
 
     let minimumLabel: String
@@ -24,7 +23,6 @@ struct ShoeFeatureComparison: Identifiable {
 
     init(
         title: String,
-        levelText: String,
         description: String,
         minimumLabel: String,
         maximumLabel: String,
@@ -33,7 +31,6 @@ struct ShoeFeatureComparison: Identifiable {
         note: String? = nil
     ) {
         self.title = title
-        self.levelText = levelText
         self.description = description
         self.minimumLabel = minimumLabel
         self.maximumLabel = maximumLabel
@@ -49,7 +46,6 @@ extension ShoeFeatureComparison {
     static let samples: [ShoeFeatureComparison] = [
         ShoeFeatureComparison(
             title: ShoeSpecAttribute.widthSpace.rawValue,
-            levelText: ShoeSpecLevel.medium.title,
             description: ShoeSpecAttribute.widthSpace.description(for: .medium),
             minimumLabel: ShoeSpecAttribute.widthSpace.minimumLabel,
             maximumLabel: ShoeSpecAttribute.widthSpace.maximumLabel,
@@ -59,7 +55,6 @@ extension ShoeFeatureComparison {
         ),
         ShoeFeatureComparison(
             title: ShoeSpecAttribute.toeboxSpace.rawValue,
-            levelText: ShoeSpecLevel.low.title,
             description: ShoeSpecAttribute.toeboxSpace.description(for: .low),
             minimumLabel: ShoeSpecAttribute.toeboxSpace.minimumLabel,
             maximumLabel: ShoeSpecAttribute.toeboxSpace.maximumLabel,
@@ -69,7 +64,6 @@ extension ShoeFeatureComparison {
         ),
         ShoeFeatureComparison(
             title: ShoeSpecAttribute.heelHold.rawValue,
-            levelText: ShoeSpecLevel.high.title,
             description: ShoeSpecAttribute.heelHold.description(for: .high),
             minimumLabel: ShoeSpecAttribute.heelHold.minimumLabel,
             maximumLabel: ShoeSpecAttribute.heelHold.maximumLabel,
@@ -79,7 +73,6 @@ extension ShoeFeatureComparison {
         ),
         ShoeFeatureComparison(
             title: ShoeSpecAttribute.cushion.rawValue,
-            levelText: ShoeSpecLevel.low.title,
             description: ShoeSpecAttribute.cushion.description(for: .low),
             minimumLabel: ShoeSpecAttribute.cushion.minimumLabel,
             maximumLabel: ShoeSpecAttribute.cushion.maximumLabel,
@@ -89,7 +82,6 @@ extension ShoeFeatureComparison {
         ),
         ShoeFeatureComparison(
             title: ShoeSpecAttribute.breathability.rawValue,
-            levelText: ShoeSpecLevel.medium.title,
             description: ShoeSpecAttribute.breathability.description(for: .medium),
             minimumLabel: ShoeSpecAttribute.breathability.minimumLabel,
             maximumLabel: ShoeSpecAttribute.breathability.maximumLabel,

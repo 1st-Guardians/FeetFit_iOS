@@ -105,6 +105,19 @@ struct ShoeSpecProfileItem: Identifiable {
     let id = UUID()
     let attribute: ShoeSpecAttribute
     let level: ShoeSpecLevel
+    let value: Double
+    let minValue: Double
+    let maxValue: Double
+
+    var normalizedValue: Double {
+        let range = maxValue - minValue
+        guard range > 0 else { return 0.5 }
+        return min(max((value - minValue) / range, 0.0), 1.0)
+    }
+
+    var percentageLabel: String {
+        "\(Int((normalizedValue * 100).rounded()))%"
+    }
 }
 
 struct ShoeSpecProfile {
@@ -117,8 +130,8 @@ struct ShoeSpecProfile {
         items.map {
             RadarChartItem(
                 title: $0.attribute.rawValue,
-                value: $0.level.normalizedValue,
-                valueLabel: $0.level.title
+                value: $0.normalizedValue,
+                valueLabel: $0.percentageLabel
             )
         }
     }
@@ -129,11 +142,11 @@ extension ShoeSpecProfile {
     static let mock = ShoeSpecProfile(
         summary: "발볼 공간은 평균보다 약간 좁고, 뒤꿈치를 안정적으로 잡아주는 편입니다. 쿠션은 푹신한 타입보다 바닥감이 느껴지는 특성에 가깝습니다.",
         items: [
-            ShoeSpecProfileItem(attribute: .widthSpace, level: .medium),
-            ShoeSpecProfileItem(attribute: .toeboxSpace, level: .low),
-            ShoeSpecProfileItem(attribute: .heelHold, level: .high),
-            ShoeSpecProfileItem(attribute: .cushion, level: .low),
-            ShoeSpecProfileItem(attribute: .breathability, level: .medium)
+            ShoeSpecProfileItem(attribute: .widthSpace, level: .medium, value: 93.4, minValue: 70, maxValue: 120),
+            ShoeSpecProfileItem(attribute: .toeboxSpace, level: .low, value: 71.2, minValue: 55, maxValue: 100),
+            ShoeSpecProfileItem(attribute: .heelHold, level: .high, value: 8.1, minValue: 0, maxValue: 10),
+            ShoeSpecProfileItem(attribute: .cushion, level: .low, value: 30.0, minValue: 20, maxValue: 80),
+            ShoeSpecProfileItem(attribute: .breathability, level: .medium, value: 3.0, minValue: 1, maxValue: 5)
         ]
     )
 }
