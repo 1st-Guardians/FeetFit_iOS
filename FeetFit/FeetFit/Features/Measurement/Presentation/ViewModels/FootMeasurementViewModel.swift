@@ -32,11 +32,20 @@ final class FootMeasurementViewModel {
     var onMoveToProgress: (() -> Void)?
     var onMoveToFinish: (() -> Void)?
 
+    // 사용자 topic을 세션 생성 전에 구독했는지 여부. connectDevice()마다 초기화된다.
+    private var isUserTopicSubscribed = false
+    // measurementSessionId가 확정되기 전(POST 응답 도착 전)에 온 메시지를 순서대로 보관해 둔다.
+    private var pendingMessageBodies: [String] = []
+
     init() {
         socketManager.onConnected = { [weak self] in
             guard let self else { return }
 
             _Concurrency.Task { @MainActor in
+                // 세션 생성(POST) 전에 사용자 topic 구독을 먼저 마쳐야
+                // WAITING_FOR_PHOTO 첫 메시지를 놓치지 않는다.
+                await self.subscribeUserTopicIfNeeded()
+
                 self.isLoading = false
                 print("CONNECTED 수신 → Progress 화면으로 이동")
                 self.onMoveToProgress?()
@@ -73,9 +82,29 @@ final class FootMeasurementViewModel {
         measurementSessionId = nil
         measurementStatus = nil
         isMeasurementCompleted = false
+        isUserTopicSubscribed = false
+        pendingMessageBodies = []
         measurementStatusText = "기기와\n연결 중이에요"
 
         socketManager.connect()
+    }
+
+    // MARK: - 사용자 topic 구독 (세션 생성 전)
+
+    /// CONNECTED 수신 직후, 세션 생성(POST) 전에 사용자 topic을 먼저 구독해 둔다.
+    /// 세션 생성 후에 구독하면 백엔드가 그 직후 바로 보내는 WAITING_FOR_PHOTO를 놓칠 수 있다.
+    private func subscribeUserTopicIfNeeded() async {
+        guard !isUserTopicSubscribed else { return }
+
+        guard let userId = await fetchUserId() else {
+            print("userId 조회 실패 → 사용자 topic 구독 불가")
+            return
+        }
+
+        socketManager.subscribe(to: "/topic/users/\(userId)/measurements")
+        isUserTopicSubscribed = true
+
+        print("사용자 topic 구독 완료 (세션 생성 전): userId", userId)
     }
 
     // MARK: - 측정 세션 시작
@@ -95,39 +124,23 @@ final class FootMeasurementViewModel {
         do {
             measurementStatusText = "측정 세션\n생성 중..."
 
-            // 세션 topic 구독을 지연시키지 않도록, userId 조회는 세션 생성과 병렬로 진행한다.
-            async let userIdTask = fetchUserId()
+            // 사용자 topic 구독이 아직 안 끝났다면(예: onConnected 처리와 경합) 여기서 한 번 더 보장한다.
+            await subscribeUserTopicIfNeeded()
 
             let result = try await MeasurementAPI.shared.postMeasurementSessions()
 
             self.session = result
             self.measurementSessionId = result.id
             // POST 응답의 status를 최초 UI 상태로 즉시 반영한다.
-            // 서버가 세션 생성 직후 WebSocket으로 상태를 발행할 수 있어,
-            // SUBSCRIBE 전에 온 최초 메시지를 놓치더라도 화면은 이미 올바른 상태를 보여준다.
             self.measurementStatus = result.status
 
             print("측정 세션 생성 성공")
             print("session id:", result.id)
-            print("topic:", result.webSocketTopic)
             print("초기 status:", result.status.rawValue)
 
-            socketManager.subscribe(
-                to: result.webSocketTopic,
-                sessionId: result.id
-            )
-
-            // 세션 topic 메시지가 누락되는 경우를 대비해, 서버가 함께 발행하는
-            // 사용자 topic도 이중으로 구독해 둔다 (동일 상태 메시지가 두 topic으로 온다).
-            if let userId = await userIdTask {
-                socketManager.subscribe(
-                    to: "/topic/users/\(userId)/measurements",
-                    sessionId: result.id
-                )
-                print("사용자 topic 구독 완료: userId", userId)
-            } else {
-                print("userId 조회 실패 → 사용자 topic 구독 생략")
-            }
+            // 세션 확정 전에 사용자 topic으로 먼저 도착해 임시 보관해 둔 메시지들을
+            // 이 세션에 해당하는 것만 순서대로 처리한다.
+            flushPendingMessages()
 
         } catch {
             errorMessage = error.localizedDescription
@@ -193,11 +206,7 @@ final class FootMeasurementViewModel {
             )
 
             print("측정 상태 PATCH 성공:", result.status.rawValue)
-
-            // source of truth는 이후 도착하는 WebSocket 상태 메시지이지만,
-            // 버튼을 누른 직후 화면이 즉시 반응하도록 임시로 반영해 둔다.
-            self.measurementStatus = result.status
-
+            
         } catch {
             errorMessage = error.localizedDescription
             print("측정 상태 PATCH 실패:", error)
@@ -210,6 +219,36 @@ final class FootMeasurementViewModel {
 
     @MainActor
     private func handleMeasurementMessage(_ body: String) {
+        // POST /api/measurement-sessions 응답으로 세션 ID가 확정되기 전에는
+        // 어떤 세션의 메시지인지 판단할 수 없으므로 버리지 않고 순서대로 보관해 둔다.
+        // 세션이 확정되면 flushPendingMessages()에서 해당 세션 메시지만 골라 처리한다.
+        guard measurementSessionId != nil else {
+            print("세션 ID 확정 전 메시지 → 임시 보관")
+            pendingMessageBodies.append(body)
+            return
+        }
+
+        processMeasurementMessage(body)
+    }
+
+    /// 세션 확정 전 임시 보관해 둔 메시지 중, 확정된 현재 세션에 해당하는 메시지만 순서대로 처리한다.
+    /// (다른 세션의 메시지는 processMeasurementMessage 내부의 세션 ID 가드에서 걸러진다.)
+    @MainActor
+    private func flushPendingMessages() {
+        guard !pendingMessageBodies.isEmpty else { return }
+
+        let bodies = pendingMessageBodies
+        pendingMessageBodies = []
+
+        print("임시 보관된 메시지 재처리:", bodies.count, "개")
+
+        for body in bodies {
+            processMeasurementMessage(body)
+        }
+    }
+
+    @MainActor
+    private func processMeasurementMessage(_ body: String) {
         print("측정 메시지 raw body:")
         print(body)
 
@@ -240,6 +279,7 @@ final class FootMeasurementViewModel {
 
             // UI는 eventType이 아니라 status를 기준으로 동작한다.
             measurementStatus = message.status
+            print("measurementStatus 갱신됨:", measurementStatus?.rawValue ?? "nil")
 
             switch message.status {
             case .completed:
