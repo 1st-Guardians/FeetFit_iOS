@@ -59,6 +59,8 @@ struct ShoeDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     ShoeDetailHeaderView(shoe: shoe)
 
+                    purchaseLinkButton(shoe: shoe)
+
                     segmentControl
                         .padding(.top, 20)
 
@@ -88,6 +90,21 @@ struct ShoeDetailView: View {
     }
 
     // MARK: - Segment
+
+    @ViewBuilder
+    private func purchaseLinkButton(shoe: ShoeDetailInfo) -> some View {
+        if let url = URL(string: shoe.shoeURL), !shoe.shoeURL.isEmpty {
+            Link(destination: url) {
+                Text("구매처로 이동하기")
+                    .pretendardFont(.Description)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 10)
+            }
+            .buttonStyle(.glass)
+            .frame(maxWidth: .infinity)
+        }
+    }
 
     private var segmentControl: some View {
         Picker("상세 정보 탭", selection: $selectedSegment) {
