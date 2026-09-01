@@ -43,7 +43,9 @@ struct EnvironmentGaugeView: View {
     }
 
     private func normalized(_ rawValue: Double) -> CGFloat {
-        CGFloat(min(max(rawValue / type.maxValue, 0), 1))
+        let range = type.maxValue - type.minValue
+        guard range > 0 else { return 0 }
+        return CGFloat(min(max((rawValue - type.minValue) / range, 0), 1))
     }
 
     private func formattedValue(_ rawValue: Double) -> String {
