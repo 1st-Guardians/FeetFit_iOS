@@ -71,8 +71,10 @@ final class MeasurementSocketManager: NSObject, URLSessionWebSocketDelegate {
 
     // MARK: - STOMP SUBSCRIBE with RECEIPT
 
+    // 세션 topic과 사용자 topic을 동시에 구독할 수 있어, subscribeId는 topic마다 달라야 한다.
+    // (sessionId만으로 만들면 같은 세션에 대한 두 topic이 id가 겹쳐 STOMP 구독이 깨진다.)
     func subscribe(to topic: String, sessionId: Int? = nil) {
-        let subscribeId = sessionId.map { "sub-measurement-\($0)" } ?? "sub-measurement"
+        let subscribeId = "sub-measurement-\(abs(topic.hashValue))"
 
         var frame = ""
         frame += "SUBSCRIBE\n"
@@ -156,6 +158,24 @@ final class MeasurementSocketManager: NSObject, URLSessionWebSocketDelegate {
         print("STOMP 수신:")
         print(text)
 
+        // STOMP 프레임은 NUL(\u{00})로 구분된다. 하트비트(개행 하나)가 다음 MESSAGE 프레임과
+        // 한 WebSocket 텍스트로 합쳐져 오면 앞에 개행이 붙어 hasPrefix("MESSAGE")가 실패하고
+        // 아무 처리도 안 된 채 조용히 무시되므로, NUL 기준으로 프레임을 분리해 각각 처리한다.
+        let frames = text
+            .components(separatedBy: "\u{00}")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        if frames.count > 1 {
+            print("한 번에 여러 STOMP 프레임 수신:", frames.count, "개")
+        }
+
+        for frame in frames {
+            handleSingleStompFrame(frame)
+        }
+    }
+
+    private func handleSingleStompFrame(_ text: String) {
         if text.hasPrefix("CONNECTED") {
             isConnected = true
             print("STOMP 연결 완료")

@@ -88,6 +88,8 @@ struct HomeView: View {
                 case .measuredToday:
                     if let date = weeklyStatusViewModel.todayDate {
                         router.push(.report(date))
+                    } else {
+                        router.push(.measurement)
                     }
                 }
             }) {

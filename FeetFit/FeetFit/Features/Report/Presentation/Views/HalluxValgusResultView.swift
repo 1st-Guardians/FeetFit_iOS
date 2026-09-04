@@ -43,6 +43,7 @@ struct HalluxValgusResultView: View {
     private func scoreSection(_ result: HalluxValgusResultDTO) -> some View {
         ScoreView(
             score: result.riskScoreInt,
+            title: "무지외반 점수",
             description: result.scoreAnalysisText,
             difference: result.riskScoreDiffInt
         )

@@ -18,7 +18,16 @@ final class ReportAPI {
 
     private init() {}
 
-    
+    /// 리포트 타입별로 message/code 문구가 달라도(예: "무좀 분석 결과를 찾을 수 없습니다."),
+    /// "데이터 없음"을 일관되게 판단할 수 있도록 한다.
+    /// code 문자열은 리포트 타입마다 다를 수 있어 신뢰하지 않고, REST 관례상 404(Not Found)를 우선 기준으로 삼는다.
+    private func reportError(statusCode: Int? = nil, code: String?, message: String) -> APIError {
+        if statusCode == 404 || code == "REPORT4001" {
+            return .notFound(code: code ?? "REPORT4001", message: message)
+        }
+        return .serverError(message)
+    }
+
     // 요약 리포트
     func fetchReportSummary() async throws -> ReportSummaryResultDTO {
         try await withCheckedThrowingContinuation { continuation in
@@ -56,6 +65,23 @@ final class ReportAPI {
                 case .failure(let error):
                     if let response = error.response {
                         print("Report failure statusCode:", response.statusCode)
+
+                        let errorResponse = try? JSONDecoder().decode(
+                            APIErrorResponse.self,
+                            from: response.data
+                        )
+
+                        if response.statusCode == 401 {
+                            continuation.resume(throwing: APIError.unauthorized)
+                            return
+                        }
+
+                        continuation.resume(
+                            throwing: APIError.serverError(
+                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            )
+                        )
+                        return
                     }
 
                     continuation.resume(throwing: APIError.from(error))
@@ -63,7 +89,7 @@ final class ReportAPI {
             }
         }
     }
-    
+
     // 종합 결과 리포트
     func fetchDailyFootAnalysis(date: String) async throws -> DailyFootAnalysisResultDTO {
         try await withCheckedThrowingContinuation { continuation in
@@ -80,7 +106,7 @@ final class ReportAPI {
 
                         guard decoded.isSuccess else {
                             continuation.resume(
-                                throwing: APIError.serverError(decoded.message)
+                                throwing: self.reportError(code: decoded.code, message: decoded.message)
                             )
                             return
                         }
@@ -112,9 +138,13 @@ final class ReportAPI {
                             return
                         }
 
+                        print("code:", errorResponse?.code ?? "nil", "message:", errorResponse?.message ?? "nil")
+
                         continuation.resume(
-                            throwing: APIError.serverError(
-                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            throwing: self.reportError(
+                                statusCode: response.statusCode,
+                                code: errorResponse?.code,
+                                message: errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
                             )
                         )
                         return
@@ -125,7 +155,7 @@ final class ReportAPI {
             }
         }
     }
-    
+
     // 무지외반 결과 리포트
     func fetchHalluxValgus(date: String) async throws -> HalluxValgusResultDTO {
         try await withCheckedThrowingContinuation { continuation in
@@ -142,7 +172,7 @@ final class ReportAPI {
 
                         guard decoded.isSuccess else {
                             continuation.resume(
-                                throwing: APIError.serverError(decoded.message)
+                                throwing: self.reportError(code: decoded.code, message: decoded.message)
                             )
                             return
                         }
@@ -174,9 +204,13 @@ final class ReportAPI {
                             return
                         }
 
+                        print("code:", errorResponse?.code ?? "nil", "message:", errorResponse?.message ?? "nil")
+
                         continuation.resume(
-                            throwing: APIError.serverError(
-                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            throwing: self.reportError(
+                                statusCode: response.statusCode,
+                                code: errorResponse?.code,
+                                message: errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
                             )
                         )
                         return
@@ -187,7 +221,7 @@ final class ReportAPI {
             }
         }
     }
-    
+
     // 무좀 결과 리포트
     func fetchAthletesFoot(date: String) async throws -> AthletesFootResultDTO {
         try await withCheckedThrowingContinuation { continuation in
@@ -204,7 +238,7 @@ final class ReportAPI {
 
                         guard decoded.isSuccess else {
                             continuation.resume(
-                                throwing: APIError.serverError(decoded.message)
+                                throwing: self.reportError(code: decoded.code, message: decoded.message)
                             )
                             return
                         }
@@ -236,9 +270,13 @@ final class ReportAPI {
                             return
                         }
 
+                        print("code:", errorResponse?.code ?? "nil", "message:", errorResponse?.message ?? "nil")
+
                         continuation.resume(
-                            throwing: APIError.serverError(
-                                errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
+                            throwing: self.reportError(
+                                statusCode: response.statusCode,
+                                code: errorResponse?.code,
+                                message: errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
                             )
                         )
                         return
@@ -249,7 +287,7 @@ final class ReportAPI {
             }
         }
     }
-    
+
     // 캘린더
     func fetchMeasuredDates(year: Int, month: Int) async throws -> [Date] {
         try await withCheckedThrowingContinuation { continuation in

@@ -20,11 +20,11 @@ extension HomeRouter: APITargetType {
     var path: String {
         switch self {
         case .getStretchingTodos:
-            return "/api/stretching-todos"
+            return "/api/foot-care-todos"
         case .getArticles:
             return "/api/articles"
         case .patchTodoCompletion(let todoId, _):
-            return "/api/stretching-todos/\(todoId)/completion"
+            return "/api/foot-care-todos/\(todoId)/completion"
         case .getShoeRecommendations:
             return "/api/shoes/recommendations/top3"
         }

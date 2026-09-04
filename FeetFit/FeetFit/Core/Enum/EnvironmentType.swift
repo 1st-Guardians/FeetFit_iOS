@@ -31,11 +31,18 @@ enum EnvironmentType {
         case .humidity: return .blue01
         }
     }
+
+    var minValue: Double {
+        switch self {
+        case .temperature: return 0
+        case .humidity: return 30
+        }
+    }
     
     var maxValue: Double {
         switch self {
         case .temperature: return 50
-        case .humidity: return 100
+        case .humidity: return 60
         }
     }
 }

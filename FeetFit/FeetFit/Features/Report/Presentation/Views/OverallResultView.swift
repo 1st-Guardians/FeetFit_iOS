@@ -36,7 +36,6 @@ struct OverallResultView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 40)
                 } else if let result = viewModel.result {
-                    conditionSection(result)
                     balanceSection(result)
                     pressureAndFootprintSection(result)
                     sizeSection(result)
@@ -57,21 +56,11 @@ struct OverallResultView: View {
         }
     }
 
-    // TODO: 발 컨디션 삭제
-    private func conditionSection(_ result: DailyFootAnalysisResultDTO) -> some View {
-        MainBox(
-            title: "오늘의 발 컨디션",
-            status: result.conditionStatus,
-            listContent: result.conditionComments,
-            content: nil
-        )
-    }
-
     // MARK: - 자세 균형
     private func balanceSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         ScoreView(
             score: result.balanceScoreInt,
-            title: "자세 균형",
+            title: "자세균형 점수",
             description: result.balanceComment,
             difference: result.balanceScoreDiffInt
         )
@@ -86,9 +75,6 @@ struct OverallResultView: View {
             
             VStack(alignment: .leading, spacing: 16) {
                 pressureSection(result)
-                Text("상세 설명")
-                    .pretendardFont(.BlockText)
-                    .padding(.horizontal, 4)
             }
             
             VStack(alignment: .leading, spacing: 16) {
@@ -125,7 +111,6 @@ struct OverallResultView: View {
 
             pressureImageView(result.rightPlantarFootprintImageUrl)
         }
-        .padding(20)
         .gradientBoxStyle()
     }
 
@@ -163,12 +148,12 @@ struct OverallResultView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity)
             }
-            .frame(height: 150)
+            .frame(height: 230)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         } else {
             Rectangle()
                 .fill(.gray02)
-                .frame(height: 150)
+                .frame(height: 230)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
@@ -191,17 +176,28 @@ struct OverallResultView: View {
     // MARK: - 발 환경 상태
     private func environmentSection(_ result: DailyFootAnalysisResultDTO) -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("발 환경 상태")
-                .pretendardFont(.BlockTitle)
+            HStack(spacing: 5) {
+                Text("발 환경 상태")
+                    .pretendardFont(.BlockTitle)
+
+                TooltipButton(
+                    message: "온·습도 값은 발 자체의 피부 온도나 수분량이 아닌, 측정 시 발 주변 공간에서 감지된 환경 변화입니다."
+                )
+                .foregroundStyle(.black01)
+            }
 
             EnvironmentGaugeView(
                 type: .temperature,
-                value: result.temperatureValue
+                value: result.temperatureValue,
+                beforeValue: result.beforeTemperatureValue,
+                afterValue: result.afterTemperatureValue
             )
 
             EnvironmentGaugeView(
                 type: .humidity,
-                value: result.humidityValue
+                value: result.humidityValue,
+                beforeValue: result.beforeHumidityValue,
+                afterValue: result.afterHumidityValue
             )
         }
         .padding(20)

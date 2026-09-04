@@ -11,7 +11,8 @@ struct ShoeDetailResultDTO: Decodable {
     let id: Int
     let brandName: String
     let shoeName: String
-    let shoeUrl: String
+    let modelCode: String?
+    let musinsaUrl: String?
     let price: Int
     let imageUrl: String
     let overallRating: Double
@@ -26,8 +27,8 @@ struct ShoeFitReasonDTO: Decodable {
     let reasonType: String
     let title: String
     let riskLevel: String
-    let reviewSummary: String
-    let reviewTexts: [String]
+    let reviewSummary: String?
+    let reviewTexts: [String]?
 }
 
 extension ShoeDetailResultDTO {
@@ -48,8 +49,8 @@ extension ShoeDetailResultDTO {
                 id: index,
                 title: reason.title,
                 status: status,
-                reviewQuotes: reason.reviewTexts,
-                description: reason.reviewSummary
+                reviewQuotes: reason.reviewTexts ?? [],
+                description: reason.reviewSummary ?? "관련 리뷰 요약이 아직 없습니다."
             )
         }
         
@@ -63,12 +64,10 @@ extension ShoeDetailResultDTO {
             interestCount: clickCount,
             reviewCount: reviewCount,
             imageURL: imageUrl,
-            shoeURL: shoeUrl,
+            shoeURL: musinsaUrl ?? "",
             summary: pointSummary ?? "아직 사용자 발 분석 기반 착용 포인트가 없습니다.",
             fitPoints: fitPoints,
-            analysisCards: analysisCards,
-            specProfile: nil,
-            featureComparisons: nil
+            analysisCards: analysisCards
         )
     }
 }

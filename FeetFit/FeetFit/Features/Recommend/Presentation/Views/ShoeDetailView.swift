@@ -45,6 +45,7 @@ struct ShoeDetailView: View {
         .onAppear {
             guard viewModel.shoe == nil else { return }
             viewModel.fetchDetail()
+            viewModel.fetchCharacteristics()
         }
     }
 
@@ -57,6 +58,8 @@ struct ShoeDetailView: View {
 
                 VStack(alignment: .leading, spacing: 20) {
                     ShoeDetailHeaderView(shoe: shoe)
+
+                    purchaseLinkButton(shoe: shoe)
 
                     segmentControl
                         .padding(.top, 20)
@@ -88,6 +91,21 @@ struct ShoeDetailView: View {
 
     // MARK: - Segment
 
+    @ViewBuilder
+    private func purchaseLinkButton(shoe: ShoeDetailInfo) -> some View {
+        if let url = URL(string: shoe.shoeURL), !shoe.shoeURL.isEmpty {
+            Link(destination: url) {
+                Text("구매처로 이동하기")
+                    .pretendardFont(.Description)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 10)
+            }
+            .buttonStyle(.glass)
+            .frame(maxWidth: .infinity)
+        }
+    }
+
     private var segmentControl: some View {
         Picker("상세 정보 탭", selection: $selectedSegment) {
             ForEach(ShoeDetailSegment.allCases) { segment in
@@ -102,7 +120,7 @@ struct ShoeDetailView: View {
     private func segmentContent(shoe: ShoeDetailInfo) -> some View {
         switch selectedSegment {
         case .productInfo:
-            productInfoContent(shoe: shoe)
+            productInfoContent
 
         case .fitScore:
             fitScoreContent(shoe: shoe)
@@ -112,17 +130,18 @@ struct ShoeDetailView: View {
     // MARK: - 상품 정보
 
     @ViewBuilder
-    private func productInfoContent(shoe: ShoeDetailInfo) -> some View {
-        if shoe.specProfile != nil || shoe.featureComparisons != nil {
+    private var productInfoContent: some View {
+        if viewModel.specProfile != nil || !viewModel.featureComparisons.isEmpty {
             VStack(alignment: .leading, spacing: 32) {
-                if let specProfile = shoe.specProfile {
+                if let specProfile = viewModel.specProfile {
                     ShoeSpecSummarySection(specProfile: specProfile)
                 }
 
-                if let comparisons = shoe.featureComparisons, !comparisons.isEmpty {
-                    ShoeFeatureComparisonSection(comparisons: comparisons)
+                if !viewModel.featureComparisons.isEmpty {
+                    ShoeFeatureComparisonSection(comparisons: viewModel.featureComparisons)
                 }
             }
+            .padding(.bottom, 100)
         } else {
             segmentPlaceholder("상품정보 페이지를 준비 중이에요.")
         }
@@ -135,6 +154,7 @@ struct ShoeDetailView: View {
             ShoeFitSummarySection(shoe: shoe)
             ShoeFitScoreSection(shoe: shoe)
         }
+        .padding(.bottom, 100)
     }
 
     // MARK: - Placeholder

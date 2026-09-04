@@ -53,6 +53,7 @@ struct AthletesFootResultView: View {
         VStack(alignment: .leading, spacing: 10) {
             ScoreView(
                 score: result.totalScoreInt,
+                title: "피부반응 점수",
                 description: result.totalScoreDescription,
                 difference: result.totalScoreDiffInt
             )

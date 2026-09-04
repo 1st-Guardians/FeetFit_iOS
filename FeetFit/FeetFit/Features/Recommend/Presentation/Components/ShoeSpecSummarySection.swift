@@ -15,32 +15,23 @@ struct ShoeSpecSummarySection: View {
                 .padding(.leading, 8)
 
             RadarChartView(
-                items: specProfile.radarItems,
-                maxLevel: 3
+                items: specProfile.radarItems
             )
             .padding(.top, 20)
             .padding(.bottom, 12)
             .mainBoxStyle()
 
-            Text("신발 특성 요약 설명")
-                .pretendardFont(.BlockText)
-                .padding(.leading, 8)
+            if let summary = specProfile.summary {
+                Text(summary)
+                    .pretendardFont(.BlockText)
+                    .padding(.leading, 8)
+            }
         }
         .foregroundStyle(.black01)
     }
 }
 
 #Preview {
-    ShoeSpecSummarySection(
-        specProfile: ShoeSpecProfile(
-            cushionSoftness: .high,
-            shockAbsorption: .high,
-            rebound: .medium,
-            forefootSpace: .medium,
-            toeBoxSpace: .low,
-            heelStability: .high,
-            breathability: .medium
-        )
-    )
-    .padding()
+    ShoeSpecSummarySection(specProfile: .mock)
+        .padding()
 }

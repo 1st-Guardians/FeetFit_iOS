@@ -25,8 +25,8 @@ final class AthletesFootResultViewModel: ObservableObject {
                 date: dateString
             )
         } catch {
-            if error.localizedDescription == "리포트를 찾을 수 없습니다." {
-                errorMessage = "해당 날짜에 측정된 무좀 분석 데이터가 없어요.\n측정 후 결과를 확인해 주세요."
+            if case APIError.notFound = error {
+                errorMessage = "해당 날짜에 측정된 데이터가 없어요.\n측정 후 결과를 확인해 주세요."
             } else {
                 errorMessage = error.localizedDescription
             }

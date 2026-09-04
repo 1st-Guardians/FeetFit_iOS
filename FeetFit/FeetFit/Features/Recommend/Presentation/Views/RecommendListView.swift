@@ -135,7 +135,7 @@ struct RecommendListView: View {
                 .padding(.leading, 12)
             
             VStack(alignment: .leading, spacing: 0) {
-                Text("\(viewModel.nickname.isEmpty ? "내" : "\(viewModel.nickname)님의") 발에 맞는 신발을 추천해드릴게요")
+                Text("\(viewModel.nickname.isEmpty ? "내" : "\(viewModel.nickname)님의") 발 타입")
                     .pretendardFont(.BlockTitle)
                     .padding(.bottom, 10)
                 

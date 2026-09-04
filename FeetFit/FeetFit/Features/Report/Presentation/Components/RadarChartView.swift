@@ -35,6 +35,7 @@ struct RadarChartView: View {
     
     private let items: [RadarChartItem]
     private let maxLevel: Int
+    @State private var selectedTooltipIndex: Int?
     
     init(
         items: [RadarChartItem],
@@ -198,9 +199,31 @@ private extension RadarChartView {
                     radius: radius
                 )
                 
-                Circle()
-                    .fill(Color.blue)
-                    .frame(width: 5, height: 5)
+                Button {
+                    selectedTooltipIndex = index
+                } label: {
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 5, height: 5)
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+                .popover(
+                    isPresented: Binding(
+                        get: { selectedTooltipIndex == index },
+                        set: { isPresented in
+                            if !isPresented {
+                                selectedTooltipIndex = nil
+                            }
+                        }
+                    )
+                ) {
+                    Text("\(items[index].title) \(valueText(for: items[index]))")
+                        .pretendardFont(.Caption)
+                        .foregroundStyle(.black01)
+                        .padding(12)
+                        .presentationCompactAdaptation(.popover)
+                }
                     .position(point)
             }
         }
@@ -235,6 +258,10 @@ private extension RadarChartView {
 // MARK: - Calculate
 
 private extension RadarChartView {
+    
+    func valueText(for item: RadarChartItem) -> String {
+        item.valueLabel ?? "\(Int((item.normalizedValue * 100).rounded()))"
+    }
     
     func point(
         at index: Int,

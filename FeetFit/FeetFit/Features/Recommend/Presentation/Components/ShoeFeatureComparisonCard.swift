@@ -28,21 +28,9 @@ struct ShoeFeatureComparisonCard: View {
     // MARK: - SubViews
 
     private var header: some View {
-        HStack(spacing: 8) {
-            Text(feature.title)
-                .pretendardFont(.BlockTitle)
-                .foregroundStyle(.black01)
-
-            HStack(spacing: 4) {
-                Circle()
-                    .fill(statusColor)
-                    .frame(width: 8, height: 8)
-
-                Text(feature.levelText)
-                    .pretendardFont(.Caption)
-                    .foregroundStyle(statusColor)
-            }
-        }
+        Text(feature.title)
+            .pretendardFont(.BlockTitle)
+            .foregroundStyle(.black01)
     }
 
     private var description: some View {
@@ -55,18 +43,24 @@ struct ShoeFeatureComparisonCard: View {
 
     private var comparisonSection: some View {
         HStack(spacing: 12) {
-            Text(feature.minimumLabel)
-                .pretendardFont(.Caption)
-                .foregroundStyle(.gray01)
+            if showsScaleLabels {
+                Text(feature.minimumLabel)
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.gray01)
+            }
 
             ComparisonBar(
                 comparisonValue: feature.comparisonValue,
-                shoeValue: feature.shoeValue
+                comparisonTooltip: feature.comparisonValueLabel,
+                shoeValue: feature.shoeValue,
+                shoeTooltip: feature.shoeValueLabel
             )
 
-            Text(feature.maximumLabel)
-                .pretendardFont(.Caption)
-                .foregroundStyle(.gray01)
+            if showsScaleLabels {
+                Text(feature.maximumLabel)
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.gray01)
+            }
         }
     }
 
@@ -92,25 +86,27 @@ struct ShoeFeatureComparisonCard: View {
         }
     }
 
-    // MARK: - Helper
-
-    private var statusColor: Color {
-        switch feature.levelText {
-        case "낮음": return .red01
-        case "보통": return .yellow01
-        case "높음": return .green01
-        default: return .gray01
-        }
+    private var showsScaleLabels: Bool {
+        feature.minimumLabel != "낮음" && feature.maximumLabel != "높음"
     }
+
 }
 
 // MARK: - ComparisonBar
 
 /// 0...1 범위의 두 값을 가로 바 위 마커로 비교해서 보여주는 재사용 가능한 그래프.
-/// 파란색 채워진 원 = 신발 값, 흰색 채움 + 파란색 테두리 원 = 비교군 평균.
+/// 채워진 원 = 신발(현재) 값, 흰색 채움 + 테두리만 있는 원 = 비교군(이전) 평균.
 struct ComparisonBar: View {
     let comparisonValue: CGFloat
+    var comparisonTooltip: String? = nil
     let shoeValue: CGFloat
+    var shoeTooltip: String? = nil
+    var color: Color = .blue01
+    /// 지정하면 트랙 왼쪽부터 이 값 위치까지 색이 채워진 바를 함께 표시한다 (기본은 표시 안 함).
+    var fillValue: CGFloat? = nil
+
+    @State private var showsComparisonTooltip = false
+    @State private var showsShoeTooltip = false
 
     private let trackHeight: CGFloat = 6
     private let markerDiameter: CGFloat = 16
@@ -126,23 +122,59 @@ struct ComparisonBar: View {
                     .frame(height: trackHeight)
                     .frame(maxWidth: .infinity)
 
-                marker(filled: false)
+                if let fillValue {
+                    Capsule()
+                        .fill(color)
+                        .frame(
+                            width: markerDiameter / 2 + usableWidth * clamp(fillValue),
+                            height: trackHeight
+                        )
+                }
+
+                marker(
+                    filled: false,
+                    tooltip: comparisonTooltip,
+                    isPresented: $showsComparisonTooltip
+                )
                     .offset(x: usableWidth * clamp(comparisonValue))
 
-                marker(filled: true)
+                marker(
+                    filled: true,
+                    tooltip: shoeTooltip,
+                    isPresented: $showsShoeTooltip
+                )
                     .offset(x: usableWidth * clamp(shoeValue))
             }
         }
         .frame(height: markerDiameter)
     }
 
-    private func marker(filled: Bool) -> some View {
-        Circle()
-            .fill(filled ? Color.blue01 : Color.white)
-            .overlay(
-                Circle().stroke(Color.blue01, lineWidth: markerBorderWidth)
-            )
-            .frame(width: markerDiameter, height: markerDiameter)
+    private func marker(
+        filled: Bool,
+        tooltip: String?,
+        isPresented: Binding<Bool>
+    ) -> some View {
+        Button {
+            guard tooltip != nil else { return }
+            isPresented.wrappedValue.toggle()
+        } label: {
+            Circle()
+                .fill(filled ? color : Color.white)
+                .overlay(
+                    Circle().stroke(color, lineWidth: markerBorderWidth)
+                )
+                .frame(width: markerDiameter, height: markerDiameter)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: isPresented) {
+            if let tooltip {
+                Text(tooltip)
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.black01)
+                    .padding(12)
+                    .presentationCompactAdaptation(.popover)
+            }
+        }
     }
 
     private func clamp(_ value: CGFloat) -> CGFloat {

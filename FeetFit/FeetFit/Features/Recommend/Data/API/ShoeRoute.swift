@@ -14,6 +14,7 @@ enum ShoeRoute {
     case getShoes(sort: ShoeSortType, page: Int, size: Int)
     case registerClick(shoeId: Int)
     case getShoeDetail(shoeId: Int)
+    case getShoeCharacteristics(shoeId: Int)
     case searchShoes(keyword: String, page: Int, size: Int)
     case searchShoeSuggestions(keyword: String, page: Int, size: Int)
     case getSearchHistory
@@ -35,7 +36,10 @@ extension ShoeRoute: APITargetType {
             
         case .getShoeDetail(let shoeId):
             return "/api/shoes/\(shoeId)"
-            
+
+        case .getShoeCharacteristics(let shoeId):
+            return "/api/shoes/\(shoeId)/characteristics"
+
         case .searchShoes:
             return "/api/shoes/search"
             
@@ -58,6 +62,7 @@ extension ShoeRoute: APITargetType {
         case .getTopRecommendations,
              .getShoes,
              .getShoeDetail,
+             .getShoeCharacteristics,
              .searchShoes,
              .searchShoeSuggestions,
              .getSearchHistory,
@@ -77,6 +82,7 @@ extension ShoeRoute: APITargetType {
         case .getTopRecommendations,
              .registerClick,
              .getShoeDetail,
+             .getShoeCharacteristics,
              .getSearchHistory,
              .deleteSearchHistory,
              .getFootTypeText:
