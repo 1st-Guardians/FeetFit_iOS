@@ -153,6 +153,7 @@ struct OverallResultView: View {
         } else {
             Rectangle()
                 .fill(.gray02)
+                .frame(height: 230)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
