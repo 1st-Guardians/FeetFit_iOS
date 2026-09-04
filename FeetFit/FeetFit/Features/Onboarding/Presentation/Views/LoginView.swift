@@ -15,11 +15,12 @@ struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
     
     var body: some View {
-        VStack {
+        ZStack(alignment: .bottom) {
             Image("FeetFit")
                 .resizable()
                 .frame(width: 159, height: 126)
-                .padding(.bottom, 270)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, 220)
             
             VStack(spacing: 14) {
                 Button(action: {
@@ -36,14 +37,9 @@ struct LoginView: View {
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(.yellow02)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.gray02, lineWidth: 1)
-                    }
                 }
                 .buttonStyle(.plain)
+                .glassEffect(.regular.tint(.yellow02).interactive())
                 .padding(.horizontal, 16)
                 .onChange(of: viewModel.isLogin) { _, isLogin in
                     guard isLogin else { return }
@@ -69,18 +65,14 @@ struct LoginView: View {
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.gray02, lineWidth: 1)
-                    }
                 }
                 .buttonStyle(.plain)
+                .glassEffect(.regular.tint(.white).interactive())
                 .padding(.horizontal, 16)
             }
-            
+            .padding(.bottom, 40)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden()
         .onChange(of: viewModel.isLogin) { _, isLogin in
             guard isLogin else { return }
@@ -94,4 +86,3 @@ struct LoginView: View {
         
     }
 }
-

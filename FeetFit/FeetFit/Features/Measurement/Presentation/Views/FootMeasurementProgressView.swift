@@ -17,8 +17,8 @@ struct FootMeasurementProgressView: View {
                 VStack(spacing: 0) {
                     LoadingMessageView(
                         message: displayMessage,
-                        bottomPadding: isFailed ? 8 : 10,
-                        messageLineLimit: isFailed ? nil : 2
+                        bottomPadding: isFailed ? 16 : 10,
+                        messageLineLimit: isFailed ? nil : 3
                     )
 
                     if let errorDetailText {
