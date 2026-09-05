@@ -31,6 +31,6 @@ struct OnboardingTextField<Field: Hashable>: View {
             focusedField = nextField
         }
         .autocorrectionDisabled(true)
-        .padding(.vertical, 15)
+        .frame(height: 48)
     }
 }

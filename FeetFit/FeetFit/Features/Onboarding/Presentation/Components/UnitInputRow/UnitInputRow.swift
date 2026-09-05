@@ -34,12 +34,12 @@ struct UnitInputRow<Field: Hashable>: View {
                 .onSubmit {
                     focusedField = nextField
                 }
-                .padding(.vertical, 15)
 
             Text(unit)
                 .pretendardFont(.Placeholder)
                 .foregroundStyle(.black)
                 .padding(.trailing, 8)
         }
+        .frame(height: 48)
     }
 }
