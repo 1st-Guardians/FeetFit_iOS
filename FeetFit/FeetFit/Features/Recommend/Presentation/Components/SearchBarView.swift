@@ -20,7 +20,7 @@ struct SearchBarView: View {
     var body: some View {
         HStack(spacing: 12) {
             searchField
-            if !text.isEmpty {
+            if isFocused || !text.isEmpty {
                 clearButton
             }
         }
