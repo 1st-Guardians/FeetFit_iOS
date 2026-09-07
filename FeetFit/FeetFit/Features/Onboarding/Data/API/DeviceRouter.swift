@@ -10,6 +10,8 @@ import Moya
 import Alamofire
 
 enum DeviceRouter {
+    case getDevice
+    case connectDevice(request: DeviceRegisterRequest)
     case registerDevice(request: DeviceRegisterRequest)
     case deleteDevice
 }
@@ -17,8 +19,11 @@ enum DeviceRouter {
 extension DeviceRouter: APITargetType {
     var path: String {
         switch self {
-        case .registerDevice:
+        case .getDevice, .registerDevice:
             return APIConfig.Path.device
+
+        case .connectDevice:
+            return APIConfig.Path.device + "/connect"
             
         case .deleteDevice:
             return APIConfig.Path.device
@@ -27,6 +32,12 @@ extension DeviceRouter: APITargetType {
     
     var method: Moya.Method {
         switch self {
+        case .getDevice:
+            return .get
+
+        case .connectDevice:
+            return .post
+
         case .registerDevice:
             return .post
             
@@ -37,7 +48,10 @@ extension DeviceRouter: APITargetType {
     
     var task: Task {
         switch self {
-        case .registerDevice(let request):
+        case .getDevice:
+            return .requestPlain
+
+        case .connectDevice(let request), .registerDevice(let request):
             return .requestJSONEncodable(request)
             
         case .deleteDevice:

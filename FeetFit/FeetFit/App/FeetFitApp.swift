@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import KakaoSDKCommon
 import KakaoSDKAuth
 
@@ -13,6 +14,9 @@ import KakaoSDKAuth
 struct FeetFitApp: App {
     
     init() {
+        UIScrollView.appearance().showsVerticalScrollIndicator = false
+        UIScrollView.appearance().showsHorizontalScrollIndicator = false
+
         let kakaoNativeAppKey = (Bundle.main.infoDictionary?["KAKAO_NATIVE_APP_KEY"] as? String) ?? ""
         KakaoSDK.initSDK(appKey: kakaoNativeAppKey)
     }

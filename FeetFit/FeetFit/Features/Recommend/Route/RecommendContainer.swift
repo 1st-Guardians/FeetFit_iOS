@@ -10,6 +10,7 @@ import SwiftUI
 struct RecommendContainer: View {
     @State private var path: [RecommendRoute] = []
     @StateObject private var viewModel = RecommendListViewModel()
+    @EnvironmentObject private var tabRouter: TabRouter
     
     var body: some View {
         NavigationStack(path: $path) {
@@ -27,9 +28,14 @@ struct RecommendContainer: View {
                 }
             }
         }
+        .onChange(of: tabRouter.selectedTab) { _, newValue in
+            guard newValue != .recommend else { return }
+            path.removeAll()
+        }
     }
 }
 
 #Preview {
     RecommendContainer()
+        .environmentObject(TabRouter())
 }

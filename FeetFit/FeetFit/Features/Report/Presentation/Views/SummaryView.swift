@@ -22,6 +22,7 @@ struct SummaryView: View {
                     Text(errorMessage)
                         .pretendardFont(.BlockText)
                         .foregroundStyle(.gray01)
+                        .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 40)
                 } else {

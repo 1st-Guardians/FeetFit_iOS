@@ -13,27 +13,27 @@
 import Foundation
 
 struct DailyFootAnalysisResultDTO: Decodable {
-    let id: Int
-    let measurementSessionId: Int
+    let id: Int?
+    let measurementSessionId: Int?
 
     // 응답에서 빠질 수 있어 옵셔널로 둔다.
     let conditionLevel: String?
     let conditionComments: [String]?
 
-    let balanceScore: Double
-    let balanceComment: String
+    let balanceScore: Double?
+    let balanceComment: String?
     let balanceScoreDiff: Double?
 
-    let leftPressurePercent: Double
-    let rightPressurePercent: Double
+    let leftPressurePercent: Double?
+    let rightPressurePercent: Double?
     let leftPressureImageUrl: String?
     let rightPressureImageUrl: String?
 
     let leftPlantarFootprintImageUrl: String?
     let rightPlantarFootprintImageUrl: String?
-    let plantarFootprintAnalysisText: String
+    let plantarFootprintAnalysisText: String?
 
-    let userFootSize: Int
+    let userFootSize: Int?
     let measuredLeftFootSizeMm: Double?
     let measuredRightFootSizeMm: Double?
     let leftFootSizeDiff: Double?
@@ -47,15 +47,15 @@ struct DailyFootAnalysisResultDTO: Decodable {
     let afterTemperatureCelsius: Double?
     let afterHumidityPercent: Double?
 
-    let avgTemperatureCelsius: Double
-    let avgHumidityPercent: Double
+    let avgTemperatureCelsius: Double?
+    let avgHumidityPercent: Double?
 
     // 응답에서 빠질 수 있어 옵셔널로 둔다.
     let careTips: [String]?
-    let typeText: String
+    let typeText: String?
 
-    let createdAt: String
-    let updatedAt: String
+    let createdAt: String?
+    let updatedAt: String?
 }
 
 extension DailyFootAnalysisResultDTO {
@@ -73,7 +73,7 @@ extension DailyFootAnalysisResultDTO {
     }
 
     var balanceScoreInt: Int {
-        Int(balanceScore.rounded())
+        Int((balanceScore ?? 0).rounded())
     }
 
     var balanceScoreDiffInt: Int? {
@@ -81,45 +81,45 @@ extension DailyFootAnalysisResultDTO {
     }
 
     var leftPressureInt: Int {
-        Int(leftPressurePercent.rounded())
+        Int((leftPressurePercent ?? 0).rounded())
     }
 
     var rightPressureInt: Int {
-        Int(rightPressurePercent.rounded())
+        Int((rightPressurePercent ?? 0).rounded())
     }
 
     var temperatureValue: Double {
-        avgTemperatureCelsius
+        avgTemperatureCelsius ?? 0
     }
 
     var humidityValue: Double {
-        avgHumidityPercent
+        avgHumidityPercent ?? 0
     }
 
     // before/after 값이 없을 경우 평균값으로 대체해, 이전=이후=평균으로 표시(마커가 같은 위치에 겹침)한다.
     var beforeTemperatureValue: Double {
-        beforeTemperatureCelsius ?? avgTemperatureCelsius
+        beforeTemperatureCelsius ?? temperatureValue
     }
 
     var afterTemperatureValue: Double {
-        afterTemperatureCelsius ?? avgTemperatureCelsius
+        afterTemperatureCelsius ?? temperatureValue
     }
 
     var beforeHumidityValue: Double {
-        beforeHumidityPercent ?? avgHumidityPercent
+        beforeHumidityPercent ?? humidityValue
     }
 
     var afterHumidityValue: Double {
-        afterHumidityPercent ?? avgHumidityPercent
+        afterHumidityPercent ?? humidityValue
     }
 
     var footSizeRows: [FootSizeRow] {
         [
             FootSizeRow(
                 title: "입력 사이즈",
-                left: "\(userFootSize)mm",
+                left: formatMm(userFootSize),
                 leftDiff: nil,
-                right: "\(userFootSize)mm",
+                right: formatMm(userFootSize),
                 rightDiff: nil
             ),
             FootSizeRow(
@@ -142,6 +142,11 @@ extension DailyFootAnalysisResultDTO {
     private func formatMm(_ value: Double?) -> String {
         guard let value else { return "-" }
         return "\(Int(value.rounded()))mm"
+    }
+
+    private func formatMm(_ value: Int?) -> String {
+        guard let value else { return "-" }
+        return "\(value)mm"
     }
 
     private func formatDiff(_ value: Double?) -> String? {

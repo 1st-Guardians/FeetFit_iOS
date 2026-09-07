@@ -27,7 +27,7 @@ final class HardwarePairingViewModel: ObservableObject {
         
         isLoading = true
         
-        deviceProvider.request(.registerDevice(request: request)) { [weak self] result in
+        deviceProvider.request(.connectDevice(request: request)) { [weak self] result in
             guard let self else { return }
             
             DispatchQueue.main.async {
@@ -37,8 +37,8 @@ final class HardwarePairingViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 do {
-                    print("디바이스 등록 statusCode:", response.statusCode)
-                    print("디바이스 등록 응답:", String(data: response.data, encoding: .utf8) ?? "응답 없음")
+                    print("디바이스 연결 statusCode:", response.statusCode)
+                    print("디바이스 연결 응답:", String(data: response.data, encoding: .utf8) ?? "응답 없음")
                     
                     let decodedData = try JSONDecoder().decode(
                         BaseResponse<DeviceResponse>.self,
@@ -64,19 +64,19 @@ final class HardwarePairingViewModel: ObservableObject {
                     }
                     
                 } catch {
-                    print("DeviceResponse 디코더 오류:", error)
+                    print("Device Connect 디코더 오류:", error)
                     print("서버 응답:", String(data: response.data, encoding: .utf8) ?? "응답 없음")
                     
                     DispatchQueue.main.async {
-                        ToastManager.shared.show("하드웨어 등록 응답을 처리하지 못했습니다.")
+                        ToastManager.shared.show("하드웨어 연결 응답을 처리하지 못했습니다.")
                     }
                 }
                 
             case .failure(let error):
-                print("Device Register API 오류:", error)
+                print("Device Connect API 오류:", error)
                 
                 DispatchQueue.main.async {
-                    ToastManager.shared.show("하드웨어를 등록하지 못했습니다.")
+                    ToastManager.shared.show("하드웨어를 연결하지 못했습니다.")
                 }
             }
         }

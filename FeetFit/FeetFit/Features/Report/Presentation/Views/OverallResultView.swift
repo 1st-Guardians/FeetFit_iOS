@@ -61,7 +61,7 @@ struct OverallResultView: View {
         ScoreView(
             score: result.balanceScoreInt,
             title: "자세균형 점수",
-            description: result.balanceComment,
+            description: result.balanceComment ?? "자세 균형 분석 내용이 아직 없습니다.",
             difference: result.balanceScoreDiffInt
         )
     }
@@ -79,7 +79,7 @@ struct OverallResultView: View {
             
             VStack(alignment: .leading, spacing: 16) {
                 footprintSection(result)
-                Text(result.plantarFootprintAnalysisText)
+                Text(result.plantarFootprintAnalysisText ?? "발 눌림 분석 내용이 아직 없습니다.")
                     .pretendardFont(.BlockText)
                     .padding(.horizontal, 4)
             }

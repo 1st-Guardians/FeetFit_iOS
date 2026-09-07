@@ -21,14 +21,11 @@ struct HardwarePairingView: View {
             )
             .padding(.bottom, 277)
             
-            MainButton(viewModel.isLoading ? "연결 중..." : "다시 확인하기") {
+            MainButton(viewModel.isLoading ? "연결 중..." : "하드웨어 연결하기") {
                 viewModel.registerDevice()
             }
             .padding(.horizontal, 18)
             .disabled(viewModel.isLoading)
-        }
-        .task {
-            viewModel.registerDevice()
         }
         .onChange(of: viewModel.isConnected) { _, isConnected in
             guard isConnected else { return }

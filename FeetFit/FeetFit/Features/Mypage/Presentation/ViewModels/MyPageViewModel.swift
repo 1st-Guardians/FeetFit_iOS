@@ -14,9 +14,15 @@ final class MyPageViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var requiresProfileSetup: Bool = false
+    @Published var hardwareStatus: HardwareStatus = .unconnected
     
     private let myPageProvider = APIManager.shared.createProvider(
         for: MyPageRouter.self,
+        withAuth: true
+    )
+
+    private let deviceProvider = APIManager.shared.createProvider(
+        for: DeviceRouter.self,
         withAuth: true
     )
     
@@ -86,6 +92,49 @@ final class MyPageViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.errorMessage = "프로필 정보를 불러오지 못했습니다."
                     ToastManager.shared.show("프로필 정보를 불러오지 못했습니다.")
+                }
+            }
+        }
+    }
+
+    func fetchDeviceStatus() {
+        deviceProvider.request(.getDevice) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let response):
+                do {
+                    print("하드웨어 연결 상태 statusCode:", response.statusCode)
+
+                    let decodedData = try JSONDecoder().decode(
+                        BaseResponse<DeviceResponse>.self,
+                        from: response.data
+                    )
+
+                    guard decodedData.isSuccess else {
+                        DispatchQueue.main.async {
+                            self.hardwareStatus = .unconnected
+                        }
+                        return
+                    }
+
+                    DispatchQueue.main.async {
+                        self.hardwareStatus = decodedData.result?.deviceConnected == true ? .connected : .unconnected
+                    }
+                } catch {
+                    print("하드웨어 연결 상태 디코더 오류:", error)
+                    print("서버 응답:", String(data: response.data, encoding: .utf8) ?? "응답 없음")
+
+                    DispatchQueue.main.async {
+                        self.hardwareStatus = .unconnected
+                    }
+                }
+
+            case .failure(let error):
+                print("하드웨어 연결 상태 API 오류:", error)
+
+                DispatchQueue.main.async {
+                    self.hardwareStatus = .unconnected
                 }
             }
         }

@@ -10,7 +10,7 @@ import SwiftUI
 struct ShoeDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: ShoeDetailViewModel
-    @State private var selectedSegment: ShoeDetailSegment = .productInfo
+    @State private var selectedSegment: ShoeDetailSegment = .fitScore
 
     init(shoeId: Int) {
         _viewModel = StateObject(wrappedValue: ShoeDetailViewModel(shoeId: shoeId))

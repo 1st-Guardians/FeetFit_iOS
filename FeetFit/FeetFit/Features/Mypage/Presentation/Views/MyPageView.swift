@@ -13,32 +13,36 @@ struct MyPageView: View {
     let onProfileEditTap: () -> Void
     let onHardwarePairingTap: () -> Void
     
-    @State private var hardwareStatus: HardwareStatus = .connected
     @State private var hasMeasurementRecord: Bool = false
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                
-                TopInfoGroup
-                    .padding(.bottom, 24)
-                
-                ProfileEditGroup
-                    .padding(.bottom, 24)
-                
-                HardwareConnectingGroup
-                    .padding(.bottom, 24)
-                
-                TermsButton
-                
-                Spacer()
+        GeometryReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    
+                    TopInfoGroup
+                        .padding(.bottom, 24)
+                    
+                    ProfileEditGroup
+                        .padding(.bottom, 24)
+                    
+                    HardwareConnectingGroup
+                        .padding(.bottom, 24)
+                    
+                    TermsButton
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .frame(width: proxy.size.width, alignment: .leading)
             }
-            .padding(.horizontal, 16)
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.gray03)
         .onAppear {
             viewModel.fetchProfile()
+            viewModel.fetchDeviceStatus()
         }
     }
     
@@ -64,9 +68,11 @@ struct MyPageView: View {
                     
                     Text("측정 기록이 없어 온보딩 때 입력한 발 사이즈를 표시하고 있어요. \n정확한 발 사이즈 확인을 위해 측정을 진행해 보세요.")
                         .pretendardFont(.Caption)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
                         .fill(.blue01.opacity(0.25))
@@ -107,9 +113,9 @@ struct MyPageView: View {
                 
                 Spacer()
                 
-                Text(hardwareStatus.status)
+                Text(viewModel.hardwareStatus.status)
                     .pretendardFont(.Placeholder)
-                    .foregroundStyle(hardwareStatus.color)
+                    .foregroundStyle(viewModel.hardwareStatus.color)
             }
             .padding(.vertical, 18)
             
@@ -119,7 +125,7 @@ struct MyPageView: View {
                 onHardwarePairingTap()
             } label: {
                 HStack {
-                    Text("하드웨어 연결하러 가기")
+                    Text("하드웨어 연결하기")
                         .pretendardFont(.Placeholder)
                         .foregroundStyle(.black)
                     

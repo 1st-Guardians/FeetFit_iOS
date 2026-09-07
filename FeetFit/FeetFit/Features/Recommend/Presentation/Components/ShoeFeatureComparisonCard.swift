@@ -42,12 +42,11 @@ struct ShoeFeatureComparisonCard: View {
     }
 
     private var comparisonSection: some View {
-        HStack(spacing: 12) {
-            if showsScaleLabels {
-                Text(feature.minimumLabel)
-                    .pretendardFont(.Caption)
-                    .foregroundStyle(.gray01)
-            }
+        HStack(spacing: 8) {
+            Text(feature.minimumLabel)
+                .pretendardFont(.Caption)
+                .foregroundStyle(.gray01)
+                .frame(width: 40, alignment: .leading)
 
             ComparisonBar(
                 comparisonValue: feature.comparisonValue,
@@ -56,11 +55,10 @@ struct ShoeFeatureComparisonCard: View {
                 shoeTooltip: feature.shoeValueLabel
             )
 
-            if showsScaleLabels {
-                Text(feature.maximumLabel)
-                    .pretendardFont(.Caption)
-                    .foregroundStyle(.gray01)
-            }
+            Text(feature.maximumLabel)
+                .pretendardFont(.Caption)
+                .foregroundStyle(.gray01)
+                .frame(width: 40, alignment: .trailing)
         }
     }
 
@@ -84,10 +82,6 @@ struct ShoeFeatureComparisonCard: View {
                 .pretendardFont(.Caption)
                 .foregroundStyle(.gray01)
         }
-    }
-
-    private var showsScaleLabels: Bool {
-        feature.minimumLabel != "낮음" && feature.maximumLabel != "높음"
     }
 
 }
@@ -115,6 +109,9 @@ struct ComparisonBar: View {
     var body: some View {
         GeometryReader { geometry in
             let usableWidth = max(geometry.size.width - markerDiameter, 0)
+            let comparisonOffset = usableWidth * clamp(comparisonValue)
+            let shoeOffset = usableWidth * clamp(shoeValue)
+            let shouldSeparateMarkers = abs(comparisonOffset - shoeOffset) < markerDiameter
 
             ZStack(alignment: .leading) {
                 Capsule()
@@ -136,14 +133,28 @@ struct ComparisonBar: View {
                     tooltip: comparisonTooltip,
                     isPresented: $showsComparisonTooltip
                 )
-                    .offset(x: usableWidth * clamp(comparisonValue))
+                    .offset(
+                        x: adjustedOffset(
+                            comparisonOffset,
+                            direction: -1,
+                            usableWidth: usableWidth,
+                            shouldAdjust: shouldSeparateMarkers
+                        )
+                    )
 
                 marker(
                     filled: true,
                     tooltip: shoeTooltip,
                     isPresented: $showsShoeTooltip
                 )
-                    .offset(x: usableWidth * clamp(shoeValue))
+                    .offset(
+                        x: adjustedOffset(
+                            shoeOffset,
+                            direction: 1,
+                            usableWidth: usableWidth,
+                            shouldAdjust: shouldSeparateMarkers
+                        )
+                    )
             }
         }
         .frame(height: markerDiameter)
@@ -179,6 +190,16 @@ struct ComparisonBar: View {
 
     private func clamp(_ value: CGFloat) -> CGFloat {
         min(max(value, 0), 1)
+    }
+
+    private func adjustedOffset(
+        _ offset: CGFloat,
+        direction: CGFloat,
+        usableWidth: CGFloat,
+        shouldAdjust: Bool
+    ) -> CGFloat {
+        guard shouldAdjust else { return offset }
+        return min(max(offset + markerDiameter * 0.35 * direction, 0), usableWidth)
     }
 }
 

@@ -42,6 +42,7 @@ struct MyPageContainer: View {
                     HardwarePairingView {
                         path.removeLast()
                     }
+                    .toolbar(.hidden, for: .tabBar)
                 }
             }
         }

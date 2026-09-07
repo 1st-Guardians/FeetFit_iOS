@@ -13,7 +13,7 @@ struct ShoeAnalysisCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
-                Text(analysis.title)
+                Text(displayTitle)
                     .pretendardFont(.BlockTitle)
                     .foregroundStyle(.black)
                 
@@ -21,7 +21,7 @@ struct ShoeAnalysisCard: View {
                     Circle()
                         .fill(analysis.status.color)
                         .frame(width: 8, height: 8)
-                    
+
                     Text(analysis.status.title)
                         .pretendardFont(.Caption)
                         .foregroundStyle(analysis.status.color)
@@ -30,9 +30,17 @@ struct ShoeAnalysisCard: View {
             
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(analysis.reviewQuotes, id: \.self) { quote in
-                    Text("•  “\(quote)”")
-                        .pretendardFont(.BlockText)
-                        .foregroundStyle(.black)
+                    HStack(alignment: .top, spacing: 8) {
+                        Circle()
+                            .fill(.gray01)
+                            .frame(width: 4, height: 4)
+                            .padding(.top, 7)
+
+                        Text("“\(quote)”")
+                            .pretendardFont(.BlockText)
+                            .foregroundStyle(.black)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             }
             
@@ -45,6 +53,36 @@ struct ShoeAnalysisCard: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 20)
         .mainBoxStyle()
+    }
+
+    private var displayTitle: String {
+        let statusWords = [
+            analysis.status.title,
+            "좋음",
+            "보통",
+            "나쁨",
+            "매우 양호",
+            "관심 필요",
+            "개선 필요"
+        ]
+        return statusWords.reduce(analysis.title) { title, statusWord in
+            title.removingTrailingWord(statusWord)
+        }
+    }
+}
+
+private extension String {
+    func removingTrailingWord(_ word: String) -> String {
+        let trimmedSelf = trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmedWord.isEmpty,
+              trimmedSelf.hasSuffix(trimmedWord) else {
+            return trimmedSelf
+        }
+
+        return String(trimmedSelf.dropLast(trimmedWord.count))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

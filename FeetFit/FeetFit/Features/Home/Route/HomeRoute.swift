@@ -14,5 +14,7 @@ enum HomeRoute: Hashable {
     case measurementProgress
     case measurementExporting
     case measurementFinish
+    case hardwarePairing
     case report(Date)
+    case shoeDetail(shoeId: Int)
 }

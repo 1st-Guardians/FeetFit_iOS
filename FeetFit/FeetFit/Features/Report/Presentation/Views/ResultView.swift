@@ -12,22 +12,32 @@ struct ResultView: View {
     // MARK: - Properties
     
     let selectedDate: Date
+    let showsInlineDate: Bool
     @State private var selectedSegment: ResultSegment = .overall
+
+    init(selectedDate: Date, showsInlineDate: Bool = true) {
+        self.selectedDate = selectedDate
+        self.showsInlineDate = showsInlineDate
+    }
     
     // MARK: - Body
     
     var body: some View {
         VStack(alignment: .trailing, spacing: 16) {
-            Text("측정날짜: \(formattedSelectedDate)")
-                .pretendardFont(.Caption)
-                .foregroundStyle(.gray01)
-                .padding(.horizontal, 20)
+            if showsInlineDate {
+                Text("측정날짜: \(formattedSelectedDate)")
+                    .pretendardFont(.Caption)
+                    .foregroundStyle(.gray01)
+                    .padding(.horizontal, 20)
+            }
             
             segmentControl
             
             contentView
         }
         .padding(.top, 16)
+        .navigationTitle(showsInlineDate ? "" : formattedSelectedDate)
+        .navigationBarTitleDisplayMode(.inline)
     }
     
     // MARK: - SubView

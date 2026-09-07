@@ -18,6 +18,7 @@ struct FootMeasurementFinishView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             MainButton("홈으로 돌아가기", action: {
+                HapticFeedback.impact()
                 router.reset()
             })
             .padding(.horizontal, 18)

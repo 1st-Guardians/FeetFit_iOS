@@ -43,8 +43,18 @@ struct HomeContainer: View {
                         FootMeasurementFinishView()
                             .toolbar(.hidden, for: .tabBar)
 
+                    case .hardwarePairing:
+                        HardwarePairingView {
+                            router.pop()
+                        }
+                        .toolbar(.hidden, for: .tabBar)
+
                     case .report(let date):
-                        ResultView(selectedDate: date)
+                        ResultView(selectedDate: date, showsInlineDate: false)
+                            .toolbar(.hidden, for: .tabBar)
+
+                    case .shoeDetail(let shoeId):
+                        ShoeDetailView(shoeId: shoeId)
                             .toolbar(.hidden, for: .tabBar)
                     }
                 }

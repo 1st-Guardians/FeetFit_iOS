@@ -17,8 +17,8 @@ struct FootMeasurementProgressView: View {
                 VStack(spacing: 0) {
                     LoadingMessageView(
                         message: displayMessage,
-                        bottomPadding: isFailed ? 16 : 10,
-                        messageLineLimit: isFailed ? nil : 3
+                        bottomPadding: 10,
+                        messageLineLimit: isFailed ? 3 : 2
                     )
 
                     if let errorDetailText {
@@ -29,6 +29,7 @@ struct FootMeasurementProgressView: View {
                             .lineLimit(nil)
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.horizontal, 24)
+                            .padding(.top, 12)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -86,6 +87,7 @@ struct FootMeasurementProgressView: View {
             MainButton(
                 viewModel.isStatusUpdateInFlight ? "요청 중..." : "사진 촬영 준비 완료",
                 action: {
+                    HapticFeedback.impact()
                     Task { await viewModel.confirmPhotoReady() }
                 }
             )
@@ -95,6 +97,7 @@ struct FootMeasurementProgressView: View {
             MainButton(
                 viewModel.isStatusUpdateInFlight ? "요청 중..." : "온습도 측정 준비 완료",
                 action: {
+                    HapticFeedback.impact()
                     Task { await viewModel.confirmEnvironmentReady() }
                 }
             )
@@ -104,6 +107,7 @@ struct FootMeasurementProgressView: View {
             MainButton(
                 viewModel.isStatusUpdateInFlight ? "요청 중..." : "압력 측정 준비 완료",
                 action: {
+                    HapticFeedback.impact()
                     Task { await viewModel.confirmPressureReady() }
                 }
             )
@@ -113,6 +117,7 @@ struct FootMeasurementProgressView: View {
             MainButton(
                 "다시 측정하기",
                 action: {
+                    HapticFeedback.impact()
                     viewModel.onMoveToFinish = nil
                     viewModel.disconnect()
                     router.replace(with: .measurement)

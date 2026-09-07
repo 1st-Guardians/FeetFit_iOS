@@ -10,7 +10,11 @@ import SwiftUI
 struct TodayShoesRecommendView: View {
     @StateObject private var viewModel = ShoeRecommendViewModel()
     @EnvironmentObject private var tabRouter: TabRouter
-    @Environment(\.openURL) private var openURL
+    let onShoeTap: (ShoeInfo) -> Void
+
+    init(onShoeTap: @escaping (ShoeInfo) -> Void = { _ in }) {
+        self.onShoeTap = onShoeTap
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -59,9 +63,7 @@ struct TodayShoesRecommendView: View {
         VStack(spacing: 0) {
             ForEach(Array(viewModel.shoes.enumerated()), id: \.element.id) { index, shoe in
                 Button {
-                    if let url = URL(string: shoe.shoeURL) {
-                        openURL(url)
-                    }
+                    onShoeTap(shoe)
                 } label: {
                     ShoeInfoView(shoe: shoe)
                 }

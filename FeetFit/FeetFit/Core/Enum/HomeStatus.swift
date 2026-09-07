@@ -8,12 +8,15 @@
 import Foundation
 
 enum HomeStatus {
+    case hardwareUnconnected
     case noRecord
     case measuredToday
     case notMeasuredToday
     
     var title: String {
         switch self {
+        case .hardwareUnconnected:
+            return "핏핏과 함께 발 건강 측정을 시작해 보세요"
         case .noRecord:
             return "핏핏과 함께 발 건강 측정을 시작해 보세요"
         case .measuredToday:
@@ -25,6 +28,8 @@ enum HomeStatus {
     
     var description: String {
         switch self {
+        case .hardwareUnconnected:
+            return "첫 측정을 위해 하드웨어를 연결해 주세요.\n하드웨어 연결 후 바로 측정할 수 있어요."
         case .noRecord:
             return "첫 측정을 완료하면\n발 상태 분석과 맞춤 관리 정보를 받을 수 있어요."
         case .measuredToday:
@@ -36,6 +41,8 @@ enum HomeStatus {
     
     var buttonText: String {
         switch self {
+        case .hardwareUnconnected:
+            return "하드웨어 연결하기"
         case .noRecord, .notMeasuredToday:
             return "바로 측정하러 가기"
         case .measuredToday:

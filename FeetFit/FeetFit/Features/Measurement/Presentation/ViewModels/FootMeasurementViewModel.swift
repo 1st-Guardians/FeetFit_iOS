@@ -122,7 +122,7 @@ final class FootMeasurementViewModel {
     @MainActor
     private func startMeasurementSession() async {
         do {
-            measurementStatusText = "측정 세션\n생성 중..."
+            measurementStatusText = "측정 세션 생성 중..."
 
             // 사용자 topic 구독이 아직 안 끝났다면(예: onConnected 처리와 경합) 여기서 한 번 더 보장한다.
             await subscribeUserTopicIfNeeded()
@@ -300,7 +300,7 @@ final class FootMeasurementViewModel {
                     ?? message.failureReason?.fallbackMessage
                     ?? message.statusMessage
                     ?? MeasurementStatus.failed.guideMessage
-                errorMessage = addLineBreakIfNeeded(title)
+                errorMessage = addLineBreakIfNeeded(removingErrorCode(title))
                 errorDetail = message.failureDetail.map(removingErrorCode)
 
                 print("측정 실패 - failureReason:", message.failureReason?.rawValue ?? "nil")
@@ -340,10 +340,10 @@ final class FootMeasurementViewModel {
         return text.replacingCharacters(in: range, with: ".\n")
     }
 
-    /// failureDetail에 붙어 오는 "(오류코드: ~)" 같은 표기는 사용자에게 노출하지 않는다.
+    /// failureMessage/failureDetail에 붙어 오는 "(오류 코드: ~)" 같은 표기는 사용자에게 노출하지 않는다.
     private func removingErrorCode(_ text: String) -> String {
         text.replacingOccurrences(
-            of: #"\s*\(오류코드[^)]*\)"#,
+            of: #"\s*\(오류\s*코드[^)]*\)"#,
             with: "",
             options: .regularExpression
         ).trimmingCharacters(in: .whitespacesAndNewlines)

@@ -524,13 +524,13 @@ final class RecommendListViewModel: ObservableObject {
                         return
                     }
                     
-                    let hasMeasurement = !(result.typeText ?? "")
+                    let typeText = result.typeText?
                         .trimmingCharacters(in: .whitespacesAndNewlines)
-                        .isEmpty
+                    let hasMeasurement = typeText?.isEmpty == false
                     
                     DispatchQueue.main.async {
                         self.nickname = result.nickname
-                        self.footTypeText = result.typeText
+                        self.footTypeText = hasMeasurement ? typeText : nil
                         completion?(hasMeasurement)
                     }
                     

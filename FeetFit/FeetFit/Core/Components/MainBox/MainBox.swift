@@ -42,8 +42,16 @@ struct MainBox: View {
             }
             
             ForEach(listContent, id: \.self) { content in
-                Text(" ∙ " + content)
-                    .pretendardFont(.BlockText)
+                HStack(alignment: .top, spacing: 8) {
+                    Circle()
+                        .fill(.gray01)
+                        .frame(width: 4, height: 4)
+                        .padding(.top, 7)
+
+                    Text(content)
+                        .pretendardFont(.BlockText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             
             // 내용

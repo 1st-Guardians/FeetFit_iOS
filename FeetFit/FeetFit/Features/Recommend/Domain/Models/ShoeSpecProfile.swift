@@ -9,14 +9,14 @@ enum ShoeSpecAttribute: String, CaseIterable, Identifiable {
     case cushion = "쿠션감"
     case shockAbsorption = "충격 완화"
     case energyReturn = "반발력"
-    case widthSpace = "발볼 공간"
-    case toeboxSpace = "앞코 공간"
+    case widthSpace = "발볼 여유"
+    case toeboxSpace = "앞코 여유"
     case heelHold = "뒤꿈치 고정감"
     case breathability = "통기성"
 
     var id: String { rawValue }
 
-    /// 백엔드 /api/shoes/{shoeId}/characteristics 의 type 값과 매핑
+    /// /api/shoes/{shoeId}/characteristics 의 type 값과 매핑
     init?(apiType: String) {
         switch apiType {
         case "CUSHION": self = .cushion
@@ -33,20 +33,22 @@ enum ShoeSpecAttribute: String, CaseIterable, Identifiable {
     var minimumLabel: String {
         switch self {
         case .cushion: return "단단함"
-        case .widthSpace, .toeboxSpace: return "좁음"
-        case .shockAbsorption, .energyReturn, .heelHold, .breathability: return "낮음"
+        case .shockAbsorption: return "보통"
+        case .energyReturn, .breathability: return "낮음"
+        case .widthSpace, .toeboxSpace: return "넓음"
+        case .heelHold: return "보통"
         }
     }
 
     var maximumLabel: String {
         switch self {
-        case .cushion: return "부드러움"
-        case .widthSpace, .toeboxSpace: return "넓음"
+        case .cushion: return "푹심함"
         case .shockAbsorption, .energyReturn, .heelHold, .breathability: return "높음"
+        case .widthSpace, .toeboxSpace: return "보통"
         }
     }
 
-    /// 백엔드가 특성별 설명 문구를 안 내려줘서, 속성 x 레벨 조합별 문구를 iOS에서 관리한다.
+    /// 속성 x 레벨 조합별 문구
     func description(for level: ShoeSpecLevel) -> String {
         switch (self, level) {
         case (.cushion, .low):

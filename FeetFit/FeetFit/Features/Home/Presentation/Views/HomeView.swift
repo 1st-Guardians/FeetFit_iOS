@@ -34,7 +34,9 @@ struct HomeView: View {
 
                     HealthNewsView()
 
-                    TodayShoesRecommendView()
+                    TodayShoesRecommendView { shoe in
+                        router.push(.shoeDetail(shoeId: shoe.id))
+                    }
                     Spacer()
                 }
                 .padding(.horizontal, 20)
@@ -46,6 +48,11 @@ struct HomeView: View {
         }
         .task {
             await weeklyStatusViewModel.fetchWeeklyStatus()
+        }
+        .onAppear {
+            Task {
+                await weeklyStatusViewModel.fetchDeviceStatus()
+            }
         }
     }
 
@@ -82,6 +89,9 @@ struct HomeView: View {
 
             Button(action: {
                 switch status {
+                case .hardwareUnconnected:
+                    router.push(.hardwarePairing)
+
                 case .noRecord, .notMeasuredToday:
                     router.push(.measurement)
 

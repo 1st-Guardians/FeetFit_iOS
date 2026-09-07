@@ -25,7 +25,7 @@ enum MeasurementStatus: String, Codable {
     var guideMessage: String {
         switch self {
         case .waitingForPhoto:
-            return "FSR 센서 판을 올리고\n유리판 위에 올라와 주세요."
+            return "하얀색 발판을 올리고\n유리판 위에 올라와 주세요."
         case .readyForPhoto:
             return "사진 촬영 준비가 완료되었습니다.\n촬영을 시작합니다."
         case .capturingPhoto:
@@ -37,7 +37,7 @@ enum MeasurementStatus: String, Codable {
         case .measuringEnvironment:
             return "온습도 측정 중입니다.\n잠시 기다려 주세요."
         case .waitingForPressure:
-            return "온습도 측정이 완료되었습니다.\n내려온 뒤 FSR 센서 판을 내리고\n다시 올라와 주세요."
+            return "유리판에서 내려온 뒤\n하얀색 발판을 내리고 다시 올라와 주세요."
         case .readyForPressure:
             return "압력 측정 준비가 완료되었습니다.\n압력 측정을 시작합니다."
         case .measuringPressure:

@@ -76,6 +76,15 @@ final class ReportAPI {
                             return
                         }
 
+                        if response.statusCode == 400 {
+                            continuation.resume(
+                                throwing: APIError.serverError(
+                                    "모든 측정이 완료되지 않아\n요약 리포트를 조회할 수 없습니다"
+                                )
+                            )
+                            return
+                        }
+
                         continuation.resume(
                             throwing: APIError.serverError(
                                 errorResponse?.message ?? "알 수 없는 오류가 발생했습니다."
