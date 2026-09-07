@@ -14,7 +14,7 @@ struct FootMeasurementConnectingView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             LoadingMessageView(
-                message: viewModel.isLoading ? "기기와 연결 중이에요.\n " : "준비가 되면\n버튼을 눌러주세요."
+                message: displayMessage
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             
@@ -42,6 +42,14 @@ struct FootMeasurementConnectingView: View {
                 router.push(.measurementProgress)
             }
         }
+    }
+
+    private var displayMessage: String {
+        if let errorMessage = viewModel.errorMessage {
+            return errorMessage
+        }
+
+        return viewModel.isLoading ? "기기와 연결 중이에요.\n " : "준비가 되면\n버튼을 눌러주세요."
     }
 }
 

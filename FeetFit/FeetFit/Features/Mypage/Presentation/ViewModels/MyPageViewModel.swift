@@ -15,6 +15,7 @@ final class MyPageViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var requiresProfileSetup: Bool = false
     @Published var hardwareStatus: HardwareStatus = .unconnected
+    @Published var hasMeasurementRecord: Bool = false
     
     private let myPageProvider = APIManager.shared.createProvider(
         for: MyPageRouter.self,
@@ -136,6 +137,20 @@ final class MyPageViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.hardwareStatus = .unconnected
                 }
+            }
+        }
+    }
+
+    func fetchMeasurementRecordStatus() {
+        _Concurrency.Task {
+            do {
+                let weeklyStatus = try await MeasurementAPI.shared.fetchWeeklyStatus()
+
+                await MainActor.run {
+                    self.hasMeasurementRecord = weeklyStatus.hasWeeklyMeasurement
+                }
+            } catch {
+                print("마이페이지 측정 기록 조회 API 오류:", error)
             }
         }
     }

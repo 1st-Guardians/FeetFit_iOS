@@ -13,8 +13,6 @@ struct MyPageView: View {
     let onProfileEditTap: () -> Void
     let onHardwarePairingTap: () -> Void
     
-    @State private var hasMeasurementRecord: Bool = false
-    
     var body: some View {
         GeometryReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
@@ -43,6 +41,7 @@ struct MyPageView: View {
         .onAppear {
             viewModel.fetchProfile()
             viewModel.fetchDeviceStatus()
+            viewModel.fetchMeasurementRecordStatus()
         }
     }
     
@@ -58,7 +57,7 @@ struct MyPageView: View {
             
             UserInfoGroup(userInfo: viewModel.userInfo)
             
-            if !hasMeasurementRecord {
+            if !viewModel.hasMeasurementRecord {
                 Spacer().frame(height: 10)
                 
                 HStack(spacing: 0) {

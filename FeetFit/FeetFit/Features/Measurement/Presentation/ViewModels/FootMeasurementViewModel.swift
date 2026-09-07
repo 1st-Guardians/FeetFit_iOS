@@ -46,9 +46,12 @@ final class FootMeasurementViewModel {
                 // 세션 생성(POST) 전에 사용자 topic 구독을 먼저 마쳐야
                 // WAITING_FOR_PHOTO 첫 메시지를 놓치지 않는다.
                 await self.subscribeUserTopicIfNeeded()
+                await self.startMeasurementSessionIfNeeded()
 
                 self.isLoading = false
-                print("CONNECTED 수신 → Progress 화면으로 이동")
+                guard self.session != nil else { return }
+
+                print("CONNECTED 수신 및 세션 생성 완료 → Progress 화면으로 이동")
                 self.onMoveToProgress?()
             }
         }
