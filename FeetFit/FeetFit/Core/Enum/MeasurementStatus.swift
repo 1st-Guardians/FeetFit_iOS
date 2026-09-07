@@ -11,6 +11,8 @@ enum MeasurementStatus: String, Codable {
     case waitingForPhoto = "WAITING_FOR_PHOTO"
     case readyForPhoto = "READY_FOR_PHOTO"
     case capturingPhoto = "CAPTURING_PHOTO"
+    case waitingForRecapture = "WAITING_FOR_RECAPTURE"
+    case readyForRecapture = "READY_FOR_RECAPTURE"
     case waitingForEnvironment = "WAITING_FOR_ENVIRONMENT"
     case readyForEnvironment = "READY_FOR_ENVIRONMENT"
     case measuringEnvironment = "MEASURING_ENVIRONMENT"
@@ -30,12 +32,16 @@ enum MeasurementStatus: String, Codable {
             return "사진 촬영 준비가 완료되었습니다.\n촬영을 시작합니다."
         case .capturingPhoto:
             return "사진을 촬영하고 있습니다.\n잠시 움직이지 말아 주세요."
+        case .waitingForRecapture:
+            return "발 위치를 조정한 뒤\n다시 촬영해 주세요."
+        case .readyForRecapture:
+            return "재촬영 준비가 완료되었습니다.\n촬영을 시작합니다."
         case .waitingForEnvironment:
             return "온습도 측정을 위해\n기기 가까이 이동해 주세요."
         case .readyForEnvironment:
             return "온습도 측정 준비가 완료되었습니다.\n온습도 측정을 시작합니다."
         case .measuringEnvironment:
-            return "온습도 측정 중입니다.\n잠시 기다려 주세요."
+            return "온습도를 측정하고 있습니다.\n잠시 움직이지 말아 주세요."
         case .waitingForPressure:
             return "유리판에서 내려온 뒤\n하얀색 발판을 내리고 다시 올라와 주세요."
         case .readyForPressure:

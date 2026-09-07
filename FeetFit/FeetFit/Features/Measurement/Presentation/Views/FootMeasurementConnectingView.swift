@@ -14,18 +14,19 @@ struct FootMeasurementConnectingView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             LoadingMessageView(
-                message: viewModel.isLoading ? "기기와 연결 중이에요\n " : "준비가 되면\n버튼을 눌러주세요"
+                message: viewModel.isLoading ? "기기와 연결 중이에요.\n " : "준비가 되면\n버튼을 눌러주세요."
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             
-            MainButton(viewModel.isLoading ? "기기 연결 중..." : "측정 시작하기", action: {
-                HapticFeedback.impact()
-                print("기기 연결하기 버튼 클릭")
-                viewModel.connectDevice()
-            })
-            .padding(.horizontal, 18)
-            .padding(.bottom, 40)
-            .disabled(viewModel.isLoading)
+            if !viewModel.isLoading {
+                MainButton("측정 시작하기", action: {
+                    HapticFeedback.impact()
+                    print("기기 연결하기 버튼 클릭")
+                    viewModel.connectDevice()
+                })
+                .padding(.horizontal, 18)
+                .padding(.bottom, 40)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden()

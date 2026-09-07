@@ -24,6 +24,7 @@ final class FootMeasurementViewModel {
 
     var measurementSessionId: Int?
     var measurementStatus: MeasurementStatus?
+    var photoCaptureAttempt: Int?
     var isStatusUpdateInFlight = false
 
     var measurementStatusText = "발 측정\n준비 중..."
@@ -81,6 +82,7 @@ final class FootMeasurementViewModel {
         session = nil
         measurementSessionId = nil
         measurementStatus = nil
+        photoCaptureAttempt = nil
         isMeasurementCompleted = false
         isUserTopicSubscribed = false
         pendingMessageBodies = []
@@ -122,7 +124,7 @@ final class FootMeasurementViewModel {
     @MainActor
     private func startMeasurementSession() async {
         do {
-            measurementStatusText = "측정 세션 생성 중..."
+            measurementStatusText = "기기와 연결 중이에요."
 
             // 사용자 topic 구독이 아직 안 끝났다면(예: onConnected 처리와 경합) 여기서 한 번 더 보장한다.
             await subscribeUserTopicIfNeeded()
@@ -187,7 +189,12 @@ final class FootMeasurementViewModel {
     }
 
     @MainActor
-    private func patchStatus(_ status: MeasurementStatus) async {
+    func confirmRecaptureReady() async {
+        await patchStatus(.readyForRecapture, photoCaptureAttempt: photoCaptureAttempt)
+    }
+
+    @MainActor
+    private func patchStatus(_ status: MeasurementStatus, photoCaptureAttempt: Int? = nil) async {
         guard !isStatusUpdateInFlight else { return }
 
         guard let measurementSessionId else {
@@ -202,7 +209,8 @@ final class FootMeasurementViewModel {
         do {
             let result = try await MeasurementAPI.shared.patchMeasurementSessionStatus(
                 sessionId: measurementSessionId,
-                status: status
+                status: status,
+                photoCaptureAttempt: photoCaptureAttempt
             )
 
             print("측정 상태 PATCH 성공:", result.status.rawValue)
@@ -268,6 +276,9 @@ final class FootMeasurementViewModel {
             print("sessionId:", message.measurementSessionId)
             print("status:", message.status.rawValue)
             print("statusMessage:", message.statusMessage ?? "nil")
+            print("detail:", message.detail ?? "nil")
+            print("photoCaptureAttempt:", message.photoCaptureAttempt?.description ?? "nil")
+            print("remainingPhotoRecaptures:", message.remainingPhotoRecaptures?.description ?? "nil")
             print("shouldDisconnect:", message.shouldDisconnect)
 
             // 소켓 매니저가 싱글턴이라, 재시도 등으로 세션이 바뀐 뒤에도
@@ -279,6 +290,10 @@ final class FootMeasurementViewModel {
 
             // UI는 eventType이 아니라 status를 기준으로 동작한다.
             measurementStatus = message.status
+            photoCaptureAttempt = message.photoCaptureAttempt ?? photoCaptureAttempt
+            if message.status == .waitingForRecapture, let detail = message.detail {
+                measurementStatusText = detail
+            }
             print("measurementStatus 갱신됨:", measurementStatus?.rawValue ?? "nil")
 
             switch message.status {
@@ -311,6 +326,7 @@ final class FootMeasurementViewModel {
                 }
 
             case .waitingForPhoto, .readyForPhoto, .capturingPhoto,
+                 .waitingForRecapture, .readyForRecapture,
                  .waitingForEnvironment, .readyForEnvironment, .measuringEnvironment,
                  .waitingForPressure, .readyForPressure, .measuringPressure,
                  .analyzing:

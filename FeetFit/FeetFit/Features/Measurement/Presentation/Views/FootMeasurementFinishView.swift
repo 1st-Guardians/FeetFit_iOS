@@ -13,7 +13,7 @@ struct FootMeasurementFinishView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             LoadingMessageView(
-                message: "데이터 전송이\n완료되었습니다"
+                message: "데이터 전송이\n완료되었습니다."
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
