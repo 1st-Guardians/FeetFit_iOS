@@ -93,7 +93,7 @@ struct SummaryView: View {
                 MainBox(
                     title: metric.displayTitle,
                     status: metric.mainBoxStatus,
-                    listContent: metric.advice,
+                    listContent: metric.advice ?? [],
                     content: nil
                 )
             }

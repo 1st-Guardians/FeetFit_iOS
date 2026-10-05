@@ -85,7 +85,7 @@ struct WeekCalendarView: View {
                             .fill(.gray03)
                     }
                 }
-                .foregroundStyle(status.hasMeasurement ? weekdayColor(for: weekdayIndex) : Color.gray)
+                .foregroundStyle(dateColor(for: status, weekdayIndex: weekdayIndex))
         }
         .frame(maxWidth: .infinity)
 
@@ -110,6 +110,19 @@ struct WeekCalendarView: View {
         case 0: return .red01
         case 6: return .blue01
         default: return .gray01
+        }
+    }
+
+    private func dateColor(for status: DailyStatus, weekdayIndex: Int) -> Color {
+        guard status.hasMeasurement else { return .gray }
+
+        switch weekdayIndex {
+        case 0:
+            return .red01
+        case 6:
+            return .blue01
+        default:
+            return .black01
         }
     }
 

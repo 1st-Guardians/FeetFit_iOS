@@ -107,35 +107,45 @@ struct HalluxValgusResultView: View {
                     .foregroundStyle(.gray01)
             }
             
-            VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("왼발")
                     .pretendardFont(.SectionTitle)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 
                 GaugeView(
                     type: .halluxValgus,
                     current: result.leftToeAngleCGFloat
                 )
+                .frame(maxWidth: .infinity, alignment: .center)
                 
-                Text(result.leftAnalysisText)
+                Text(result.leftAnalysisText.characterWrapped)
                     .multilineTextAlignment(.leading)
                     .pretendardFont(.BlockText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxWidth: .infinity)
             
-            VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("오른발")
                     .pretendardFont(.SectionTitle)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 
                 GaugeView(
                     type: .halluxValgus,
                     current: result.rightToeAngleCGFloat
                 )
+                .frame(maxWidth: .infinity, alignment: .center)
                 
-                Text(result.rightAnalysisText)
+                Text(result.rightAnalysisText.characterWrapped)
                     .multilineTextAlignment(.leading)
                     .pretendardFont(.BlockText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .mainBoxStyle()
     }
+
 }

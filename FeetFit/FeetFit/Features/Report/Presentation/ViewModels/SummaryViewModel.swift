@@ -19,7 +19,7 @@ final class SummaryViewModel: ObservableObject {
             return "-"
         }
 
-        return "\(totalScore)점"
+        return "\(Int(totalScore.rounded()))점"
     }
 
     var radarItems: [RadarChartItem] {
@@ -27,7 +27,9 @@ final class SummaryViewModel: ObservableObject {
             return []
         }
 
-        return metricScores.map { $0.radarItem }
+        return metricScores
+            .filter { $0.score != nil }
+            .map { $0.radarItem }
     }
 
     var yearScores: [YearScore] {
@@ -35,11 +37,13 @@ final class SummaryViewModel: ObservableObject {
             return []
         }
 
-        return monthlyScores.map { $0.yearScore }
+        return monthlyScores
+            .filter { $0.month != nil && $0.avgScore != nil }
+            .map { $0.yearScore }
     }
 
     var metricScores: [MetricScoreDTO] {
-        report?.metricScores ?? []
+        report?.metricScores?.filter { !($0.advice ?? []).isEmpty } ?? []
     }
 
     func fetchSummary() async {

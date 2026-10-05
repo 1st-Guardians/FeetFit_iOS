@@ -34,10 +34,14 @@ struct FootMeasurementConnectingView: View {
             ToolBarCollection.BackBtn {
                 viewModel.onMoveToProgress = nil
                 viewModel.disconnect()
+                viewModel.resetMeasurementState()
                 router.reset()
             }
         }
         .onAppear {
+            if !viewModel.isLoading {
+                viewModel.resetMeasurementState()
+            }
             viewModel.onMoveToProgress = {
                 router.push(.measurementProgress)
             }

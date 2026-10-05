@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FootMeasurementFinishView: View {
     @Environment(NavigationRouter<HomeRoute>.self) private var router
+    @Bindable var viewModel: FootMeasurementViewModel
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -19,6 +20,7 @@ struct FootMeasurementFinishView: View {
 
             MainButton("홈으로 돌아가기", action: {
                 HapticFeedback.impact()
+                viewModel.resetMeasurementState()
                 router.reset()
             })
             .padding(.horizontal, 18)
@@ -28,6 +30,7 @@ struct FootMeasurementFinishView: View {
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn {
+                viewModel.resetMeasurementState()
                 router.reset()
             }
         }
@@ -35,5 +38,7 @@ struct FootMeasurementFinishView: View {
 }
 
 #Preview {
-    FootMeasurementFinishView()
+    FootMeasurementFinishView(
+        viewModel: FootMeasurementViewModel()
+    )
 }

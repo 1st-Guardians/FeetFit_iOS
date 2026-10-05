@@ -79,7 +79,7 @@ struct OverallResultView: View {
             
             VStack(alignment: .leading, spacing: 16) {
                 footprintSection(result)
-                Text(result.plantarFootprintAnalysisText ?? "발 눌림 분석 내용이 아직 없습니다.")
+                Text((result.plantarFootprintAnalysisText ?? "발 눌림 분석 내용이 아직 없습니다.").characterWrapped)
                     .pretendardFont(.BlockText)
                     .padding(.horizontal, 4)
             }
@@ -199,9 +199,58 @@ struct OverallResultView: View {
                 beforeValue: result.beforeHumidityValue,
                 afterValue: result.afterHumidityValue
             )
+
+            environmentLegend
         }
         .padding(20)
         .mainBoxStyle()
+    }
+
+    private var environmentLegend: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            environmentLegendRow(
+                isFilled: true,
+                text: "측정 후"
+            )
+
+            environmentLegendRow(
+                isFilled: false,
+                text: "측정 전"
+            )
+        }
+    }
+
+    private func environmentLegendRow(
+        isFilled: Bool,
+        text: String
+    ) -> some View {
+        HStack(spacing: 5) {
+            environmentLegendMarker(
+                color: .red01,
+                isFilled: isFilled
+            )
+
+            environmentLegendMarker(
+                color: .blue01,
+                isFilled: isFilled
+            )
+
+            Text(text)
+                .pretendardFont(.Caption)
+                .foregroundStyle(.gray01)
+        }
+    }
+
+    private func environmentLegendMarker(
+        color: Color,
+        isFilled: Bool
+    ) -> some View {
+        Circle()
+            .fill(isFilled ? color : Color.white)
+            .overlay(
+                Circle().stroke(color, lineWidth: 1)
+            )
+            .frame(width: 13, height: 13)
     }
 
     // MARK: - 관리팁

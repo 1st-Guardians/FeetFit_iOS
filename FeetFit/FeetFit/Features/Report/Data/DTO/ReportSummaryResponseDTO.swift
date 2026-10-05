@@ -11,29 +11,29 @@ struct ReportSummaryResponseDTO: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: ReportSummaryResultDTO
+    let result: ReportSummaryResultDTO?
 }
 
 struct ReportSummaryResultDTO: Decodable {
-    let totalScore: Int
-    let metricScores: [MetricScoreDTO]
-    let monthlyScores: [MonthlyScoreDTO]
+    let totalScore: Double?
+    let metricScores: [MetricScoreDTO]?
+    let monthlyScores: [MonthlyScoreDTO]?
 }
 
 struct MetricScoreDTO: Decodable, Identifiable {
-    var id: String { metricType }
+    var id: String { metricType ?? displayTitle }
 
-    let metricType: String
-    let score: Double
-    let status: String
-    let advice: [String]
+    let metricType: String?
+    let score: Double?
+    let status: String?
+    let advice: [String]?
 }
 
 struct MonthlyScoreDTO: Decodable, Identifiable {
-    var id: Int { month }
+    var id: Int { month ?? 0 }
 
-    let month: Int
-    let avgScore: Double
+    let month: Int?
+    let avgScore: Double?
 }
 
 extension MetricScoreDTO {
@@ -50,12 +50,12 @@ extension MetricScoreDTO {
         case "FOOT_ENVIRONMENT":
             return "환경 상태"
         default:
-            return metricType
+            return metricType ?? "발 건강 지표"
         }
     }
 
     var mainBoxStatus: MainBoxStatus {
-        switch status {
+        switch status ?? "" {
         case "VERY_GOOD":
             return .good
         case "ATTENTION_NEEDED":
@@ -70,7 +70,7 @@ extension MetricScoreDTO {
     var radarItem: RadarChartItem {
         RadarChartItem(
             title: displayTitle,
-            value: score / 100.0
+            value: (score ?? 0) / 100.0
         )
     }
 }
@@ -78,8 +78,8 @@ extension MetricScoreDTO {
 extension MonthlyScoreDTO {
     var yearScore: YearScore {
         YearScore(
-            month: "\(month)월",
-            score: Int(avgScore.rounded())
+            month: "\(month ?? 0)월",
+            score: Int((avgScore ?? 0).rounded())
         )
     }
 }

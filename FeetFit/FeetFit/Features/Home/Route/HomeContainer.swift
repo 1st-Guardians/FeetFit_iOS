@@ -40,7 +40,9 @@ struct HomeContainer: View {
                             .toolbar(.hidden, for: .tabBar)
 
                     case .measurementFinish:
-                        FootMeasurementFinishView()
+                        FootMeasurementFinishView(
+                            viewModel: measurementViewModel
+                        )
                             .toolbar(.hidden, for: .tabBar)
 
                     case .hardwarePairing:

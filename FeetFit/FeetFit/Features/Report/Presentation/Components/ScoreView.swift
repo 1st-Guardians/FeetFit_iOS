@@ -35,7 +35,7 @@ struct ScoreView: View {
     
     private var differenceText: String {
         guard let difference else {
-            return "이전 측정 데이터 없음"
+            return "이전 측정 기록 없음"
         }
 
         if difference > 0 {
@@ -80,7 +80,7 @@ struct ScoreView: View {
                         .foregroundStyle(.blue01)
                 }
                 
-                Text(description)
+                Text(description.characterWrapped)
                     .pretendardFont(.BlockText)
             }
         }

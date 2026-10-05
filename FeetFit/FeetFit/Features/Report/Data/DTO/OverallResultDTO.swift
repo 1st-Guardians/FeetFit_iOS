@@ -59,6 +59,31 @@ struct DailyFootAnalysisResultDTO: Decodable {
 }
 
 extension DailyFootAnalysisResultDTO {
+    var hasRequiredOverallDisplayData: Bool {
+        balanceScore != nil
+            && balanceComment != nil
+            && leftPressurePercent != nil
+            && rightPressurePercent != nil
+            && hasText(leftPressureImageUrl)
+            && hasText(rightPressureImageUrl)
+            && hasText(leftPlantarFootprintImageUrl)
+            && hasText(rightPlantarFootprintImageUrl)
+            && plantarFootprintAnalysisText != nil
+            && userFootSize != nil
+            && measuredLeftFootSizeMm != nil
+            && measuredRightFootSizeMm != nil
+            && leftFootSizeDiff != nil
+            && rightFootSizeDiff != nil
+            && leftFootWidthMm != nil
+            && rightFootWidthMm != nil
+            && beforeTemperatureCelsius != nil
+            && beforeHumidityPercent != nil
+            && afterTemperatureCelsius != nil
+            && afterHumidityPercent != nil
+            && avgTemperatureCelsius != nil
+            && avgHumidityPercent != nil
+    }
+
     var conditionStatus: MainBoxStatus {
         switch conditionLevel {
         case "VERY_GOOD":
@@ -159,6 +184,11 @@ extension DailyFootAnalysisResultDTO {
         } else {
             return "\(intValue)"
         }
+    }
+
+    private func hasText(_ value: String?) -> Bool {
+        guard let value else { return false }
+        return !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 

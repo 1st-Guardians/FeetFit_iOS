@@ -47,12 +47,16 @@ struct FootMeasurementProgressView: View {
             ToolBarCollection.BackBtn {
                 viewModel.onMoveToFinish = nil
                 viewModel.disconnect()
+                viewModel.resetMeasurementState()
                 router.reset()
             }
         }
         .onAppear {
             viewModel.onMoveToFinish = {
-                router.push(.measurementFinish)
+                let reportDate = Date()
+                viewModel.onMoveToFinish = nil
+                viewModel.resetMeasurementState()
+                router.replace(with: .report(reportDate))
             }
         }
         .task {
@@ -93,7 +97,7 @@ struct FootMeasurementProgressView: View {
         switch viewModel.measurementStatus {
         case .waitingForPhoto:
             MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "사진 촬영 준비 완료",
+                viewModel.isStatusUpdateInFlight ? "요청 중..." : "측정 준비 완료",
                 action: {
                     HapticFeedback.impact()
                     Task { await viewModel.confirmPhotoReady() }
@@ -103,7 +107,7 @@ struct FootMeasurementProgressView: View {
 
         case .waitingForEnvironment:
             MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "온습도 측정 준비 완료",
+                viewModel.isStatusUpdateInFlight ? "요청 중..." : "측정 준비 완료",
                 action: {
                     HapticFeedback.impact()
                     Task { await viewModel.confirmEnvironmentReady() }
@@ -113,7 +117,7 @@ struct FootMeasurementProgressView: View {
 
         case .waitingForPressure:
             MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "압력 측정 준비 완료",
+                viewModel.isStatusUpdateInFlight ? "요청 중..." : "측정 준비 완료",
                 action: {
                     HapticFeedback.impact()
                     Task { await viewModel.confirmPressureReady() }
@@ -142,6 +146,7 @@ struct FootMeasurementProgressView: View {
                     HapticFeedback.impact()
                     viewModel.onMoveToFinish = nil
                     viewModel.disconnect()
+                    viewModel.resetMeasurementState()
                     router.replace(with: .measurement)
                 }
             )

@@ -39,19 +39,17 @@ final class FootMeasurementViewModel {
     private var pendingMessageBodies: [String] = []
 
     init() {
+        bindSocketCallbacks()
+    }
+
+    private func bindSocketCallbacks() {
         socketManager.onConnected = { [weak self] in
             guard let self else { return }
 
             _Concurrency.Task { @MainActor in
-                // 세션 생성(POST) 전에 사용자 topic 구독을 먼저 마쳐야
-                // WAITING_FOR_PHOTO 첫 메시지를 놓치지 않는다.
-                await self.subscribeUserTopicIfNeeded()
-                await self.startMeasurementSessionIfNeeded()
-
                 self.isLoading = false
-                guard self.session != nil else { return }
 
-                print("CONNECTED 수신 및 세션 생성 완료 → Progress 화면으로 이동")
+                print("CONNECTED 수신 → Progress 화면으로 이동")
                 self.onMoveToProgress?()
             }
         }
@@ -76,19 +74,28 @@ final class FootMeasurementViewModel {
     // MARK: - 기기 연결
 
     @MainActor
-    func connectDevice() {
-        guard !isLoading else { return }
-
-        isLoading = true
+    func resetMeasurementState() {
+        isLoading = false
         errorMessage = nil
         errorDetail = nil
         session = nil
         measurementSessionId = nil
         measurementStatus = nil
         photoCaptureAttempt = nil
+        isStatusUpdateInFlight = false
         isMeasurementCompleted = false
         isUserTopicSubscribed = false
         pendingMessageBodies = []
+        measurementStatusText = "발 측정\n준비 중..."
+    }
+
+    @MainActor
+    func connectDevice() {
+        guard !isLoading else { return }
+
+        resetMeasurementState()
+        bindSocketCallbacks()
+        isLoading = true
         measurementStatusText = "기기와\n연결 중이에요"
 
         socketManager.connect()
@@ -96,7 +103,7 @@ final class FootMeasurementViewModel {
 
     // MARK: - 사용자 topic 구독 (세션 생성 전)
 
-    /// CONNECTED 수신 직후, 세션 생성(POST) 전에 사용자 topic을 먼저 구독해 둔다.
+    /// 측정 세션 생성(POST) 전에 사용자 topic을 먼저 구독해 둔다.
     /// 세션 생성 후에 구독하면 백엔드가 그 직후 바로 보내는 WAITING_FOR_PHOTO를 놓칠 수 있다.
     private func subscribeUserTopicIfNeeded() async {
         guard !isUserTopicSubscribed else { return }
@@ -127,7 +134,7 @@ final class FootMeasurementViewModel {
     @MainActor
     private func startMeasurementSession() async {
         do {
-            measurementStatusText = "기기와 연결 중이에요."
+            measurementStatusText = MeasurementStatus.waitingForPhoto.guideMessage
 
             // 사용자 topic 구독이 아직 안 끝났다면(예: onConnected 처리와 경합) 여기서 한 번 더 보장한다.
             await subscribeUserTopicIfNeeded()

@@ -34,9 +34,16 @@ final class OverallResultViewModel: ObservableObject {
         do {
             let dateString = Self.dateFormatter.string(from: date)
 
-            result = try await ReportAPI.shared.fetchDailyFootAnalysis(
+            let fetchedResult = try await ReportAPI.shared.fetchDailyFootAnalysis(
                 date: dateString
             )
+
+            if fetchedResult.hasRequiredOverallDisplayData {
+                result = fetchedResult
+            } else {
+                result = nil
+                errorMessage = emptyDataMessage
+            }
         } catch {
             if case APIError.notFound = error {
                 errorMessage = emptyDataMessage

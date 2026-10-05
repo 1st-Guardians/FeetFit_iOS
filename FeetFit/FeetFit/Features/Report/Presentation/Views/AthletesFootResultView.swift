@@ -58,7 +58,7 @@ struct AthletesFootResultView: View {
                 difference: result.totalScoreDiffInt
             )
 
-            Text(result.scoreFormulaText)
+            Text(result.scoreFormulaText.characterWrapped)
                 .pretendardFont(.Caption)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
@@ -209,7 +209,8 @@ struct AthletesFootResultView: View {
                     current: result.fungalScoreCGFloat
                 )
                 .padding(.horizontal, 40)
-                Text(result.fungalSuspicionSafetyDescription)
+                .frame(maxWidth: .infinity, alignment: .center)
+                Text(result.fungalSuspicionSafetyDescription.characterWrapped)
                     .multilineTextAlignment(.leading)
                     .pretendardFont(.BlockText)
             }
@@ -224,7 +225,8 @@ struct AthletesFootResultView: View {
                     current: result.skinReactionScoreCGFloat
                 )
                 .padding(.horizontal, 40)
-                Text(result.skinReactionSafetyDescription)
+                .frame(maxWidth: .infinity, alignment: .center)
+                Text(result.skinReactionSafetyDescription.characterWrapped)
                     .multilineTextAlignment(.leading)
                     .pretendardFont(.BlockText)
             }

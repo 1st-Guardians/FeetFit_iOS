@@ -48,7 +48,7 @@ struct MainBox: View {
                         .frame(width: 4, height: 4)
                         .padding(.top, 7)
 
-                    Text(content)
+                    Text(content.characterWrapped)
                         .pretendardFont(.BlockText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -59,7 +59,7 @@ struct MainBox: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Divider()
                     
-                    Text(content)
+                    Text(content.characterWrapped)
                         .pretendardFont(.BlockText)
                 }
             }

@@ -29,9 +29,11 @@ enum MeasurementStatus: String, Codable {
         case .waitingForPhoto:
             return "하얀색 발판을 올리고\n유리판 위에 올라와 주세요."
         case .readyForPhoto:
-            return "사진 촬영 준비가 완료되었습니다.\n촬영을 시작합니다."
+//            return "사진 촬영 준비가 완료되었습니다.\n촬영을 시작합니다."
+            return "준비가 완료되었습니다.\n측정을 시작합니다."
         case .capturingPhoto:
-            return "사진을 촬영하고 있습니다.\n잠시 움직이지 말아 주세요."
+//            return "사진을 촬영하고 있습니다.\n잠시 움직이지 말아 주세요."
+            return "발 사진과 주변 환경 상태를 측정하고 있습니다.\n잠시 움직이지 말아 주세요."
         case .waitingForRecapture:
             return "발 위치를 조정한 뒤\n다시 촬영해 주세요."
         case .readyForRecapture:
@@ -45,11 +47,12 @@ enum MeasurementStatus: String, Codable {
         case .waitingForPressure:
             return "유리판에서 내려온 뒤\n하얀색 발판을 내리고 다시 올라와 주세요."
         case .readyForPressure:
-            return "압력 측정 준비가 완료되었습니다.\n압력 측정을 시작합니다."
+//            return "압력 측정 준비가 완료되었습니다.\n압력 측정을 시작합니다."
+            return "준비가 완료되었습니다.\n측정을 시작합니다."
         case .measuringPressure:
             return "발 압력을 측정하고 있습니다.\n잠시 움직이지 말아 주세요."
         case .analyzing:
-            return "측정이 완료되었습니다.\n결과를 분석하고 있습니다."
+            return "측정이 완료되었습니다.\n기기에서 내려와 결과를 기다려 주세요."
         case .completed:
             return "분석이 완료되었습니다.\n결과를 확인해 주세요."
         case .failed:
