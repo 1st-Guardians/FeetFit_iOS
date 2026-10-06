@@ -59,6 +59,9 @@
     --space-17-5: 17.5px;
     --space-20: 20px;
     --space-55: 55px;
+    --shoe-rank-width: 50px;
+    --shoe-image-width: 100px;
+    --shoe-image-height: 80px;
     --caption-size: 10px;
     --medium-weight: 500;
 }
@@ -717,6 +720,135 @@ body {
 
 .management-tips li::before {
     content: "- ";
+}
+
+.foot-type-frame {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 70px;
+    margin-top: var(--space-10);
+    padding: 0 var(--space-20);
+}
+
+.foot-type-description {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
+}
+
+.shoe-recommendation-card {
+    position: relative;
+    height: 150px;
+    overflow: hidden;
+}
+
+.shoe-rank-frame {
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: -1px;
+    display: flex;
+    width: var(--shoe-rank-width);
+    flex-direction: column;
+    align-items: center;
+    padding-top: var(--space-10);
+    border: 1px solid var(--color-divider);
+    background: var(--color-surface-accent);
+}
+
+.shoe-rank-number {
+    color: var(--color-text-primary);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.shoe-rank-best {
+    color: var(--color-accent);
+    text-align: center;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.shoe-recommendation-image {
+    position: absolute;
+    top: var(--space-10);
+    left: calc(var(--shoe-rank-width) + var(--space-10));
+    display: block;
+    width: var(--shoe-image-width);
+    height: var(--shoe-image-height);
+    object-fit: contain;
+}
+
+.shoe-recommendation-info {
+    position: absolute;
+    top: var(--space-10);
+    right: 95px;
+    left: calc(var(--shoe-rank-width) + var(--shoe-image-width) + 20px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: var(--color-text-primary);
+    line-height: normal;
+}
+
+.shoe-brand,
+.shoe-name {
+    font-size: 8px;
+    font-weight: var(--medium-weight);
+}
+
+.shoe-name {
+    margin-top: 2px;
+}
+
+.shoe-price {
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.score-chart.fit-score-chart {
+    position: absolute;
+    top: var(--space-17-5);
+    right: var(--space-15);
+}
+
+.fit-score-value {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    color: var(--color-text-primary);
+    text-align: center;
+    line-height: normal;
+}
+
+.fit-score-label {
+    font-size: 8px;
+    font-weight: var(--medium-weight);
+}
+
+.fit-score-number {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.shoe-recommendation-description {
+    position: absolute;
+    top: 100px;
+    right: var(--space-15);
+    left: calc(var(--shoe-rank-width) + var(--space-10));
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
 }
 
 .report-footer {

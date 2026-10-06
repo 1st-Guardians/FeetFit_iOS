@@ -334,5 +334,144 @@
             </footer>
         </section>
     </div>
+
+    <div class="print-page">
+        <section class="page">
+            <header class="report-header">
+                <div class="gradient-line header-top-line" aria-hidden="true"></div>
+
+                <div class="report-header-content">
+                    <div class="brand-group">
+                        <p class="brand-name">Feet<span>Fit</span></p>
+                        <p class="header-caption">멀티 센서 기반 발 건강 상태 분석 시스템</p>
+                    </div>
+
+                    <div class="report-name-group">
+                        <p class="report-name">맞춤 신발 추천 보고서</p>
+                        <p class="header-caption">SHOE RECOMMENDATION REPORT</p>
+                    </div>
+                </div>
+
+                <div class="gradient-line header-bottom-line" aria-hidden="true"></div>
+            </header>
+
+            <main class="report-content">
+                <section class="user-info" aria-label="검사 대상자 정보">
+                    <div class="user-info-details">
+                        <span class="user-info-label">이름</span>
+                        <strong class="user-info-value">{{NAME}}</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                        <span class="user-info-label">나이</span>
+                        <strong class="user-info-value">{{AGE}}세</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                    </div>
+
+                    <div class="report-meta">
+                        <span>검사일 {{MEASUREMENT_DATE}}</span>
+                        <span>Report No. {{REPORT_NUMBER}}</span>
+                    </div>
+                </section>
+
+                <h2 class="section-title">발 타입</h2>
+
+                <section class="highlight-frame foot-type-frame" aria-label="발 타입">
+                    <p class="foot-type-description">발 타입 상세 설명이 표시됩니다.</p>
+                </section>
+
+                <h2 class="section-title">추천 신발 TOP 3</h2>
+
+                <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 1위">
+                    <div class="shoe-rank-frame">
+                        <strong class="shoe-rank-number">01</strong>
+                        <span class="shoe-rank-best">BEST</span>
+                    </div>
+
+                    <img class="shoe-recommendation-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="추천 신발 1위 이미지">
+
+                    <div class="shoe-recommendation-info">
+                        <span class="shoe-brand">브랜드명</span>
+                        <span class="shoe-name">신발명</span>
+                        <strong class="shoe-price">000,000원</strong>
+                    </div>
+
+                    <div class="score-chart fit-score-chart" style="--score-progress: 0;" role="img" aria-label="신발 적합도 00점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+                        <strong class="fit-score-value">
+                            <span class="fit-score-label">적합도</span>
+                            <span class="fit-score-number">00</span>
+                        </strong>
+                    </div>
+
+                    <p class="shoe-recommendation-description">신발 추천 상세 설명이 표시됩니다.</p>
+                </article>
+
+                <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 2위">
+                    <div class="shoe-rank-frame">
+                        <strong class="shoe-rank-number">02</strong>
+                    </div>
+
+                    <img class="shoe-recommendation-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="추천 신발 2위 이미지">
+
+                    <div class="shoe-recommendation-info">
+                        <span class="shoe-brand">브랜드명</span>
+                        <span class="shoe-name">신발명</span>
+                        <strong class="shoe-price">000,000원</strong>
+                    </div>
+
+                    <div class="score-chart fit-score-chart" style="--score-progress: 0;" role="img" aria-label="신발 적합도 00점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+                        <strong class="fit-score-value">
+                            <span class="fit-score-label">적합도</span>
+                            <span class="fit-score-number">00</span>
+                        </strong>
+                    </div>
+
+                    <p class="shoe-recommendation-description">신발 추천 상세 설명이 표시됩니다.</p>
+                </article>
+
+                <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 3위">
+                    <div class="shoe-rank-frame">
+                        <strong class="shoe-rank-number">03</strong>
+                    </div>
+
+                    <img class="shoe-recommendation-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="추천 신발 3위 이미지">
+
+                    <div class="shoe-recommendation-info">
+                        <span class="shoe-brand">브랜드명</span>
+                        <span class="shoe-name">신발명</span>
+                        <strong class="shoe-price">000,000원</strong>
+                    </div>
+
+                    <div class="score-chart fit-score-chart" style="--score-progress: 0;" role="img" aria-label="신발 적합도 00점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+                        <strong class="fit-score-value">
+                            <span class="fit-score-label">적합도</span>
+                            <span class="fit-score-number">00</span>
+                        </strong>
+                    </div>
+
+                    <p class="shoe-recommendation-description">신발 추천 상세 설명이 표시됩니다.</p>
+                </article>
+            </main>
+
+            <footer class="report-footer">
+                <p>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센서 기반 발 건강 상태 분석 시스템</span>
+                </p>
+                <p class="footer-page-number" aria-label="현재 페이지 3, 전체 3페이지">
+                    <span class="footer-emphasis">3</span><span class="footer-muted"> / 3</span>
+                </p>
+            </footer>
+        </section>
+    </div>
 </body>
 </html>
