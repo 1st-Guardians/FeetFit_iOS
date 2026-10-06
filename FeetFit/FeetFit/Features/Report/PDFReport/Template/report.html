@@ -82,14 +82,12 @@
                             <col class="metric-value-column">
                             <col class="metric-value-column">
                         </colgroup>
-                        <thead>
+                        <tbody>
                             <tr>
                                 <th scope="col">구분</th>
                                 <th scope="col">왼발</th>
                                 <th scope="col">오른발</th>
                             </tr>
-                        </thead>
-                        <tbody>
                             <tr>
                                 <th scope="row">발 길이</th>
                                 <td>{{LEFT_FOOT_LENGTH}}</td>
@@ -191,14 +189,14 @@
                             <figcaption class="hallux-angle">
                                 <span>약</span><strong>{{LEFT_HALLUX_ANGLE}}°</strong>
                             </figcaption>
-                            <div class="hallux-image-placeholder" role="img" aria-label="왼발 무지외반 분석 이미지 추가 예정"></div>
+                            <img class="hallux-foot-image" src="{{LEFT_HALLUX_IMAGE}}" alt="왼발 무지외반 분석 이미지">
                         </figure>
 
                         <figure class="hallux-foot-visual">
                             <figcaption class="hallux-angle">
                                 <span>약</span><strong>{{RIGHT_HALLUX_ANGLE}}°</strong>
                             </figcaption>
-                            <div class="hallux-image-placeholder" role="img" aria-label="오른발 무지외반 분석 이미지 추가 예정"></div>
+                            <img class="hallux-foot-image" src="{{RIGHT_HALLUX_IMAGE}}" alt="오른발 무지외반 분석 이미지">
                         </figure>
                     </div>
 
@@ -228,7 +226,7 @@
                 <section class="report-frame skin-analysis-primary" aria-label="피부 반응 분석 요약">
                     <div class="skin-image-column">
                         <div class="inner-frame skin-image-frame">
-                            <div class="skin-image-placeholder" role="img" aria-label="피부 반응 분석 이미지 추가 예정"></div>
+                            <img class="skin-analysis-image" src="{{SKIN_IMAGE}}" alt="피부 반응 의심 영역 분석 이미지">
                         </div>
 
                         <div class="skin-image-legend" aria-label="피부 반응 이미지 범례">

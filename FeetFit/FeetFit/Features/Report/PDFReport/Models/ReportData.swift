@@ -19,12 +19,15 @@ struct ReportData {
     let rightHalluxAngleDegree: Double
     let leftHalluxDescription: String
     let rightHalluxDescription: String
+    let leftHalluxImageDataURL: String?
+    let rightHalluxImageDataURL: String?
     let skinScore: Int
     let skinDescription: String
     let fungalSuspicionScore: Double
     let skinReactionScore: Double
     let fungalSuspicionDescription: String
     let skinReactionDescription: String
+    let skinImageDataURL: String?
     let leftFootLengthMm: Double
     let rightFootLengthMm: Double
     let leftFootWidthMm: Double

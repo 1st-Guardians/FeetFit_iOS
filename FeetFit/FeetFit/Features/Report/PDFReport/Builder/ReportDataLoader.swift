@@ -20,6 +20,9 @@ enum ReportDataLoader {
         let analysis = try await ReportAPI.shared.fetchDailyFootAnalysis(date: apiDate)
         let hallux = try await ReportAPI.shared.fetchHalluxValgus(date: apiDate)
         let skin = try await ReportAPI.shared.fetchAthletesFoot(date: apiDate)
+        let leftHalluxImage = await imageDataURL(from: hallux.leftImageUrl)
+        let rightHalluxImage = await imageDataURL(from: hallux.rightImageUrl)
+        let skinImage = await imageDataURL(from: skin.suspiciousAreaMapImageUrl)
 
         guard let reportID = analysis.measurementSessionId ?? analysis.id,
               let balanceScore = analysis.balanceScore,
@@ -46,12 +49,15 @@ enum ReportDataLoader {
             rightHalluxAngleDegree: hallux.rightToeAngleDegree,
             leftHalluxDescription: hallux.leftAnalysisText,
             rightHalluxDescription: hallux.rightAnalysisText,
+            leftHalluxImageDataURL: leftHalluxImage,
+            rightHalluxImageDataURL: rightHalluxImage,
             skinScore: skin.totalScoreInt,
             skinDescription: skin.totalScoreDescription,
             fungalSuspicionScore: skin.fungalSuspicionSafetyScore,
             skinReactionScore: skin.skinReactionSafetyScore,
             fungalSuspicionDescription: skin.fungalSuspicionSafetyDescription,
             skinReactionDescription: skin.skinReactionSafetyDescription,
+            skinImageDataURL: skinImage,
             leftFootLengthMm: leftFootLength,
             rightFootLengthMm: rightFootLength,
             leftFootWidthMm: leftFootWidth,
@@ -108,6 +114,32 @@ enum ReportDataLoader {
         formatter.timeZone = TimeZone.current
         return formatter
     }
+
+    private static func imageDataURL(from value: String?) async -> String? {
+        guard let value,
+              let url = URL(string: value),
+              ["http", "https"].contains(url.scheme?.lowercased()) else {
+            return nil
+        }
+
+        guard let (data, response) = try? await URLSession.shared.data(from: url),
+              !data.isEmpty,
+              let mimeType = response.mimeType?.lowercased(),
+              supportedImageMIMETypes.contains(mimeType),
+              (response as? HTTPURLResponse).map({ 200..<300 ~= $0.statusCode }) ?? true else {
+            return nil
+        }
+
+        return "data:\(mimeType);base64,\(data.base64EncodedString())"
+    }
+
+    private static let supportedImageMIMETypes = [
+        "image/gif",
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp"
+    ]
 }
 
 private enum ReportDataLoaderError: LocalizedError {

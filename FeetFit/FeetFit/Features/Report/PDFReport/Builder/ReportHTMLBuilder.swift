@@ -40,12 +40,15 @@ struct ReportHTMLBuilder {
             "{{RIGHT_HALLUX_ANGLE}}": String(Int(data.rightHalluxAngleDegree.rounded())),
             "{{LEFT_HALLUX_DESCRIPTION}}": data.leftHalluxDescription.htmlEscaped,
             "{{RIGHT_HALLUX_DESCRIPTION}}": data.rightHalluxDescription.htmlEscaped,
+            "{{LEFT_HALLUX_IMAGE}}": imageSource(data.leftHalluxImageDataURL),
+            "{{RIGHT_HALLUX_IMAGE}}": imageSource(data.rightHalluxImageDataURL),
             "{{SKIN_SCORE}}": String(skinScore),
             "{{SKIN_DESCRIPTION}}": data.skinDescription.htmlEscaped,
             "{{FUNGAL_SCORE}}": String(fungalScore),
             "{{REACTION_SCORE}}": String(reactionScore),
             "{{FUNGAL_DESCRIPTION}}": data.fungalSuspicionDescription.htmlEscaped,
             "{{REACTION_DESCRIPTION}}": data.skinReactionDescription.htmlEscaped,
+            "{{SKIN_IMAGE}}": imageSource(data.skinImageDataURL),
             "{{SKIN_FORMULA}}": skinFormula(
                 fungalScore: data.fungalSuspicionScore,
                 reactionScore: data.skinReactionScore
@@ -106,6 +109,13 @@ struct ReportHTMLBuilder {
             ? String(Int(value))
             : String(format: "%.1f", locale: Locale(identifier: "en_US_POSIX"), value)
     }
+
+    private static func imageSource(_ dataURL: String?) -> String {
+        (dataURL ?? transparentImageDataURL).htmlEscaped
+    }
+
+    private static let transparentImageDataURL =
+        "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
 }
 
 private enum ReportHTMLBuilderError: LocalizedError {
