@@ -71,7 +71,49 @@
 
                 <h2 class="section-title">압력 분포 및 발 눌림 분석</h2>
 
-                <section class="report-frame pressure-analysis" aria-label="압력 분포 및 발 눌림 분석"></section>
+                <section class="report-frame pressure-analysis" aria-label="압력 분포 및 발 눌림 분석">
+                    <div class="pressure-image-sets" aria-label="좌우 압력 및 발 눌림 이미지">
+                        <div class="pressure-image-set">
+                            <figure class="pressure-image-item">
+                                <img src="{{LEFT_PRESSURE_IMAGE}}" alt="왼발 압력 분포 이미지">
+                                <figcaption>왼발</figcaption>
+                            </figure>
+                            <figure class="pressure-image-item">
+                                <img src="{{RIGHT_PRESSURE_IMAGE}}" alt="오른발 압력 분포 이미지">
+                                <figcaption>오른발</figcaption>
+                            </figure>
+                        </div>
+
+                        <div class="pressure-image-set">
+                            <figure class="pressure-image-item">
+                                <img src="{{LEFT_FOOTPRINT_IMAGE}}" alt="왼발 발 눌림 이미지">
+                                <figcaption>왼발</figcaption>
+                            </figure>
+                            <figure class="pressure-image-item">
+                                <img src="{{RIGHT_FOOTPRINT_IMAGE}}" alt="오른발 발 눌림 이미지">
+                                <figcaption>오른발</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+
+                    <section class="inner-frame pressure-balance" aria-label="좌우 압력 균형">
+                        <div class="pressure-balance-values">
+                            <span class="pressure-balance-side">
+                                <span>왼발</span><strong>{{LEFT_PRESSURE}}%</strong>
+                            </span>
+                            <span class="pressure-balance-side">
+                                <strong>{{RIGHT_PRESSURE}}%</strong><span>오른발</span>
+                            </span>
+                        </div>
+
+                        <div class="pressure-balance-bar" data-dominant="{{PRESSURE_DOMINANT}}" role="img" aria-label="왼발 {{LEFT_PRESSURE}}%, 오른발 {{RIGHT_PRESSURE}}%">
+                            <span class="pressure-balance-fill pressure-balance-fill-left" style="width: {{LEFT_PRESSURE}}%;"></span>
+                            <span class="pressure-balance-fill pressure-balance-fill-right" style="width: {{RIGHT_PRESSURE}}%;"></span>
+                        </div>
+
+                        <p class="pressure-balance-description">{{PRESSURE_DESCRIPTION}}</p>
+                    </section>
+                </section>
 
                 <h2 class="section-title" id="foot-metrics-title">발 수치 및 환경 상태</h2>
 

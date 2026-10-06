@@ -20,13 +20,39 @@ enum ReportDataLoader {
         let analysis = try await ReportAPI.shared.fetchDailyFootAnalysis(date: apiDate)
         let hallux = try await ReportAPI.shared.fetchHalluxValgus(date: apiDate)
         let skin = try await ReportAPI.shared.fetchAthletesFoot(date: apiDate)
-        let leftHalluxImage = await imageDataURL(from: hallux.leftImageUrl)
-        let rightHalluxImage = await imageDataURL(from: hallux.rightImageUrl)
-        let skinImage = await imageDataURL(from: skin.suspiciousAreaMapImageUrl)
+
+        async let leftPressureImageTask = imageDataURL(from: analysis.leftPressureImageUrl)
+        async let rightPressureImageTask = imageDataURL(from: analysis.rightPressureImageUrl)
+        async let leftFootprintImageTask = imageDataURL(from: analysis.leftPlantarFootprintImageUrl)
+        async let rightFootprintImageTask = imageDataURL(from: analysis.rightPlantarFootprintImageUrl)
+        async let leftHalluxImageTask = imageDataURL(from: hallux.leftImageUrl)
+        async let rightHalluxImageTask = imageDataURL(from: hallux.rightImageUrl)
+        async let skinImageTask = imageDataURL(from: skin.suspiciousAreaMapImageUrl)
+
+        let (
+            leftPressureImage,
+            rightPressureImage,
+            leftFootprintImage,
+            rightFootprintImage,
+            leftHalluxImage,
+            rightHalluxImage,
+            skinImage
+        ) = await (
+            leftPressureImageTask,
+            rightPressureImageTask,
+            leftFootprintImageTask,
+            rightFootprintImageTask,
+            leftHalluxImageTask,
+            rightHalluxImageTask,
+            skinImageTask
+        )
 
         guard let reportID = analysis.measurementSessionId ?? analysis.id,
               let balanceScore = analysis.balanceScore,
               let balanceDescription = analysis.balanceComment,
+              let leftPressure = analysis.leftPressurePercent,
+              let rightPressure = analysis.rightPressurePercent,
+              let pressureDescription = analysis.plantarFootprintAnalysisText,
               let leftFootLength = analysis.measuredLeftFootSizeMm,
               let rightFootLength = analysis.measuredRightFootSizeMm,
               let leftFootWidth = analysis.leftFootWidthMm,
@@ -43,6 +69,13 @@ enum ReportDataLoader {
             reportNumber: "\(reportDateFormatter.string(from: measurementDate))-\(String(format: "%05d", reportID))",
             balanceScore: Int(balanceScore.rounded()),
             balanceDescription: balanceDescription,
+            leftPressurePercent: leftPressure,
+            rightPressurePercent: rightPressure,
+            pressureDescription: pressureDescription,
+            leftPressureImageDataURL: leftPressureImage,
+            rightPressureImageDataURL: rightPressureImage,
+            leftFootprintImageDataURL: leftFootprintImage,
+            rightFootprintImageDataURL: rightFootprintImage,
             halluxScore: hallux.riskScoreInt,
             halluxDescription: hallux.scoreAnalysisText,
             leftHalluxAngleDegree: hallux.leftToeAngleDegree,
@@ -115,7 +148,7 @@ enum ReportDataLoader {
         return formatter
     }
 
-    private static func imageDataURL(from value: String?) async -> String? {
+    private nonisolated static func imageDataURL(from value: String?) async -> String? {
         guard let value,
               let url = URL(string: value),
               ["http", "https"].contains(url.scheme?.lowercased()) else {
@@ -125,21 +158,13 @@ enum ReportDataLoader {
         guard let (data, response) = try? await URLSession.shared.data(from: url),
               !data.isEmpty,
               let mimeType = response.mimeType?.lowercased(),
-              supportedImageMIMETypes.contains(mimeType),
+              ["image/gif", "image/jpeg", "image/jpg", "image/png", "image/webp"].contains(mimeType),
               (response as? HTTPURLResponse).map({ 200..<300 ~= $0.statusCode }) ?? true else {
             return nil
         }
 
         return "data:\(mimeType);base64,\(data.base64EncodedString())"
     }
-
-    private static let supportedImageMIMETypes = [
-        "image/gif",
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp"
-    ]
 }
 
 private enum ReportDataLoaderError: LocalizedError {

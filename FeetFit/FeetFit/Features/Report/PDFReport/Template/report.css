@@ -50,8 +50,13 @@
     --color-surface-accent: #eef7ff;
     --color-divider: #e0e0e0;
     --header-gradient: linear-gradient(90deg, #a3d4ff 0%, #0088ff 100%);
+    --pressure-gradient: linear-gradient(90deg, #0088ff 0%, #a3d4ff 100%);
+    --pressure-gradient-mirrored: linear-gradient(270deg, #0088ff 0%, #a3d4ff 100%);
+    --space-5: 5px;
     --space-10: 10px;
+    --space-13: 13px;
     --space-15: 15px;
+    --space-17-5: 17.5px;
     --space-20: 20px;
     --space-55: 55px;
     --caption-size: 10px;
@@ -272,7 +277,106 @@ body {
 }
 
 .pressure-analysis {
+    display: flex;
+    align-items: center;
+    gap: var(--space-20);
     height: 160px;
+    padding: 0 var(--space-13) 0 var(--space-20);
+}
+
+.pressure-image-sets,
+.pressure-image-set {
+    display: flex;
+}
+
+.pressure-image-sets {
+    gap: var(--space-10);
+    flex: 0 0 240px;
+}
+
+.pressure-image-set {
+    gap: var(--space-5);
+}
+
+.pressure-image-item {
+    width: 55px;
+    margin: 0;
+}
+
+.pressure-image-item img {
+    display: block;
+    width: 55px;
+    height: 120px;
+    object-fit: contain;
+}
+
+.pressure-image-item figcaption {
+    margin-top: var(--space-5);
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-size: 8px;
+    font-weight: var(--medium-weight);
+    line-height: normal;
+}
+
+.pressure-balance {
+    height: calc(100% - 26px);
+    flex: 1;
+}
+
+.pressure-balance-values {
+    display: flex;
+    justify-content: space-between;
+    margin: var(--space-15) var(--space-17-5) 0;
+}
+
+.pressure-balance-side {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
+}
+
+.pressure-balance-side strong {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 12px;
+}
+
+.pressure-balance-bar {
+    display: flex;
+    width: auto;
+    height: 15px;
+    margin: var(--space-5) var(--space-17-5) 0;
+    overflow: hidden;
+    border-radius: 5px;
+    background: var(--color-divider);
+}
+
+.pressure-balance-fill {
+    display: block;
+    height: 100%;
+}
+
+.pressure-balance-bar[data-dominant="left"] .pressure-balance-fill-left {
+    border-radius: 5px 0 0 5px;
+    background: var(--pressure-gradient-mirrored);
+}
+
+.pressure-balance-bar[data-dominant="right"] .pressure-balance-fill-right {
+    border-radius: 0 5px 5px 0;
+    background: var(--pressure-gradient);
+}
+
+.pressure-balance-description {
+    margin: var(--space-15) 11px 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
 }
 
 .hallux-detail {
@@ -280,7 +384,7 @@ body {
     align-items: stretch;
     gap: var(--space-10);
     height: 160px;
-    padding: 13px var(--space-15);
+    padding: var(--space-13) var(--space-15);
 }
 
 .hallux-foot-note {

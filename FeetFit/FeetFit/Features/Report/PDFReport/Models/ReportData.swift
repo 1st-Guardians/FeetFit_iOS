@@ -13,6 +13,13 @@ struct ReportData {
     let reportNumber: String
     let balanceScore: Int
     let balanceDescription: String
+    let leftPressurePercent: Double
+    let rightPressurePercent: Double
+    let pressureDescription: String
+    let leftPressureImageDataURL: String?
+    let rightPressureImageDataURL: String?
+    let leftFootprintImageDataURL: String?
+    let rightFootprintImageDataURL: String?
     let halluxScore: Int
     let halluxDescription: String
     let leftHalluxAngleDegree: Double

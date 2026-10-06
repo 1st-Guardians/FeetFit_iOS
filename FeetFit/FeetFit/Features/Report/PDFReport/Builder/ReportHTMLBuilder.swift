@@ -13,6 +13,8 @@ struct ReportHTMLBuilder {
         let html = try resource(named: "report", extension: "html", in: bundle)
         let css = try resource(named: "report", extension: "css", in: bundle)
         let balanceScore = min(max(data.balanceScore, 0), 100)
+        let leftPressure = min(max(Int(data.leftPressurePercent.rounded()), 0), 100)
+        let rightPressure = min(max(Int(data.rightPressurePercent.rounded()), 0), 100)
         let halluxScore = min(max(data.halluxScore, 0), 100)
         let skinScore = min(max(data.skinScore, 0), 100)
         let fungalScore = min(max(Int(data.fungalSuspicionScore.rounded()), 0), 100)
@@ -30,6 +32,17 @@ struct ReportHTMLBuilder {
             "{{REPORT_NUMBER}}": data.reportNumber.htmlEscaped,
             "{{BALANCE_SCORE}}": String(balanceScore),
             "{{BALANCE_DESCRIPTION}}": data.balanceDescription.htmlEscaped,
+            "{{LEFT_PRESSURE}}": String(leftPressure),
+            "{{RIGHT_PRESSURE}}": String(rightPressure),
+            "{{PRESSURE_DOMINANT}}": pressureDominant(
+                left: leftPressure,
+                right: rightPressure
+            ),
+            "{{PRESSURE_DESCRIPTION}}": data.pressureDescription.htmlEscaped,
+            "{{LEFT_PRESSURE_IMAGE}}": imageSource(data.leftPressureImageDataURL),
+            "{{RIGHT_PRESSURE_IMAGE}}": imageSource(data.rightPressureImageDataURL),
+            "{{LEFT_FOOTPRINT_IMAGE}}": imageSource(data.leftFootprintImageDataURL),
+            "{{RIGHT_FOOTPRINT_IMAGE}}": imageSource(data.rightFootprintImageDataURL),
             "{{HALLUX_SCORE}}": String(halluxScore),
             "{{HALLUX_DESCRIPTION}}": data.halluxDescription.htmlEscaped,
             "{{HALLUX_SEVERITY}}": halluxSeverity(
@@ -93,6 +106,11 @@ struct ReportHTMLBuilder {
         default:
             return "severe"
         }
+    }
+
+    private static func pressureDominant(left: Int, right: Int) -> String {
+        if left == right { return "balanced" }
+        return left > right ? "left" : "right"
     }
 
     private static func skinFormula(fungalScore: Double, reactionScore: Double) -> String {
