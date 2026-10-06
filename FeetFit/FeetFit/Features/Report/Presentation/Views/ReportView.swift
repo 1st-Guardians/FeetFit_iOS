@@ -31,6 +31,15 @@ struct ReportView: View {
         }
         .task {
             await calendarViewModel.fetchMeasuredDates(for: selectedDate)
+
+            if let latestDate = calendarViewModel.measuredDates
+                .filter({ $0 <= Date() })
+                .max() {
+                selectedDate = latestDate
+            } else if let latestDate = try? await ReportDataLoader.latestMeasurementDate() {
+                selectedDate = latestDate
+                await calendarViewModel.fetchMeasuredDates(for: latestDate)
+            }
         }
         .sheet(isPresented: $isShareSheetPresented) {
             if let generatedPDFURL {
@@ -47,7 +56,7 @@ struct ReportView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    generateTestPDF()
+                    generatePDF()
                 } label: {
                     if isGeneratingPDF {
                         ProgressView()
@@ -57,7 +66,7 @@ struct ReportView: View {
                     }
                 }
                 .disabled(isGeneratingPDF)
-                .accessibilityLabel(isGeneratingPDF ? "PDF 생성 중" : "PDF 테스트")
+                .accessibilityLabel(isGeneratingPDF ? "PDF 생성 중" : "PDF 저장")
             }
 
             if selectedMenu == .resultReport {
@@ -74,7 +83,7 @@ struct ReportView: View {
         }
     }
 
-    private func generateTestPDF() {
+    private func generatePDF() {
         guard !isGeneratingPDF else { return }
 
         isGeneratingPDF = true
@@ -83,13 +92,7 @@ struct ReportView: View {
             defer { isGeneratingPDF = false }
 
             do {
-                let reportData = ReportData(
-                    name: "김미주",
-                    age: 24,
-                    height: 165,
-                    measurementDate: "2026.10.05"
-                )
-
+                let reportData = try await ReportDataLoader.loadLatest()
                 generatedPDFURL = try await ReportPDFGenerator.generate(data: reportData)
                 isShareSheetPresented = true
             } catch {

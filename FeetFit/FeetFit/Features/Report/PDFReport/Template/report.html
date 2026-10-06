@@ -42,14 +42,14 @@
 
                     <div class="report-meta">
                         <span>검사일 {{MEASUREMENT_DATE}}</span>
-                        <span>Report No. 20261001-00001</span>
+                        <span>Report No. {{REPORT_NUMBER}}</span>
                     </div>
                 </section>
 
                 <h2 class="section-title">자세 균형 분석</h2>
 
                 <section class="report-frame balance-summary" aria-label="자세 균형 분석 요약">
-                    <div class="score-chart" style="--score-progress: 94;" role="img" aria-label="자세 균형 점수 94점">
+                    <div class="score-chart" style="--score-progress: {{BALANCE_SCORE}};" role="img" aria-label="자세 균형 점수 {{BALANCE_SCORE}}점">
                         <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
                             <defs>
                                 <linearGradient id="score-gradient" x1="0" y1="0" x2="65" y2="65" gradientUnits="userSpaceOnUse">
@@ -62,14 +62,11 @@
                         </svg>
 
                         <strong class="score-chart-value">
-                            <span class="score-number">94</span><span class="score-unit">점</span>
+                            <span class="score-number">{{BALANCE_SCORE}}</span><span class="score-unit">점</span>
                         </strong>
                     </div>
 
-                    <p class="balance-description">
-                        왼발은 뒤꿈치 구역의 압력 비중이 상대적으로 크며 구역별 압력 비중에 일부 차이가 관찰됩니다.<br>
-                        오른발은 뒤꿈치 구역의 압력 비중이 상대적으로 크고 특정 구역에 압력이 집중되는 경향이 관찰됩니다.
-                    </p>
+                    <p class="balance-description">{{BALANCE_DESCRIPTION}}</p>
                 </section>
 
                 <h2 class="section-title">압력 분포 및 발 눌림 분석</h2>
@@ -95,17 +92,17 @@
                         <tbody>
                             <tr>
                                 <th scope="row">발 길이</th>
-                                <td>244.8mm</td>
-                                <td>246.1mm</td>
+                                <td>{{LEFT_FOOT_LENGTH}}</td>
+                                <td>{{RIGHT_FOOT_LENGTH}}</td>
                             </tr>
                             <tr>
                                 <th scope="row">발볼 너비</th>
-                                <td>98.1mm</td>
-                                <td>100.3mm</td>
+                                <td>{{LEFT_FOOT_WIDTH}}</td>
+                                <td>{{RIGHT_FOOT_WIDTH}}</td>
                             </tr>
                             <tr>
                                 <th scope="row">발 환경(습도)</th>
-                                <td colspan="2">61%</td>
+                                <td colspan="2">{{HUMIDITY}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -114,9 +111,7 @@
                 <h2 class="section-title">오늘의 관리팁</h2>
 
                 <ul class="highlight-frame management-tips" aria-label="오늘의 관리팁">
-                    <li>오른발 앞꿈치 스트레칭을 해주세요.</li>
-                    <li>신발은 착용 후 충분히 말려주세요.</li>
-                    <li>발볼이 좁은 신발은 피하는 것이 좋아요.</li>
+{{CARE_TIPS}}
                 </ul>
             </main>
 

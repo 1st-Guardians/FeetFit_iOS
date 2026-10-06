@@ -393,6 +393,7 @@ body {
     font-size: 10px;
     font-weight: var(--medium-weight);
     line-height: 12px;
+    white-space: pre-line;
 }
 
 .score-chart {
