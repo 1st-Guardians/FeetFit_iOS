@@ -45,7 +45,9 @@
     --color-text-primary: #171717;
     --color-text-secondary: #888888;
     --color-accent: #0088ff;
+    --color-reaction: #ff5757;
     --color-surface-muted: #efefef;
+    --color-surface-accent: #eef7ff;
     --color-divider: #e0e0e0;
     --header-gradient: linear-gradient(90deg, #a3d4ff 0%, #0088ff 100%);
     --space-10: 10px;
@@ -245,11 +247,15 @@ body {
     content: "";
 }
 
+.report-frame,
+.inner-frame {
+    border: 1px solid var(--color-divider);
+    border-radius: 5px;
+}
+
 .report-frame {
     width: 100%;
     margin-top: var(--space-10);
-    border: 1px solid var(--color-divider);
-    border-radius: 5px;
 }
 
 .report-frame + .section-title,
@@ -257,7 +263,7 @@ body {
     margin-top: 25px;
 }
 
-.balance-summary {
+.score-summary {
     display: flex;
     align-items: center;
     gap: var(--space-15);
@@ -267,6 +273,266 @@ body {
 
 .pressure-analysis {
     height: 160px;
+}
+
+.hallux-detail {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-10);
+    height: 160px;
+    padding: 13px var(--space-15);
+}
+
+.hallux-foot-note {
+    min-width: 0;
+    flex: 1;
+    padding: var(--space-10);
+}
+
+.hallux-foot-note h3,
+.hallux-foot-note p {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    line-height: 12px;
+}
+
+.hallux-foot-note h3 {
+    font-weight: 700;
+}
+
+.hallux-foot-note p {
+    margin-top: var(--space-10);
+    font-weight: var(--medium-weight);
+}
+
+.hallux-foot-images {
+    display: flex;
+    gap: var(--space-10);
+    flex: 0 0 180px;
+}
+
+.hallux-foot-visual {
+    display: flex;
+    flex: 0 0 85px;
+    flex-direction: column;
+    gap: var(--space-10);
+    margin: 0;
+}
+
+.hallux-angle {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 3px;
+    height: 13px;
+    color: var(--color-text-primary);
+}
+
+.hallux-angle span {
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 10px;
+}
+
+.hallux-angle strong {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 13px;
+}
+
+.hallux-image-placeholder {
+    width: 85px;
+    height: 110px;
+    background: var(--color-surface-muted);
+}
+
+.hallux-risk-levels {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    margin: 0;
+    padding: 0;
+    flex: 0 0 95px;
+    list-style: none;
+}
+
+.hallux-risk-level {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 95px;
+    height: 25px;
+    padding: 0 5px;
+    border: 0.5px solid transparent;
+    border-radius: 5px;
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 12px;
+}
+
+.hallux-risk-levels[data-severity="normal"] .hallux-risk-normal,
+.hallux-risk-levels[data-severity="suspected"] .hallux-risk-suspected,
+.hallux-risk-levels[data-severity="progressing"] .hallux-risk-progressing,
+.hallux-risk-levels[data-severity="severe"] .hallux-risk-severe {
+    border-color: var(--color-accent);
+    background: var(--color-surface-accent);
+    color: var(--color-accent);
+}
+
+.skin-analysis-primary {
+    display: flex;
+    gap: var(--space-15);
+    height: 160px;
+    padding: 10px var(--space-15) 0;
+}
+
+.skin-image-column {
+    flex: 0 0 180px;
+}
+
+.skin-image-frame {
+    width: 180px;
+    height: 122px;
+    padding: 5px var(--space-10);
+}
+
+.skin-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--color-surface-muted);
+}
+
+.skin-image-legend {
+    display: flex;
+    gap: var(--space-10);
+    margin-top: 5px;
+    color: var(--color-text-secondary);
+    font-feature-settings: "liga" off, "clig" off;
+    font-size: 8px;
+    font-weight: var(--medium-weight);
+    line-height: 15px;
+    white-space: nowrap;
+}
+
+.skin-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.skin-legend-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+}
+
+.skin-legend-dot-fungal {
+    background: var(--color-accent);
+}
+
+.skin-legend-dot-reaction {
+    background: var(--color-reaction);
+}
+
+.skin-analysis-result {
+    min-width: 0;
+    flex: 1;
+    margin-top: 8px;
+}
+
+.skin-score-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-15);
+}
+
+.skin-score-formula {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    flex: 1;
+    margin: 0;
+    padding: 0 var(--space-10);
+    color: var(--color-text-primary);
+    font-size: 8px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
+    white-space: pre-line;
+}
+
+.skin-analysis-description {
+    margin: var(--space-10) 0 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
+}
+
+.skin-analysis-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    height: 142px;
+    padding: var(--space-15);
+}
+
+.skin-detail-card {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+    flex: 0 0 50px;
+    padding: 0 var(--space-15);
+}
+
+.skin-detail-title {
+    min-width: 0;
+    margin: 0 auto 0 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.skin-detail-score {
+    display: flex;
+    align-items: baseline;
+    color: var(--color-text-primary);
+    text-align: right;
+    font-weight: 700;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.skin-detail-score-number {
+    font-size: 20px;
+}
+
+.skin-detail-score-unit {
+    font-size: 10px;
+}
+
+.skin-detail-divider {
+    width: 1px;
+    height: 35px;
+    flex: 0 0 1px;
+    margin-left: var(--space-20);
+    background: var(--color-divider);
+}
+
+.skin-detail-description {
+    width: 327px;
+    flex: 0 0 327px;
+    margin: 0 0 0 var(--space-15);
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
 }
 
 .foot-metrics-frame {
@@ -335,13 +601,13 @@ body {
 }
 
 .highlight-frame {
-    width: 100%;
-    margin: var(--space-10) 0 0;
     border-radius: 5px;
-    background: #eef7ff;
+    background: var(--color-surface-accent);
 }
 
 .management-tips {
+    width: 100%;
+    margin: var(--space-10) 0 0;
     padding: 12px var(--space-15);
     color: var(--color-text-primary);
     font-size: 10px;
@@ -385,7 +651,7 @@ body {
     text-align: right;
 }
 
-.balance-description {
+.score-description {
     flex: 1;
     min-width: 0;
     margin: 0;

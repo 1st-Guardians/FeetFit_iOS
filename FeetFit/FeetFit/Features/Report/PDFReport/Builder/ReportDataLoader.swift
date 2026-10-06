@@ -18,6 +18,8 @@ enum ReportDataLoader {
             dataType: MyPageProfileResult.self
         )
         let analysis = try await ReportAPI.shared.fetchDailyFootAnalysis(date: apiDate)
+        let hallux = try await ReportAPI.shared.fetchHalluxValgus(date: apiDate)
+        let skin = try await ReportAPI.shared.fetchAthletesFoot(date: apiDate)
 
         guard let reportID = analysis.measurementSessionId ?? analysis.id,
               let balanceScore = analysis.balanceScore,
@@ -38,6 +40,18 @@ enum ReportDataLoader {
             reportNumber: "\(reportDateFormatter.string(from: measurementDate))-\(String(format: "%05d", reportID))",
             balanceScore: Int(balanceScore.rounded()),
             balanceDescription: balanceDescription,
+            halluxScore: hallux.riskScoreInt,
+            halluxDescription: hallux.scoreAnalysisText,
+            leftHalluxAngleDegree: hallux.leftToeAngleDegree,
+            rightHalluxAngleDegree: hallux.rightToeAngleDegree,
+            leftHalluxDescription: hallux.leftAnalysisText,
+            rightHalluxDescription: hallux.rightAnalysisText,
+            skinScore: skin.totalScoreInt,
+            skinDescription: skin.totalScoreDescription,
+            fungalSuspicionScore: skin.fungalSuspicionSafetyScore,
+            skinReactionScore: skin.skinReactionSafetyScore,
+            fungalSuspicionDescription: skin.fungalSuspicionSafetyDescription,
+            skinReactionDescription: skin.skinReactionSafetyDescription,
             leftFootLengthMm: leftFootLength,
             rightFootLengthMm: rightFootLength,
             leftFootWidthMm: leftFootWidth,

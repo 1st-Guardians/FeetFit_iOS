@@ -13,6 +13,18 @@ struct ReportData {
     let reportNumber: String
     let balanceScore: Int
     let balanceDescription: String
+    let halluxScore: Int
+    let halluxDescription: String
+    let leftHalluxAngleDegree: Double
+    let rightHalluxAngleDegree: Double
+    let leftHalluxDescription: String
+    let rightHalluxDescription: String
+    let skinScore: Int
+    let skinDescription: String
+    let fungalSuspicionScore: Double
+    let skinReactionScore: Double
+    let fungalSuspicionDescription: String
+    let skinReactionDescription: String
     let leftFootLengthMm: Double
     let rightFootLengthMm: Double
     let leftFootWidthMm: Double

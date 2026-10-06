@@ -48,7 +48,7 @@
 
                 <h2 class="section-title">자세 균형 분석</h2>
 
-                <section class="report-frame balance-summary" aria-label="자세 균형 분석 요약">
+                <section class="report-frame score-summary" aria-label="자세 균형 분석 요약">
                     <div class="score-chart" style="--score-progress: {{BALANCE_SCORE}};" role="img" aria-label="자세 균형 점수 {{BALANCE_SCORE}}점">
                         <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
                             <defs>
@@ -66,7 +66,7 @@
                         </strong>
                     </div>
 
-                    <p class="balance-description">{{BALANCE_DESCRIPTION}}</p>
+                    <p class="score-description">{{BALANCE_DESCRIPTION}}</p>
                 </section>
 
                 <h2 class="section-title">압력 분포 및 발 눌림 분석</h2>
@@ -121,6 +121,175 @@
                 </p>
                 <p class="footer-page-number" aria-label="현재 페이지 1, 전체 3페이지">
                     <span class="footer-emphasis">1</span><span class="footer-muted"> / 3</span>
+                </p>
+            </footer>
+        </section>
+    </div>
+
+    <div class="print-page">
+        <section class="page">
+            <header class="report-header">
+                <div class="gradient-line header-top-line" aria-hidden="true"></div>
+
+                <div class="report-header-content">
+                    <div class="brand-group">
+                        <p class="brand-name">Feet<span>Fit</span></p>
+                        <p class="header-caption">멀티 센서 기반 발 건강 상태 분석 시스템</p>
+                    </div>
+
+                    <div class="report-name-group">
+                        <p class="report-name">발 분석 결과지</p>
+                        <p class="header-caption">FOOT CONDITION ANALYSIS REPORT</p>
+                    </div>
+                </div>
+
+                <div class="gradient-line header-bottom-line" aria-hidden="true"></div>
+            </header>
+
+            <main class="report-content">
+                <section class="user-info" aria-label="검사 대상자 정보">
+                    <div class="user-info-details">
+                        <span class="user-info-label">이름</span>
+                        <strong class="user-info-value">{{NAME}}</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                        <span class="user-info-label">나이</span>
+                        <strong class="user-info-value">{{AGE}}세</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                    </div>
+
+                    <div class="report-meta">
+                        <span>검사일 {{MEASUREMENT_DATE}}</span>
+                        <span>Report No. {{REPORT_NUMBER}}</span>
+                    </div>
+                </section>
+
+                <h2 class="section-title">무지외반 분석</h2>
+
+                <section class="report-frame score-summary" aria-label="무지외반 분석 요약">
+                    <div class="score-chart" style="--score-progress: {{HALLUX_SCORE}};" role="img" aria-label="무지외반 점수 {{HALLUX_SCORE}}점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+
+                        <strong class="score-chart-value">
+                            <span class="score-number">{{HALLUX_SCORE}}</span><span class="score-unit">점</span>
+                        </strong>
+                    </div>
+
+                    <p class="score-description">{{HALLUX_DESCRIPTION}}</p>
+                </section>
+
+                <section class="report-frame hallux-detail" aria-label="무지외반 상세 분석">
+                    <article class="inner-frame hallux-foot-note">
+                        <h3>왼발</h3>
+                        <p>{{LEFT_HALLUX_DESCRIPTION}}</p>
+                    </article>
+
+                    <div class="hallux-foot-images" aria-label="무지외반 각도 이미지">
+                        <figure class="hallux-foot-visual">
+                            <figcaption class="hallux-angle">
+                                <span>약</span><strong>{{LEFT_HALLUX_ANGLE}}°</strong>
+                            </figcaption>
+                            <div class="hallux-image-placeholder" role="img" aria-label="왼발 무지외반 분석 이미지 추가 예정"></div>
+                        </figure>
+
+                        <figure class="hallux-foot-visual">
+                            <figcaption class="hallux-angle">
+                                <span>약</span><strong>{{RIGHT_HALLUX_ANGLE}}°</strong>
+                            </figcaption>
+                            <div class="hallux-image-placeholder" role="img" aria-label="오른발 무지외반 분석 이미지 추가 예정"></div>
+                        </figure>
+                    </div>
+
+                    <article class="inner-frame hallux-foot-note">
+                        <h3>오른발</h3>
+                        <p>{{RIGHT_HALLUX_DESCRIPTION}}</p>
+                    </article>
+
+                    <ul class="hallux-risk-levels" data-severity="{{HALLUX_SEVERITY}}" aria-label="무지외반 변형 단계">
+                        <li class="hallux-risk-level hallux-risk-normal">
+                            <span>정상</span><span>~15°</span>
+                        </li>
+                        <li class="hallux-risk-level hallux-risk-suspected">
+                            <span>변형 의심</span><span>16°~20°</span>
+                        </li>
+                        <li class="hallux-risk-level hallux-risk-progressing">
+                            <span>변형 진행</span><span>21°~40°</span>
+                        </li>
+                        <li class="hallux-risk-level hallux-risk-severe">
+                            <span>심한 변형</span><span>41°~</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <h2 class="section-title">피부 반응 분석</h2>
+
+                <section class="report-frame skin-analysis-primary" aria-label="피부 반응 분석 요약">
+                    <div class="skin-image-column">
+                        <div class="inner-frame skin-image-frame">
+                            <div class="skin-image-placeholder" role="img" aria-label="피부 반응 분석 이미지 추가 예정"></div>
+                        </div>
+
+                        <div class="skin-image-legend" aria-label="피부 반응 이미지 범례">
+                            <span class="skin-legend-item">
+                                <i class="skin-legend-dot skin-legend-dot-fungal" aria-hidden="true"></i>
+                                무좀 의심/감염 영역
+                            </span>
+                            <span class="skin-legend-item">
+                                <i class="skin-legend-dot skin-legend-dot-reaction" aria-hidden="true"></i>
+                                염증/피부 자극 영역
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="skin-analysis-result">
+                        <div class="skin-score-row">
+                            <div class="score-chart" style="--score-progress: {{SKIN_SCORE}};" role="img" aria-label="피부 반응 점수 {{SKIN_SCORE}}점">
+                                <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                                    <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                                    <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                                </svg>
+
+                                <strong class="score-chart-value">
+                                    <span class="score-number">{{SKIN_SCORE}}</span><span class="score-unit">점</span>
+                                </strong>
+                            </div>
+
+                            <p class="highlight-frame skin-score-formula">{{SKIN_FORMULA}}</p>
+                        </div>
+
+                        <p class="skin-analysis-description">{{SKIN_DESCRIPTION}}</p>
+                    </div>
+                </section>
+
+                <section class="report-frame skin-analysis-details" aria-label="피부 반응 상세 분석">
+                    <article class="inner-frame skin-detail-card">
+                        <h3 class="skin-detail-title">무좀 의심 영역 안정도</h3>
+                        <strong class="skin-detail-score">
+                            <span class="skin-detail-score-number">{{FUNGAL_SCORE}}</span><span class="skin-detail-score-unit">점</span>
+                        </strong>
+                        <span class="skin-detail-divider" aria-hidden="true"></span>
+                        <p class="skin-detail-description">{{FUNGAL_DESCRIPTION}}</p>
+                    </article>
+
+                    <article class="inner-frame skin-detail-card">
+                        <h3 class="skin-detail-title">피부 자극 안정도</h3>
+                        <strong class="skin-detail-score">
+                            <span class="skin-detail-score-number">{{REACTION_SCORE}}</span><span class="skin-detail-score-unit">점</span>
+                        </strong>
+                        <span class="skin-detail-divider" aria-hidden="true"></span>
+                        <p class="skin-detail-description">{{REACTION_DESCRIPTION}}</p>
+                    </article>
+                </section>
+            </main>
+
+            <footer class="report-footer">
+                <p>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센서 기반 발 건강 상태 분석 시스템</span>
+                </p>
+                <p class="footer-page-number" aria-label="현재 페이지 2, 전체 3페이지">
+                    <span class="footer-emphasis">2</span><span class="footer-muted"> / 3</span>
                 </p>
             </footer>
         </section>

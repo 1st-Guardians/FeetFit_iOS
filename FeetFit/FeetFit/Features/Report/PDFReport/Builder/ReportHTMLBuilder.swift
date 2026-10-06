@@ -13,6 +13,10 @@ struct ReportHTMLBuilder {
         let html = try resource(named: "report", extension: "html", in: bundle)
         let css = try resource(named: "report", extension: "css", in: bundle)
         let balanceScore = min(max(data.balanceScore, 0), 100)
+        let halluxScore = min(max(data.halluxScore, 0), 100)
+        let skinScore = min(max(data.skinScore, 0), 100)
+        let fungalScore = min(max(Int(data.fungalSuspicionScore.rounded()), 0), 100)
+        let reactionScore = min(max(Int(data.skinReactionScore.rounded()), 0), 100)
         let careTips = data.careTips
             .map { "<li>\($0.htmlEscaped)</li>" }
             .joined(separator: "\n")
@@ -26,6 +30,26 @@ struct ReportHTMLBuilder {
             "{{REPORT_NUMBER}}": data.reportNumber.htmlEscaped,
             "{{BALANCE_SCORE}}": String(balanceScore),
             "{{BALANCE_DESCRIPTION}}": data.balanceDescription.htmlEscaped,
+            "{{HALLUX_SCORE}}": String(halluxScore),
+            "{{HALLUX_DESCRIPTION}}": data.halluxDescription.htmlEscaped,
+            "{{HALLUX_SEVERITY}}": halluxSeverity(
+                leftAngle: data.leftHalluxAngleDegree,
+                rightAngle: data.rightHalluxAngleDegree
+            ),
+            "{{LEFT_HALLUX_ANGLE}}": String(Int(data.leftHalluxAngleDegree.rounded())),
+            "{{RIGHT_HALLUX_ANGLE}}": String(Int(data.rightHalluxAngleDegree.rounded())),
+            "{{LEFT_HALLUX_DESCRIPTION}}": data.leftHalluxDescription.htmlEscaped,
+            "{{RIGHT_HALLUX_DESCRIPTION}}": data.rightHalluxDescription.htmlEscaped,
+            "{{SKIN_SCORE}}": String(skinScore),
+            "{{SKIN_DESCRIPTION}}": data.skinDescription.htmlEscaped,
+            "{{FUNGAL_SCORE}}": String(fungalScore),
+            "{{REACTION_SCORE}}": String(reactionScore),
+            "{{FUNGAL_DESCRIPTION}}": data.fungalSuspicionDescription.htmlEscaped,
+            "{{REACTION_DESCRIPTION}}": data.skinReactionDescription.htmlEscaped,
+            "{{SKIN_FORMULA}}": skinFormula(
+                fungalScore: data.fungalSuspicionScore,
+                reactionScore: data.skinReactionScore
+            ).htmlEscaped,
             "{{LEFT_FOOT_LENGTH}}": millimeters(data.leftFootLengthMm),
             "{{RIGHT_FOOT_LENGTH}}": millimeters(data.rightFootLengthMm),
             "{{LEFT_FOOT_WIDTH}}": millimeters(data.leftFootWidthMm),
@@ -53,6 +77,34 @@ struct ReportHTMLBuilder {
 
     private static func millimeters(_ value: Double) -> String {
         String(format: "%.1fmm", locale: Locale(identifier: "en_US_POSIX"), value)
+    }
+
+    private static func halluxSeverity(leftAngle: Double, rightAngle: Double) -> String {
+        switch max(leftAngle, rightAngle) {
+        case ...15:
+            return "normal"
+        case ...20:
+            return "suspected"
+        case ...40:
+            return "progressing"
+        default:
+            return "severe"
+        }
+    }
+
+    private static func skinFormula(fungalScore: Double, reactionScore: Double) -> String {
+        let total = fungalScore * 0.7 + reactionScore * 0.3
+
+        return """
+        무좀 의심 영역 70% + 염증 반응 영역 30%으로 계산됩니다.
+        \(formattedScore(fungalScore)) × 0.7 + \(formattedScore(reactionScore)) × 0.3 = \(formattedScore(total))점으로 계산되었습니다.
+        """
+    }
+
+    private static func formattedScore(_ value: Double) -> String {
+        value.rounded() == value
+            ? String(Int(value))
+            : String(format: "%.1f", locale: Locale(identifier: "en_US_POSIX"), value)
     }
 }
 
