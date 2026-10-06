@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FeetFit Foot Analysis Report</title>
+    <style>
+{{REPORT_CSS}}
+    </style>
+</head>
+<body>
+    <div class="print-page">
+        <section class="page">
+            <header class="report-header">
+                <div class="gradient-line header-top-line" aria-hidden="true"></div>
+
+                <div class="report-header-content">
+                    <div class="brand-group">
+                        <p class="brand-name">Feet<span>Fit</span></p>
+                        <p class="header-caption">멀티 센서 기반 발 건강 상태 분석 시스템</p>
+                    </div>
+
+                    <div class="report-name-group">
+                        <p class="report-name">발 분석 결과지</p>
+                        <p class="header-caption">FOOT CONDITION ANALYSIS REPORT</p>
+                    </div>
+                </div>
+
+                <div class="gradient-line header-bottom-line" aria-hidden="true"></div>
+            </header>
+
+            <main class="report-content">
+                <section class="user-info" aria-label="검사 대상자 정보">
+                    <div class="user-info-details">
+                        <span class="user-info-label">이름</span>
+                        <strong class="user-info-value">{{NAME}}</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                        <span class="user-info-label">나이</span>
+                        <strong class="user-info-value">{{AGE}}세</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                    </div>
+
+                    <div class="report-meta">
+                        <span>검사일 {{MEASUREMENT_DATE}}</span>
+                        <span>Report No. 20261001-00001</span>
+                    </div>
+                </section>
+            </main>
+        </section>
+    </div>
+</body>
+</html>
