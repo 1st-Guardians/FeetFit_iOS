@@ -796,14 +796,15 @@ body {
     line-height: normal;
 }
 
-.shoe-brand,
-.shoe-name {
+.shoe-brand {
     font-size: 8px;
     font-weight: var(--medium-weight);
 }
 
 .shoe-name {
     margin-top: 2px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .shoe-price {

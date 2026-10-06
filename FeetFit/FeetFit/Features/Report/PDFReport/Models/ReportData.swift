@@ -5,6 +5,15 @@
 
 import Foundation
 
+struct ReportShoeData {
+    let brand: String
+    let name: String
+    let price: Int
+    let fitScore: Double
+    let imageDataURL: String?
+    let description: String
+}
+
 struct ReportData {
     let name: String
     let age: Int
@@ -41,4 +50,6 @@ struct ReportData {
     let rightFootWidthMm: Double
     let humidityPercent: Double
     let careTips: [String]
+    let footTypeDescription: String
+    let recommendedShoes: [ReportShoeData]
 }

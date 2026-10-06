@@ -17,7 +17,7 @@
                 <div class="report-header-content">
                     <div class="brand-group">
                         <p class="brand-name">Feet<span>Fit</span></p>
-                        <p class="header-caption">멀티 센서 기반 발 건강 상태 분석 시스템</p>
+                        <p class="header-caption">멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</p>
                     </div>
 
                     <div class="report-name-group">
@@ -157,7 +157,7 @@
 
             <footer class="report-footer">
                 <p>
-                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센서 기반 발 건강 상태 분석 시스템</span>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</span>
                 </p>
                 <p class="footer-page-number" aria-label="현재 페이지 1, 전체 3페이지">
                     <span class="footer-emphasis">1</span><span class="footer-muted"> / 3</span>
@@ -174,7 +174,7 @@
                 <div class="report-header-content">
                     <div class="brand-group">
                         <p class="brand-name">Feet<span>Fit</span></p>
-                        <p class="header-caption">멀티 센서 기반 발 건강 상태 분석 시스템</p>
+                        <p class="header-caption">멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</p>
                     </div>
 
                     <div class="report-name-group">
@@ -326,7 +326,7 @@
 
             <footer class="report-footer">
                 <p>
-                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센서 기반 발 건강 상태 분석 시스템</span>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</span>
                 </p>
                 <p class="footer-page-number" aria-label="현재 페이지 2, 전체 3페이지">
                     <span class="footer-emphasis">2</span><span class="footer-muted"> / 3</span>
@@ -343,7 +343,7 @@
                 <div class="report-header-content">
                     <div class="brand-group">
                         <p class="brand-name">Feet<span>Fit</span></p>
-                        <p class="header-caption">멀티 센서 기반 발 건강 상태 분석 시스템</p>
+                        <p class="header-caption">멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</p>
                     </div>
 
                     <div class="report-name-group">
@@ -375,7 +375,7 @@
                 <h2 class="section-title">발 타입</h2>
 
                 <section class="highlight-frame foot-type-frame" aria-label="발 타입">
-                    <p class="foot-type-description">발 타입 상세 설명이 표시됩니다.</p>
+                    <p class="foot-type-description">{{FOOT_TYPE_DESCRIPTION}}</p>
                 </section>
 
                 <h2 class="section-title">추천 신발 TOP 3</h2>
@@ -386,26 +386,26 @@
                         <span class="shoe-rank-best">BEST</span>
                     </div>
 
-                    <img class="shoe-recommendation-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="추천 신발 1위 이미지">
+                    <img class="shoe-recommendation-image" src="{{SHOE_1_IMAGE}}" alt="추천 신발 1위 이미지">
 
                     <div class="shoe-recommendation-info">
-                        <span class="shoe-brand">브랜드명</span>
-                        <span class="shoe-name">신발명</span>
-                        <strong class="shoe-price">000,000원</strong>
+                        <span class="shoe-brand">{{SHOE_1_BRAND}}</span>
+                        <span class="shoe-name">{{SHOE_1_NAME}}</span>
+                        <strong class="shoe-price">{{SHOE_1_PRICE}}</strong>
                     </div>
 
-                    <div class="score-chart fit-score-chart" style="--score-progress: 0;" role="img" aria-label="신발 적합도 00점">
+                    <div class="score-chart fit-score-chart" style="--score-progress: {{SHOE_1_SCORE}};" role="img" aria-label="신발 적합도 {{SHOE_1_SCORE}}점">
                         <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
                             <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
                             <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
                         </svg>
                         <strong class="fit-score-value">
                             <span class="fit-score-label">적합도</span>
-                            <span class="fit-score-number">00</span>
+                            <span class="fit-score-number">{{SHOE_1_SCORE}}</span>
                         </strong>
                     </div>
 
-                    <p class="shoe-recommendation-description">신발 추천 상세 설명이 표시됩니다.</p>
+                    <p class="shoe-recommendation-description">{{SHOE_1_DESCRIPTION}}</p>
                 </article>
 
                 <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 2위">
@@ -413,26 +413,26 @@
                         <strong class="shoe-rank-number">02</strong>
                     </div>
 
-                    <img class="shoe-recommendation-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="추천 신발 2위 이미지">
+                    <img class="shoe-recommendation-image" src="{{SHOE_2_IMAGE}}" alt="추천 신발 2위 이미지">
 
                     <div class="shoe-recommendation-info">
-                        <span class="shoe-brand">브랜드명</span>
-                        <span class="shoe-name">신발명</span>
-                        <strong class="shoe-price">000,000원</strong>
+                        <span class="shoe-brand">{{SHOE_2_BRAND}}</span>
+                        <span class="shoe-name">{{SHOE_2_NAME}}</span>
+                        <strong class="shoe-price">{{SHOE_2_PRICE}}</strong>
                     </div>
 
-                    <div class="score-chart fit-score-chart" style="--score-progress: 0;" role="img" aria-label="신발 적합도 00점">
+                    <div class="score-chart fit-score-chart" style="--score-progress: {{SHOE_2_SCORE}};" role="img" aria-label="신발 적합도 {{SHOE_2_SCORE}}점">
                         <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
                             <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
                             <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
                         </svg>
                         <strong class="fit-score-value">
                             <span class="fit-score-label">적합도</span>
-                            <span class="fit-score-number">00</span>
+                            <span class="fit-score-number">{{SHOE_2_SCORE}}</span>
                         </strong>
                     </div>
 
-                    <p class="shoe-recommendation-description">신발 추천 상세 설명이 표시됩니다.</p>
+                    <p class="shoe-recommendation-description">{{SHOE_2_DESCRIPTION}}</p>
                 </article>
 
                 <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 3위">
@@ -440,32 +440,32 @@
                         <strong class="shoe-rank-number">03</strong>
                     </div>
 
-                    <img class="shoe-recommendation-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="추천 신발 3위 이미지">
+                    <img class="shoe-recommendation-image" src="{{SHOE_3_IMAGE}}" alt="추천 신발 3위 이미지">
 
                     <div class="shoe-recommendation-info">
-                        <span class="shoe-brand">브랜드명</span>
-                        <span class="shoe-name">신발명</span>
-                        <strong class="shoe-price">000,000원</strong>
+                        <span class="shoe-brand">{{SHOE_3_BRAND}}</span>
+                        <span class="shoe-name">{{SHOE_3_NAME}}</span>
+                        <strong class="shoe-price">{{SHOE_3_PRICE}}</strong>
                     </div>
 
-                    <div class="score-chart fit-score-chart" style="--score-progress: 0;" role="img" aria-label="신발 적합도 00점">
+                    <div class="score-chart fit-score-chart" style="--score-progress: {{SHOE_3_SCORE}};" role="img" aria-label="신발 적합도 {{SHOE_3_SCORE}}점">
                         <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
                             <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
                             <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
                         </svg>
                         <strong class="fit-score-value">
                             <span class="fit-score-label">적합도</span>
-                            <span class="fit-score-number">00</span>
+                            <span class="fit-score-number">{{SHOE_3_SCORE}}</span>
                         </strong>
                     </div>
 
-                    <p class="shoe-recommendation-description">신발 추천 상세 설명이 표시됩니다.</p>
+                    <p class="shoe-recommendation-description">{{SHOE_3_DESCRIPTION}}</p>
                 </article>
             </main>
 
             <footer class="report-footer">
                 <p>
-                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센서 기반 발 건강 상태 분석 시스템</span>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</span>
                 </p>
                 <p class="footer-page-number" aria-label="현재 페이지 3, 전체 3페이지">
                     <span class="footer-emphasis">3</span><span class="footer-muted"> / 3</span>

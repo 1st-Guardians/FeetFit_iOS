@@ -19,6 +19,12 @@ struct ReportHTMLBuilder {
         let skinScore = min(max(data.skinScore, 0), 100)
         let fungalScore = min(max(Int(data.fungalSuspicionScore.rounded()), 0), 100)
         let reactionScore = min(max(Int(data.skinReactionScore.rounded()), 0), 100)
+        guard data.recommendedShoes.count >= 3 else {
+            throw ReportHTMLBuilderError.invalidRecommendationCount
+        }
+        let firstShoe = data.recommendedShoes[0]
+        let secondShoe = data.recommendedShoes[1]
+        let thirdShoe = data.recommendedShoes[2]
         let careTips = data.careTips
             .map { "<li>\($0.htmlEscaped)</li>" }
             .joined(separator: "\n")
@@ -71,7 +77,26 @@ struct ReportHTMLBuilder {
             "{{LEFT_FOOT_WIDTH}}": millimeters(data.leftFootWidthMm),
             "{{RIGHT_FOOT_WIDTH}}": millimeters(data.rightFootWidthMm),
             "{{HUMIDITY}}": "\(Int(data.humidityPercent.rounded()))%",
-            "{{CARE_TIPS}}": careTips
+            "{{CARE_TIPS}}": careTips,
+            "{{FOOT_TYPE_DESCRIPTION}}": data.footTypeDescription.htmlEscaped,
+            "{{SHOE_1_BRAND}}": firstShoe.brand.htmlEscaped,
+            "{{SHOE_1_NAME}}": firstShoe.name.htmlEscaped,
+            "{{SHOE_1_PRICE}}": price(firstShoe.price),
+            "{{SHOE_1_SCORE}}": fitScore(firstShoe.fitScore),
+            "{{SHOE_1_IMAGE}}": imageSource(firstShoe.imageDataURL),
+            "{{SHOE_1_DESCRIPTION}}": firstShoe.description.htmlEscaped,
+            "{{SHOE_2_BRAND}}": secondShoe.brand.htmlEscaped,
+            "{{SHOE_2_NAME}}": secondShoe.name.htmlEscaped,
+            "{{SHOE_2_PRICE}}": price(secondShoe.price),
+            "{{SHOE_2_SCORE}}": fitScore(secondShoe.fitScore),
+            "{{SHOE_2_IMAGE}}": imageSource(secondShoe.imageDataURL),
+            "{{SHOE_2_DESCRIPTION}}": secondShoe.description.htmlEscaped,
+            "{{SHOE_3_BRAND}}": thirdShoe.brand.htmlEscaped,
+            "{{SHOE_3_NAME}}": thirdShoe.name.htmlEscaped,
+            "{{SHOE_3_PRICE}}": price(thirdShoe.price),
+            "{{SHOE_3_SCORE}}": fitScore(thirdShoe.fitScore),
+            "{{SHOE_3_IMAGE}}": imageSource(thirdShoe.imageDataURL),
+            "{{SHOE_3_DESCRIPTION}}": thirdShoe.description.htmlEscaped
         ]
 
         return replacements.reduce(html) { result, replacement in
@@ -93,6 +118,18 @@ struct ReportHTMLBuilder {
 
     private static func millimeters(_ value: Double) -> String {
         String(format: "%.1fmm", locale: Locale(identifier: "en_US_POSIX"), value)
+    }
+
+    private static func fitScore(_ value: Double) -> String {
+        String(min(max(Int(value.rounded()), 0), 100))
+    }
+
+    private static func price(_ value: Int) -> String {
+        value.formatted(
+            .number
+                .grouping(.automatic)
+                .locale(Locale(identifier: "ko_KR"))
+        ) + "원"
     }
 
     private static func halluxSeverity(leftAngle: Double, rightAngle: Double) -> String {
@@ -137,10 +174,13 @@ struct ReportHTMLBuilder {
 }
 
 private enum ReportHTMLBuilderError: LocalizedError {
+    case invalidRecommendationCount
     case missingResource(String)
 
     var errorDescription: String? {
         switch self {
+        case .invalidRecommendationCount:
+            return "PDF 생성에 필요한 추천 신발 데이터가 부족합니다."
         case .missingResource(let filename):
             return "PDF 템플릿 파일을 찾을 수 없습니다: \(filename)"
         }

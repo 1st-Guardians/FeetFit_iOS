@@ -8,6 +8,7 @@ import Foundation
 @MainActor
 enum ReportDataLoader {
     private static let profileProvider = NetworkProvider<MyPageRouter>()
+    private static let shoeProvider = NetworkProvider<ShoeRoute>()
 
     static func loadLatest(referenceDate: Date = Date()) async throws -> ReportData {
         let measurementDate = try await latestMeasurementDate(referenceDate: referenceDate)
@@ -20,6 +21,16 @@ enum ReportDataLoader {
         let analysis = try await ReportAPI.shared.fetchDailyFootAnalysis(date: apiDate)
         let hallux = try await ReportAPI.shared.fetchHalluxValgus(date: apiDate)
         let skin = try await ReportAPI.shared.fetchAthletesFoot(date: apiDate)
+        let recommendationResult = try await shoeProvider.requestBase(
+            .getTopRecommendations,
+            dataType: ShoeRecommendationResultDTO.self
+        )
+
+        guard recommendationResult.shoes.count >= 3 else {
+            throw ReportDataLoaderError.incompleteRecommendation
+        }
+
+        let topRecommendations = Array(recommendationResult.shoes.prefix(3))
 
         async let leftPressureImageTask = imageDataURL(from: analysis.leftPressureImageUrl)
         async let rightPressureImageTask = imageDataURL(from: analysis.rightPressureImageUrl)
@@ -28,6 +39,9 @@ enum ReportDataLoader {
         async let leftHalluxImageTask = imageDataURL(from: hallux.leftImageUrl)
         async let rightHalluxImageTask = imageDataURL(from: hallux.rightImageUrl)
         async let skinImageTask = imageDataURL(from: skin.suspiciousAreaMapImageUrl)
+        async let firstShoeTask = reportShoe(from: topRecommendations[0])
+        async let secondShoeTask = reportShoe(from: topRecommendations[1])
+        async let thirdShoeTask = reportShoe(from: topRecommendations[2])
 
         let (
             leftPressureImage,
@@ -47,6 +61,12 @@ enum ReportDataLoader {
             skinImageTask
         )
 
+        let (firstShoe, secondShoe, thirdShoe) = try await (
+            firstShoeTask,
+            secondShoeTask,
+            thirdShoeTask
+        )
+
         guard let reportID = analysis.measurementSessionId ?? analysis.id,
               let balanceScore = analysis.balanceScore,
               let balanceDescription = analysis.balanceComment,
@@ -57,7 +77,8 @@ enum ReportDataLoader {
               let rightFootLength = analysis.measuredRightFootSizeMm,
               let leftFootWidth = analysis.leftFootWidthMm,
               let rightFootWidth = analysis.rightFootWidthMm,
-              let humidity = analysis.avgHumidityPercent else {
+              let humidity = analysis.avgHumidityPercent,
+              let footTypeDescription = nonEmpty(analysis.typeText) else {
             throw ReportDataLoaderError.incompleteMeasurement
         }
 
@@ -96,7 +117,9 @@ enum ReportDataLoader {
             leftFootWidthMm: leftFootWidth,
             rightFootWidthMm: rightFootWidth,
             humidityPercent: humidity,
-            careTips: analysis.careTips ?? []
+            careTips: analysis.careTips ?? [],
+            footTypeDescription: footTypeDescription,
+            recommendedShoes: [firstShoe, secondShoe, thirdShoe]
         )
     }
 
@@ -148,6 +171,40 @@ enum ReportDataLoader {
         return formatter
     }
 
+    private static func reportShoe(
+        from recommendation: ShoeRecommendationDTO
+    ) async throws -> ReportShoeData {
+        guard let fitScore = recommendation.fitScore else {
+            throw ReportDataLoaderError.incompleteRecommendation
+        }
+
+        async let imageTask = imageDataURL(from: recommendation.imageUrl)
+        let detail = try await shoeProvider.requestBase(
+            .getShoeDetail(shoeId: recommendation.id),
+            dataType: ShoeDetailResultDTO.self
+        )
+        let image = await imageTask
+
+        let description = nonEmpty(detail.pointSummary)
+            ?? detail.reasons.lazy.compactMap { nonEmpty($0.reviewSummary) }.first
+            ?? "발 측정 결과를 기반으로 추천된 신발입니다."
+
+        return ReportShoeData(
+            brand: recommendation.brandName,
+            name: recommendation.shoeName,
+            price: recommendation.price,
+            fitScore: fitScore,
+            imageDataURL: image,
+            description: description
+        )
+    }
+
+    private static func nonEmpty(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
     private nonisolated static func imageDataURL(from value: String?) async -> String? {
         guard let value,
               let url = URL(string: value),
@@ -168,12 +225,15 @@ enum ReportDataLoader {
 }
 
 private enum ReportDataLoaderError: LocalizedError {
+    case incompleteRecommendation
     case incompleteMeasurement
     case invalidReferenceDate
     case noMeasurement
 
     var errorDescription: String? {
         switch self {
+        case .incompleteRecommendation:
+            return "PDF 생성에 필요한 추천 신발 데이터가 부족합니다."
         case .incompleteMeasurement:
             return "최근 측정 결과에 PDF 생성에 필요한 데이터가 없습니다."
         case .invalidReferenceDate:
