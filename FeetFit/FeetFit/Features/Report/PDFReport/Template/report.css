@@ -226,6 +226,227 @@ body {
     font-weight: var(--medium-weight);
 }
 
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: var(--space-20) 0 0;
+    color: var(--color-text-primary);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.section-title::before {
+    width: 3px;
+    height: 15px;
+    flex: 0 0 3px;
+    background: var(--color-accent);
+    content: "";
+}
+
+.report-frame {
+    width: 100%;
+    margin-top: var(--space-10);
+    border: 1px solid var(--color-divider);
+    border-radius: 5px;
+}
+
+.report-frame + .section-title,
+.highlight-frame + .section-title {
+    margin-top: 25px;
+}
+
+.balance-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-15);
+    height: 90px;
+    padding: 0 var(--space-15);
+}
+
+.pressure-analysis {
+    height: 160px;
+}
+
+.foot-metrics-frame {
+    height: 100px;
+    overflow: hidden;
+}
+
+.foot-metrics-table {
+    width: 100%;
+    height: 100%;
+    border-spacing: 0;
+    table-layout: fixed;
+    color: #000000;
+    font-size: 10px;
+    line-height: 12px;
+}
+
+.metric-name-column {
+    width: 170px;
+}
+
+.metric-value-column {
+    width: 192.5px;
+}
+
+.foot-metrics-table thead {
+    height: 25%;
+}
+
+.foot-metrics-table tbody {
+    height: 75%;
+}
+
+.foot-metrics-table thead tr {
+    height: 100%;
+}
+
+.foot-metrics-table tbody tr {
+    height: 33.333%;
+}
+
+.foot-metrics-table th,
+.foot-metrics-table td {
+    padding: 0;
+    border-right: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.foot-metrics-table th {
+    background: #f5f5f5;
+    font-weight: 700;
+}
+
+.foot-metrics-table td {
+    font-weight: var(--medium-weight);
+}
+
+.foot-metrics-table tr > :last-child {
+    border-right: 0;
+}
+
+.foot-metrics-table tbody tr:last-child > * {
+    border-bottom: 0;
+}
+
+.highlight-frame {
+    width: 100%;
+    margin: var(--space-10) 0 0;
+    border-radius: 5px;
+    background: #eef7ff;
+}
+
+.management-tips {
+    padding: 12px var(--space-15);
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
+    list-style: none;
+}
+
+.management-tips li::before {
+    content: "- ";
+}
+
+.report-footer {
+    position: absolute;
+    right: var(--space-20);
+    bottom: var(--space-20);
+    left: var(--space-20);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 10px;
+    line-height: normal;
+}
+
+.report-footer p {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.footer-emphasis {
+    color: var(--color-text-primary);
+    font-weight: 700;
+}
+
+.footer-muted {
+    color: var(--color-text-secondary);
+    font-weight: var(--medium-weight);
+}
+
+.footer-page-number {
+    text-align: right;
+}
+
+.balance-description {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    font-weight: var(--medium-weight);
+    line-height: 12px;
+}
+
+.score-chart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 65px;
+    height: 65px;
+    flex: 0 0 65px;
+    border-radius: 50%;
+}
+
+.score-chart-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.score-chart-track,
+.score-chart-progress {
+    fill: none;
+    stroke-width: 7.5;
+}
+
+.score-chart-track {
+    stroke: var(--color-surface-muted);
+}
+
+.score-chart-progress {
+    stroke: url("#score-gradient");
+    stroke-dasharray: var(--score-progress) 100;
+    transform: rotate(-90deg);
+    transform-origin: center;
+}
+
+.score-chart-value {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    color: var(--color-text-primary);
+    font-weight: 700;
+    line-height: normal;
+}
+
+.score-number {
+    font-size: 20px;
+}
+
+.score-unit {
+    font-size: 10px;
+}
+
 @media print {
     html,
     body {

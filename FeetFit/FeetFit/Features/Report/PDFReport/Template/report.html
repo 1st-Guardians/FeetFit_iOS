@@ -45,7 +45,89 @@
                         <span>Report No. 20261001-00001</span>
                     </div>
                 </section>
+
+                <h2 class="section-title">자세 균형 분석</h2>
+
+                <section class="report-frame balance-summary" aria-label="자세 균형 분석 요약">
+                    <div class="score-chart" style="--score-progress: 94;" role="img" aria-label="자세 균형 점수 94점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="score-gradient" x1="0" y1="0" x2="65" y2="65" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0" stop-color="#a3d4ff"></stop>
+                                    <stop offset="1" stop-color="#0088ff"></stop>
+                                </linearGradient>
+                            </defs>
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+
+                        <strong class="score-chart-value">
+                            <span class="score-number">94</span><span class="score-unit">점</span>
+                        </strong>
+                    </div>
+
+                    <p class="balance-description">
+                        왼발은 뒤꿈치 구역의 압력 비중이 상대적으로 크며 구역별 압력 비중에 일부 차이가 관찰됩니다.<br>
+                        오른발은 뒤꿈치 구역의 압력 비중이 상대적으로 크고 특정 구역에 압력이 집중되는 경향이 관찰됩니다.
+                    </p>
+                </section>
+
+                <h2 class="section-title">압력 분포 및 발 눌림 분석</h2>
+
+                <section class="report-frame pressure-analysis" aria-label="압력 분포 및 발 눌림 분석"></section>
+
+                <h2 class="section-title" id="foot-metrics-title">발 수치 및 환경 상태</h2>
+
+                <div class="report-frame foot-metrics-frame">
+                    <table class="foot-metrics-table" aria-labelledby="foot-metrics-title">
+                        <colgroup>
+                            <col class="metric-name-column">
+                            <col class="metric-value-column">
+                            <col class="metric-value-column">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th scope="col">구분</th>
+                                <th scope="col">왼발</th>
+                                <th scope="col">오른발</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">발 길이</th>
+                                <td>244.8mm</td>
+                                <td>246.1mm</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">발볼 너비</th>
+                                <td>98.1mm</td>
+                                <td>100.3mm</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">발 환경(습도)</th>
+                                <td colspan="2">61%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title">오늘의 관리팁</h2>
+
+                <ul class="highlight-frame management-tips" aria-label="오늘의 관리팁">
+                    <li>오른발 앞꿈치 스트레칭을 해주세요.</li>
+                    <li>신발은 착용 후 충분히 말려주세요.</li>
+                    <li>발볼이 좁은 신발은 피하는 것이 좋아요.</li>
+                </ul>
             </main>
+
+            <footer class="report-footer">
+                <p>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센서 기반 발 건강 상태 분석 시스템</span>
+                </p>
+                <p class="footer-page-number" aria-label="현재 페이지 1, 전체 3페이지">
+                    <span class="footer-emphasis">1</span><span class="footer-muted"> / 3</span>
+                </p>
+            </footer>
         </section>
     </div>
 </body>
