@@ -33,8 +33,9 @@ enum ReportPDFGenerator {
         webView.layoutIfNeeded()
 
         let pdfData = try makePDF(from: webView)
+        let userName = data.name.replacingOccurrences(of: "/", with: "_")
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FeetFit_Report.pdf")
+            .appendingPathComponent("feetfit_report_\(userName).pdf")
 
         try pdfData.write(to: fileURL, options: .atomic)
         return fileURL

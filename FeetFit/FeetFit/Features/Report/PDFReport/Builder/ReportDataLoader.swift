@@ -12,6 +12,10 @@ enum ReportDataLoader {
 
     static func loadLatest(referenceDate: Date = Date()) async throws -> ReportData {
         let measurementDate = try await latestMeasurementDate(referenceDate: referenceDate)
+        return try await load(date: measurementDate)
+    }
+
+    static func load(date measurementDate: Date) async throws -> ReportData {
         let apiDate = apiDateFormatter.string(from: measurementDate)
 
         let profile = try await profileProvider.requestBase(
