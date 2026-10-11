@@ -34,15 +34,15 @@ enum EnvironmentType {
 
     var minValue: Double {
         switch self {
-        case .temperature: return 0
-        case .humidity: return 30
+        case .temperature: return 20
+        case .humidity: return 45
         }
     }
     
     var maxValue: Double {
         switch self {
-        case .temperature: return 50
-        case .humidity: return 70
+        case .temperature: return 30
+        case .humidity: return 60
         }
     }
 }

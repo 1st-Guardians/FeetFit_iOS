@@ -109,9 +109,13 @@ struct ComparisonBar: View {
     var body: some View {
         GeometryReader { geometry in
             let usableWidth = max(geometry.size.width - markerDiameter, 0)
-            let comparisonOffset = usableWidth * clamp(comparisonValue)
-            let shoeOffset = usableWidth * clamp(shoeValue)
-            let shouldSeparateMarkers = abs(comparisonOffset - shoeOffset) < markerDiameter
+            let comparisonOffset = fillValue == nil
+                ? usableWidth * clamp(comparisonValue)
+                : min(max(geometry.size.width * clamp(comparisonValue) - markerDiameter / 2, 0), usableWidth)
+            let shoeOffset = fillValue == nil
+                ? usableWidth * clamp(shoeValue)
+                : min(max(geometry.size.width * clamp(shoeValue) - markerDiameter / 2, 0), usableWidth)
+            let shouldSeparateMarkers = fillValue == nil && abs(comparisonOffset - shoeOffset) < markerDiameter
 
             ZStack(alignment: .leading) {
                 Capsule()
@@ -123,7 +127,7 @@ struct ComparisonBar: View {
                     Capsule()
                         .fill(color)
                         .frame(
-                            width: markerDiameter / 2 + usableWidth * clamp(fillValue),
+                            width: geometry.size.width * clamp(fillValue),
                             height: trackHeight
                         )
                 }
