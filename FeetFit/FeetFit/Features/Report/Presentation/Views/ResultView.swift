@@ -22,7 +22,17 @@ struct ResultView: View {
     
     // MARK: - Body
     
+    @ViewBuilder
     var body: some View {
+        if showsInlineDate {
+            reportContent
+        } else {
+            reportContent
+                .modifier(ReportPDFShareModifier(selectedDate: selectedDate))
+        }
+    }
+
+    private var reportContent: some View {
         VStack(alignment: .trailing, spacing: 16) {
             if showsInlineDate {
                 Text("측정날짜: \(formattedSelectedDate)")

@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FeetFit Foot Analysis Report</title>
+    <style>
+{{REPORT_CSS}}
+    </style>
+</head>
+<body>
+    <div class="print-page">
+        <section class="page">
+            <header class="report-header">
+                <div class="gradient-line header-top-line" aria-hidden="true"></div>
+
+                <div class="report-header-content">
+                    <div class="brand-group">
+                        <p class="brand-name">Feet<span>Fit</span></p>
+                        <p class="header-caption">멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</p>
+                    </div>
+
+                    <div class="report-name-group">
+                        <p class="report-name">발 분석 결과지</p>
+                        <p class="header-caption">FOOT CONDITION ANALYSIS REPORT</p>
+                    </div>
+                </div>
+
+                <div class="gradient-line header-bottom-line" aria-hidden="true"></div>
+            </header>
+
+            <main class="report-content">
+                <section class="user-info" aria-label="검사 대상자 정보">
+                    <div class="user-info-details">
+                        <span class="user-info-label">이름</span>
+                        <strong class="user-info-value">{{NAME}}</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                        <span class="user-info-label">나이</span>
+                        <strong class="user-info-value">{{AGE}}세</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                    </div>
+
+                    <div class="report-meta">
+                        <span>검사일 {{MEASUREMENT_DATE}}</span>
+                        <span>Report No. {{REPORT_NUMBER}}</span>
+                    </div>
+                </section>
+
+                <h2 class="section-title">자세 균형 분석</h2>
+
+                <section class="report-frame score-summary" aria-label="자세 균형 분석 요약">
+                    <div class="score-chart" style="--score-progress: {{BALANCE_SCORE}};" role="img" aria-label="자세 균형 점수 {{BALANCE_SCORE}}점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="score-gradient" x1="0" y1="0" x2="65" y2="65" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0" stop-color="#a3d4ff"></stop>
+                                    <stop offset="1" stop-color="#0088ff"></stop>
+                                </linearGradient>
+                            </defs>
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+
+                        <strong class="score-chart-value">
+                            <span class="score-number">{{BALANCE_SCORE}}</span><span class="score-unit">점</span>
+                        </strong>
+                    </div>
+
+                    <p class="score-description">{{BALANCE_DESCRIPTION}}</p>
+                </section>
+
+                <h2 class="section-title">압력 분포 및 발 눌림 분석</h2>
+
+                <section class="report-frame pressure-analysis" aria-label="압력 분포 및 발 눌림 분석">
+                    <div class="pressure-image-sets" aria-label="좌우 압력 및 발 눌림 이미지">
+                        <div class="pressure-image-set">
+                            <figure class="pressure-image-item">
+                                <img src="{{LEFT_PRESSURE_IMAGE}}" alt="왼발 압력 분포 이미지">
+                                <figcaption>왼발</figcaption>
+                            </figure>
+                            <figure class="pressure-image-item">
+                                <img src="{{RIGHT_PRESSURE_IMAGE}}" alt="오른발 압력 분포 이미지">
+                                <figcaption>오른발</figcaption>
+                            </figure>
+                        </div>
+
+                        <div class="pressure-image-set">
+                            <figure class="pressure-image-item">
+                                <img src="{{LEFT_FOOTPRINT_IMAGE}}" alt="왼발 발 눌림 이미지">
+                                <figcaption>왼발</figcaption>
+                            </figure>
+                            <figure class="pressure-image-item">
+                                <img src="{{RIGHT_FOOTPRINT_IMAGE}}" alt="오른발 발 눌림 이미지">
+                                <figcaption>오른발</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+
+                    <section class="inner-frame pressure-balance" aria-label="좌우 압력 균형">
+                        <div class="pressure-balance-values">
+                            <span class="pressure-balance-side">
+                                <span>왼발</span><strong>{{LEFT_PRESSURE}}%</strong>
+                            </span>
+                            <span class="pressure-balance-side">
+                                <strong>{{RIGHT_PRESSURE}}%</strong><span>오른발</span>
+                            </span>
+                        </div>
+
+                        <div class="pressure-balance-bar" data-dominant="{{PRESSURE_DOMINANT}}" role="img" aria-label="왼발 {{LEFT_PRESSURE}}%, 오른발 {{RIGHT_PRESSURE}}%">
+                            <span class="pressure-balance-fill pressure-balance-fill-left" style="width: {{LEFT_PRESSURE}}%;"></span>
+                            <span class="pressure-balance-fill pressure-balance-fill-right" style="width: {{RIGHT_PRESSURE}}%;"></span>
+                        </div>
+
+                        <p class="pressure-balance-description">{{PRESSURE_DESCRIPTION}}</p>
+                    </section>
+                </section>
+
+                <h2 class="section-title" id="foot-metrics-title">발 수치 및 환경 상태</h2>
+
+                <div class="report-frame foot-metrics-frame">
+                    <table class="foot-metrics-table" aria-labelledby="foot-metrics-title">
+                        <colgroup>
+                            <col class="metric-name-column">
+                            <col class="metric-value-column">
+                            <col class="metric-value-column">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="col">구분</th>
+                                <th scope="col">왼발</th>
+                                <th scope="col">오른발</th>
+                            </tr>
+                            <tr>
+                                <th scope="row">발 길이</th>
+                                <td>{{LEFT_FOOT_LENGTH}}</td>
+                                <td>{{RIGHT_FOOT_LENGTH}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">발볼 너비</th>
+                                <td>{{LEFT_FOOT_WIDTH}}</td>
+                                <td>{{RIGHT_FOOT_WIDTH}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">발 환경(습도)</th>
+                                <td colspan="2">{{HUMIDITY}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title">오늘의 관리팁</h2>
+
+                <ul class="highlight-frame management-tips" aria-label="오늘의 관리팁">
+{{CARE_TIPS}}
+                </ul>
+            </main>
+
+            <footer class="report-footer">
+                <p>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</span>
+                </p>
+                <p class="footer-page-number" aria-label="현재 페이지 1, 전체 3페이지">
+                    <span class="footer-emphasis">1</span><span class="footer-muted"> / 3</span>
+                </p>
+            </footer>
+        </section>
+    </div>
+
+    <div class="print-page">
+        <section class="page">
+            <header class="report-header">
+                <div class="gradient-line header-top-line" aria-hidden="true"></div>
+
+                <div class="report-header-content">
+                    <div class="brand-group">
+                        <p class="brand-name">Feet<span>Fit</span></p>
+                        <p class="header-caption">멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</p>
+                    </div>
+
+                    <div class="report-name-group">
+                        <p class="report-name">발 분석 결과지</p>
+                        <p class="header-caption">FOOT CONDITION ANALYSIS REPORT</p>
+                    </div>
+                </div>
+
+                <div class="gradient-line header-bottom-line" aria-hidden="true"></div>
+            </header>
+
+            <main class="report-content">
+                <section class="user-info" aria-label="검사 대상자 정보">
+                    <div class="user-info-details">
+                        <span class="user-info-label">이름</span>
+                        <strong class="user-info-value">{{NAME}}</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                        <span class="user-info-label">나이</span>
+                        <strong class="user-info-value">{{AGE}}세</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                    </div>
+
+                    <div class="report-meta">
+                        <span>검사일 {{MEASUREMENT_DATE}}</span>
+                        <span>Report No. {{REPORT_NUMBER}}</span>
+                    </div>
+                </section>
+
+                <h2 class="section-title">무지외반 분석</h2>
+
+                <section class="report-frame score-summary" aria-label="무지외반 분석 요약">
+                    <div class="score-chart" style="--score-progress: {{HALLUX_SCORE}};" role="img" aria-label="무지외반 점수 {{HALLUX_SCORE}}점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+
+                        <strong class="score-chart-value">
+                            <span class="score-number">{{HALLUX_SCORE}}</span><span class="score-unit">점</span>
+                        </strong>
+                    </div>
+
+                    <p class="score-description">{{HALLUX_DESCRIPTION}}</p>
+                </section>
+
+                <section class="report-frame hallux-detail" aria-label="무지외반 상세 분석">
+                    <article class="inner-frame hallux-foot-note">
+                        <h3>왼발</h3>
+                        <p>{{LEFT_HALLUX_DESCRIPTION}}</p>
+                    </article>
+
+                    <div class="hallux-foot-images" aria-label="무지외반 각도 이미지">
+                        <figure class="hallux-foot-visual">
+                            <figcaption class="hallux-angle">
+                                <span>약</span><strong>{{LEFT_HALLUX_ANGLE}}°</strong>
+                            </figcaption>
+                            <img class="hallux-foot-image" src="{{LEFT_HALLUX_IMAGE}}" alt="왼발 무지외반 분석 이미지">
+                        </figure>
+
+                        <figure class="hallux-foot-visual">
+                            <figcaption class="hallux-angle">
+                                <span>약</span><strong>{{RIGHT_HALLUX_ANGLE}}°</strong>
+                            </figcaption>
+                            <img class="hallux-foot-image" src="{{RIGHT_HALLUX_IMAGE}}" alt="오른발 무지외반 분석 이미지">
+                        </figure>
+                    </div>
+
+                    <article class="inner-frame hallux-foot-note">
+                        <h3>오른발</h3>
+                        <p>{{RIGHT_HALLUX_DESCRIPTION}}</p>
+                    </article>
+
+                    <ul class="hallux-risk-levels" data-severity="{{HALLUX_SEVERITY}}" aria-label="무지외반 변형 단계">
+                        <li class="hallux-risk-level hallux-risk-normal">
+                            <span>정상</span><span>~15°</span>
+                        </li>
+                        <li class="hallux-risk-level hallux-risk-suspected">
+                            <span>변형 의심</span><span>16°~20°</span>
+                        </li>
+                        <li class="hallux-risk-level hallux-risk-progressing">
+                            <span>변형 진행</span><span>21°~40°</span>
+                        </li>
+                        <li class="hallux-risk-level hallux-risk-severe">
+                            <span>심한 변형</span><span>41°~</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <h2 class="section-title">피부 반응 분석</h2>
+
+                <section class="report-frame skin-analysis-primary" aria-label="피부 반응 분석 요약">
+                    <div class="skin-image-column">
+                        <div class="inner-frame skin-image-frame">
+                            <img class="skin-analysis-image" src="{{SKIN_IMAGE}}" alt="피부 반응 의심 영역 분석 이미지">
+                        </div>
+
+                        <div class="skin-image-legend" aria-label="피부 반응 이미지 범례">
+                            <span class="skin-legend-item">
+                                <i class="skin-legend-dot skin-legend-dot-fungal" aria-hidden="true"></i>
+                                무좀 의심/감염 영역
+                            </span>
+                            <span class="skin-legend-item">
+                                <i class="skin-legend-dot skin-legend-dot-reaction" aria-hidden="true"></i>
+                                염증/피부 자극 영역
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="skin-analysis-result">
+                        <div class="skin-score-row">
+                            <div class="score-chart" style="--score-progress: {{SKIN_SCORE}};" role="img" aria-label="피부 반응 점수 {{SKIN_SCORE}}점">
+                                <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                                    <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                                    <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                                </svg>
+
+                                <strong class="score-chart-value">
+                                    <span class="score-number">{{SKIN_SCORE}}</span><span class="score-unit">점</span>
+                                </strong>
+                            </div>
+
+                            <p class="highlight-frame skin-score-formula">{{SKIN_FORMULA}}</p>
+                        </div>
+
+                        <p class="skin-analysis-description">{{SKIN_DESCRIPTION}}</p>
+                    </div>
+                </section>
+
+                <section class="report-frame skin-analysis-details" aria-label="피부 반응 상세 분석">
+                    <article class="inner-frame skin-detail-card">
+                        <h3 class="skin-detail-title">무좀 의심 영역 안정도</h3>
+                        <strong class="skin-detail-score">
+                            <span class="skin-detail-score-number">{{FUNGAL_SCORE}}</span><span class="skin-detail-score-unit">점</span>
+                        </strong>
+                        <span class="skin-detail-divider" aria-hidden="true"></span>
+                        <p class="skin-detail-description">{{FUNGAL_DESCRIPTION}}</p>
+                    </article>
+
+                    <article class="inner-frame skin-detail-card">
+                        <h3 class="skin-detail-title">피부 자극 안정도</h3>
+                        <strong class="skin-detail-score">
+                            <span class="skin-detail-score-number">{{REACTION_SCORE}}</span><span class="skin-detail-score-unit">점</span>
+                        </strong>
+                        <span class="skin-detail-divider" aria-hidden="true"></span>
+                        <p class="skin-detail-description">{{REACTION_DESCRIPTION}}</p>
+                    </article>
+                </section>
+            </main>
+
+            <footer class="report-footer">
+                <p>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</span>
+                </p>
+                <p class="footer-page-number" aria-label="현재 페이지 2, 전체 3페이지">
+                    <span class="footer-emphasis">2</span><span class="footer-muted"> / 3</span>
+                </p>
+            </footer>
+        </section>
+    </div>
+
+    <div class="print-page">
+        <section class="page">
+            <header class="report-header">
+                <div class="gradient-line header-top-line" aria-hidden="true"></div>
+
+                <div class="report-header-content">
+                    <div class="brand-group">
+                        <p class="brand-name">Feet<span>Fit</span></p>
+                        <p class="header-caption">멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</p>
+                    </div>
+
+                    <div class="report-name-group">
+                        <p class="report-name">맞춤 신발 추천 보고서</p>
+                        <p class="header-caption">SHOE RECOMMENDATION REPORT</p>
+                    </div>
+                </div>
+
+                <div class="gradient-line header-bottom-line" aria-hidden="true"></div>
+            </header>
+
+            <main class="report-content">
+                <section class="user-info" aria-label="검사 대상자 정보">
+                    <div class="user-info-details">
+                        <span class="user-info-label">이름</span>
+                        <strong class="user-info-value">{{NAME}}</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                        <span class="user-info-label">나이</span>
+                        <strong class="user-info-value">{{AGE}}세</strong>
+                        <span class="user-info-divider" aria-hidden="true"></span>
+                    </div>
+
+                    <div class="report-meta">
+                        <span>검사일 {{MEASUREMENT_DATE}}</span>
+                        <span>Report No. {{REPORT_NUMBER}}</span>
+                    </div>
+                </section>
+
+                <h2 class="section-title">발 타입</h2>
+
+                <section class="highlight-frame foot-type-frame" aria-label="발 타입">
+                    <p class="foot-type-description">{{FOOT_TYPE_DESCRIPTION}}</p>
+                </section>
+
+                <h2 class="section-title">추천 신발 TOP 3</h2>
+
+                <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 1위">
+                    <div class="shoe-rank-frame">
+                        <strong class="shoe-rank-number">01</strong>
+                        <span class="shoe-rank-best">BEST</span>
+                    </div>
+
+                    <img class="shoe-recommendation-image" src="{{SHOE_1_IMAGE}}" alt="추천 신발 1위 이미지">
+
+                    <div class="shoe-recommendation-info">
+                        <span class="shoe-brand">{{SHOE_1_BRAND}}</span>
+                        <span class="shoe-name">{{SHOE_1_NAME}}</span>
+                        <strong class="shoe-price">{{SHOE_1_PRICE}}</strong>
+                    </div>
+
+                    <div class="score-chart fit-score-chart" style="--score-progress: {{SHOE_1_SCORE}};" role="img" aria-label="신발 적합도 {{SHOE_1_SCORE}}점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+                        <strong class="fit-score-value">
+                            <span class="fit-score-label">적합도</span>
+                            <span class="fit-score-number">{{SHOE_1_SCORE}}</span>
+                        </strong>
+                    </div>
+
+                    <p class="shoe-recommendation-description">{{SHOE_1_DESCRIPTION}}</p>
+                </article>
+
+                <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 2위">
+                    <div class="shoe-rank-frame">
+                        <strong class="shoe-rank-number">02</strong>
+                    </div>
+
+                    <img class="shoe-recommendation-image" src="{{SHOE_2_IMAGE}}" alt="추천 신발 2위 이미지">
+
+                    <div class="shoe-recommendation-info">
+                        <span class="shoe-brand">{{SHOE_2_BRAND}}</span>
+                        <span class="shoe-name">{{SHOE_2_NAME}}</span>
+                        <strong class="shoe-price">{{SHOE_2_PRICE}}</strong>
+                    </div>
+
+                    <div class="score-chart fit-score-chart" style="--score-progress: {{SHOE_2_SCORE}};" role="img" aria-label="신발 적합도 {{SHOE_2_SCORE}}점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+                        <strong class="fit-score-value">
+                            <span class="fit-score-label">적합도</span>
+                            <span class="fit-score-number">{{SHOE_2_SCORE}}</span>
+                        </strong>
+                    </div>
+
+                    <p class="shoe-recommendation-description">{{SHOE_2_DESCRIPTION}}</p>
+                </article>
+
+                <article class="report-frame shoe-recommendation-card" aria-label="추천 신발 3위">
+                    <div class="shoe-rank-frame">
+                        <strong class="shoe-rank-number">03</strong>
+                    </div>
+
+                    <img class="shoe-recommendation-image" src="{{SHOE_3_IMAGE}}" alt="추천 신발 3위 이미지">
+
+                    <div class="shoe-recommendation-info">
+                        <span class="shoe-brand">{{SHOE_3_BRAND}}</span>
+                        <span class="shoe-name">{{SHOE_3_NAME}}</span>
+                        <strong class="shoe-price">{{SHOE_3_PRICE}}</strong>
+                    </div>
+
+                    <div class="score-chart fit-score-chart" style="--score-progress: {{SHOE_3_SCORE}};" role="img" aria-label="신발 적합도 {{SHOE_3_SCORE}}점">
+                        <svg class="score-chart-ring" viewBox="0 0 65 65" aria-hidden="true">
+                            <circle class="score-chart-track" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                            <circle class="score-chart-progress" cx="32.5" cy="32.5" r="28.75" pathLength="100"></circle>
+                        </svg>
+                        <strong class="fit-score-value">
+                            <span class="fit-score-label">적합도</span>
+                            <span class="fit-score-number">{{SHOE_3_SCORE}}</span>
+                        </strong>
+                    </div>
+
+                    <p class="shoe-recommendation-description">{{SHOE_3_DESCRIPTION}}</p>
+                </article>
+            </main>
+
+            <footer class="report-footer">
+                <p>
+                    <span class="footer-emphasis">FeetFit</span><span class="footer-muted"> | 멀티 센싱 기반 발 건강 상태 분석 및 관리 시스템</span>
+                </p>
+                <p class="footer-page-number" aria-label="현재 페이지 3, 전체 3페이지">
+                    <span class="footer-emphasis">3</span><span class="footer-muted"> / 3</span>
+                </p>
+            </footer>
+        </section>
+    </div>
+</body>
+</html>

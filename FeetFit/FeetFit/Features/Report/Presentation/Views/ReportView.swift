@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ReportView: View {
     @StateObject private var calendarViewModel = CalendarViewModel()
@@ -25,7 +26,17 @@ struct ReportView: View {
         }
         .task {
             await calendarViewModel.fetchMeasuredDates(for: selectedDate)
+
+            if let latestDate = calendarViewModel.measuredDates
+                .filter({ $0 <= Date() })
+                .max() {
+                selectedDate = latestDate
+            } else if let latestDate = try? await ReportDataLoader.latestMeasurementDate() {
+                selectedDate = latestDate
+                await calendarViewModel.fetchMeasuredDates(for: latestDate)
+            }
         }
+        .modifier(ReportPDFShareModifier(selectedDate: selectedDate))
         .toolbar {
             ToolBarCollection.ReportMenu(selection: $selectedMenu)
 
@@ -42,6 +53,80 @@ struct ReportView: View {
             }
         }
     }
+}
+
+struct ReportPDFShareModifier: ViewModifier {
+    let selectedDate: Date
+    @State private var isGeneratingPDF = false
+    @State private var isShareSheetPresented = false
+    @State private var generatedPDFURL: URL?
+    @State private var pdfErrorMessage = ""
+    @State private var isPDFErrorPresented = false
+
+    func body(content: Content) -> some View {
+        content
+            .sheet(isPresented: $isShareSheetPresented) {
+                if let generatedPDFURL {
+                    ReportShareSheet(fileURL: generatedPDFURL)
+                }
+            }
+            .alert("PDF 생성 실패", isPresented: $isPDFErrorPresented) {
+                Button("확인", role: .cancel) { }
+            } message: {
+                Text(pdfErrorMessage)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        generatePDF()
+                    } label: {
+                        if isGeneratingPDF {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
+                    .disabled(isGeneratingPDF)
+                    .accessibilityLabel(isGeneratingPDF ? "PDF 생성 중" : "PDF 공유")
+                }
+            }
+    }
+
+    private func generatePDF() {
+        guard !isGeneratingPDF else { return }
+
+        isGeneratingPDF = true
+
+        Task {
+            defer { isGeneratingPDF = false }
+
+            do {
+                let reportData = try await ReportDataLoader.load(date: selectedDate)
+                generatedPDFURL = try await ReportPDFGenerator.generate(data: reportData)
+                isShareSheetPresented = true
+            } catch {
+                pdfErrorMessage = error.localizedDescription
+                isPDFErrorPresented = true
+            }
+        }
+    }
+}
+
+private struct ReportShareSheet: UIViewControllerRepresentable {
+    let fileURL: URL
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(
+            activityItems: [fileURL],
+            applicationActivities: nil
+        )
+    }
+
+    func updateUIViewController(
+        _ uiViewController: UIActivityViewController,
+        context: Context
+    ) { }
 }
 
 #Preview {
