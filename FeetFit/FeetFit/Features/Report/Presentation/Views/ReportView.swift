@@ -26,15 +26,6 @@ struct ReportView: View {
         }
         .task {
             await calendarViewModel.fetchMeasuredDates(for: selectedDate)
-
-            if let latestDate = calendarViewModel.measuredDates
-                .filter({ $0 <= Date() })
-                .max() {
-                selectedDate = latestDate
-            } else if let latestDate = try? await ReportDataLoader.latestMeasurementDate() {
-                selectedDate = latestDate
-                await calendarViewModel.fetchMeasuredDates(for: latestDate)
-            }
         }
         .modifier(ReportPDFShareModifier(selectedDate: selectedDate))
         .toolbar {

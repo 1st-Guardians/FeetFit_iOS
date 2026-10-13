@@ -27,19 +27,19 @@ enum MeasurementStatus: String, Codable {
     var guideMessage: String {
         switch self {
         case .waitingForPhoto:
-            return "하얀색 발판을 올리고\n유리판 위에 올라와 주세요."
+            return "하얀색 발판을 올리고 유리판 위에 올라와 주세요.\n하얀색 뒷꿈치 가이드에 맞춰 서 주세요."
         case .readyForPhoto:
 //            return "사진 촬영 준비가 완료되었습니다.\n촬영을 시작합니다."
             return "준비가 완료되었습니다.\n측정을 시작합니다."
         case .capturingPhoto:
-//            return "사진을 촬영하고 있습니다.\n잠시 움직이지 말아 주세요."
-            return "발 사진과 주변 환경 상태를 측정하고 있습니다.\n잠시 움직이지 말아 주세요."
+            return "사진을 촬영하고 있습니다.\n잠시 움직이지 말아 주세요."
+//            return "발 사진과 주변 환경 상태를 측정하고 있습니다.\n잠시 움직이지 말아 주세요."
         case .waitingForRecapture:
             return "발 위치를 조정한 뒤\n다시 촬영해 주세요."
         case .readyForRecapture:
             return "재촬영 준비가 완료되었습니다.\n촬영을 시작합니다."
         case .waitingForEnvironment:
-            return "온습도 측정을 위해\n기기 가까이 이동해 주세요."
+            return "온습도 측정을 위해 버튼을 눌러 주세요."
         case .readyForEnvironment:
             return "온습도 측정 준비가 완료되었습니다.\n온습도 측정을 시작합니다."
         case .measuringEnvironment:
