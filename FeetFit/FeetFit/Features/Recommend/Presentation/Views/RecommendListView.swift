@@ -11,8 +11,10 @@ struct RecommendListView: View {
     @ObservedObject var viewModel: RecommendListViewModel
     
     let onShoeTap: (ShoeInfo) -> Void
+    var products: [ProductInfo] = ProductInfo.samples
     
     @State private var selectedRecommendation = "제품 추천"
+    @State private var selectedProductSortType: ShoeSortType = .fit
     @State private var searchText: String = ""
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
@@ -115,7 +117,10 @@ struct RecommendListView: View {
                     }
                 }
             } else {
-                Spacer()
+                ScrollView {
+                    ProductListView(products: products)
+                        .padding(.bottom, 70)
+                }
             }
         }
     }
@@ -144,33 +149,40 @@ struct RecommendListView: View {
             .padding(20)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                Color(red: 200 / 255, green: 233 / 255, blue: 1),
+                Color(red: 240 / 255, green: 249 / 255, blue: 1),
                 in: RoundedRectangle(cornerRadius: 24)
             )
-            .glassEffect(in: .rect(cornerRadius: 24))
+            .overlay {
+                RoundedRectangle(cornerRadius: 24)
+                    .strokeBorder(Color(red: 203 / 255, green: 235 / 255, blue: 1), lineWidth: 1)
+            }
             .padding(.top, 20)
 
-            if selectedRecommendation == "신발 추천" {
-                HStack {
-                    Text("\(viewModel.totalElements)개")
-                        .pretendardFont(.BlockText)
-                        .foregroundStyle(.gray01)
+            HStack {
+                Text("\(selectedRecommendation == "신발 추천" ? viewModel.totalElements : products.count)개")
+                    .pretendardFont(.BlockText)
+                    .foregroundStyle(.gray01)
 
-                    Spacer()
+                Spacer()
 
-                    ShoeSortMenuButton(
-                        selectedSortType: Binding(
-                            get: {
-                                viewModel.selectedSortType
-                            },
-                            set: { newValue in
+                ShoeSortMenuButton(
+                    selectedSortType: Binding(
+                        get: {
+                            selectedRecommendation == "신발 추천"
+                                ? viewModel.selectedSortType
+                                : selectedProductSortType
+                        },
+                        set: { newValue in
+                            if selectedRecommendation == "신발 추천" {
                                 viewModel.updateSortType(newValue)
+                            } else {
+                                selectedProductSortType = newValue
                             }
-                        )
+                        }
                     )
-                }
-                .padding(.top, 18)
+                )
             }
+            .padding(.top, 18)
         }
     }
 
