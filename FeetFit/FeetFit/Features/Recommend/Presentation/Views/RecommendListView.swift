@@ -12,6 +12,7 @@ struct RecommendListView: View {
     
     let onShoeTap: (ShoeInfo) -> Void
     
+    @State private var selectedRecommendation = "제품 추천"
     @State private var searchText: String = ""
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
@@ -36,15 +37,17 @@ struct RecommendListView: View {
         ZStack(alignment: .bottom) {
             contentView
             
-            SearchBarView(
-                text: $searchText,
-                placeholder: "신발을 검색해 보세요",
-                onTap: handleSearchTap,
-                onClear: handleSearchClear,
-                onSubmit: handleSearchSubmit
-            )
-            .padding(.horizontal, 24)
-            .padding(.bottom, 16)
+            if selectedRecommendation == "신발 추천" {
+                SearchBarView(
+                    text: $searchText,
+                    placeholder: "신발을 검색해 보세요",
+                    onTap: handleSearchTap,
+                    onClear: handleSearchClear,
+                    onSubmit: handleSearchSubmit
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
+            }
         }
         .onAppear {
             viewModel.fetchInitialData()
@@ -89,13 +92,12 @@ struct RecommendListView: View {
     }
     
     private var mainContent: some View {
-        ZStack(alignment: .topLeading) {
-            background
-            
-            VStack(alignment: .leading, spacing: 0) {
-                topGroup
-                    .padding([.bottom, .horizontal], 16)
+        VStack(alignment: .leading, spacing: 0) {
+            topGroup
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
 
+            if selectedRecommendation == "신발 추천" {
                 if viewModel.shoes.isEmpty && viewModel.isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity)
@@ -112,78 +114,66 @@ struct RecommendListView: View {
                         .padding(.bottom, 70)
                     }
                 }
+            } else {
+                Spacer()
             }
         }
     }
-    
-    private var background: some View {
-        VStack {
-            Rectangle()
-                .foregroundColor(.clear)
-                .blueLinear()
-                .padding(.bottom, 502)
-            
-            Spacer()
-        }
-    }
-    
+
     private var topGroup: some View {
-        VStack(alignment: .leading) {
-            Text("신발 추천")
+        VStack(alignment: .leading, spacing: 0) {
+            Text("추천")
                 .pretendardFont(.Title)
                 .padding(.top, 26)
                 .padding(.leading, 12)
-            
-            VStack(alignment: .leading, spacing: 0) {
+
+            Picker("추천 유형", selection: $selectedRecommendation) {
+                Text("제품 추천").tag("제품 추천")
+                Text("신발 추천").tag("신발 추천")
+            }
+            .pickerStyle(.segmented)
+            .padding(.top, 12)
+
+            VStack(alignment: .leading, spacing: 10) {
                 Text("\(viewModel.nickname.isEmpty ? "내" : "\(viewModel.nickname)님의") 발 타입")
                     .pretendardFont(.BlockTitle)
-                    .padding(.bottom, 10)
-                
+
                 Text(viewModel.footTypeText ?? "발 측정 결과를 기반으로 적합도, 별점, 관심도 순으로 신발을 확인할 수 있어요.")
                     .pretendardFont(.BlockText)
             }
             .padding(20)
-            .background {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.white.opacity(0.35))
-            }
-            .background {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.blue02)
-                    .shadow(color: .blue02, radius: 2, x: 0, y: 0)
-                    .mask {
-                        Rectangle()
-                            .padding(-8)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .blendMode(.destinationOut)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                Color(red: 200 / 255, green: 233 / 255, blue: 1),
+                in: RoundedRectangle(cornerRadius: 24)
+            )
+            .glassEffect(in: .rect(cornerRadius: 24))
+            .padding(.top, 20)
+
+            if selectedRecommendation == "신발 추천" {
+                HStack {
+                    Text("\(viewModel.totalElements)개")
+                        .pretendardFont(.BlockText)
+                        .foregroundStyle(.gray01)
+
+                    Spacer()
+
+                    ShoeSortMenuButton(
+                        selectedSortType: Binding(
+                            get: {
+                                viewModel.selectedSortType
+                            },
+                            set: { newValue in
+                                viewModel.updateSortType(newValue)
                             }
-                            .compositingGroup()
-                    }
-            }
-            .padding(.bottom, 18)
-            
-            HStack {
-                Text("\(viewModel.totalElements)개")
-                    .pretendardFont(.BlockText)
-                    .foregroundStyle(.gray01)
-                
-                Spacer()
-                
-                ShoeSortMenuButton(
-                    selectedSortType: Binding(
-                        get: {
-                            viewModel.selectedSortType
-                        },
-                        set: { newValue in
-                            viewModel.updateSortType(newValue)
-                        }
+                        )
                     )
-                )
+                }
+                .padding(.top, 18)
             }
         }
     }
-    
+
     private func handleSearchTap() {
         let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         
