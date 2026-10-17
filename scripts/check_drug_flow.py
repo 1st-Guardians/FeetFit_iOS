@@ -121,6 +121,7 @@ struct APIManager {
         let detailResult = try JSONDecoder().decode(BaseResponse<DrugDetailResultDTO>.self, from: Data(detail.utf8)).result!
         let detailed = detailResult.toDomain(categoryLabel: "무좀약")
         assert(detailed.id == "199400709" && detailed.itemSeq == "199400709")
+        assert(detailed.tags == ["무좀약", "일반의약품"])
         assert(detailed.name == "영진멘탁스크림(부테나핀염산염)" && detailed.brand == "영진약품(주)")
         assert(detailed.imageURL == "https://api.example.test/drug-images/199400709.jpg")
         assert(detailed.officialURL?.query == "itemSeq=199400709")
@@ -137,6 +138,7 @@ struct APIManager {
         let noPermit = try JSONDecoder().decode(DrugDetailResultDTO.self, from: Data(noPermitJSON.utf8))
             .toDomain(categoryLabel: "무좀약")
         assert(noPermit.itemSeq == "199400709" && noPermit.detailItems.isEmpty && noPermit.officialURL == nil)
+        assert(noPermit.tags == ["무좀약"])
         let partialPermitJSON = #"{"drug":{"id":"199400709","name":"의약품","storage":" ","permit":null},"permit":{"cancelled":true,"storage":"실온보관"},"recall":{"status":"unknown","checkedAt":"2026-10-12T06:21:02Z"},"source":"식약처"}"#
         let partial = try JSONDecoder().decode(DrugDetailResultDTO.self, from: Data(partialPermitJSON.utf8))
             .toDomain(categoryLabel: "무좀약")

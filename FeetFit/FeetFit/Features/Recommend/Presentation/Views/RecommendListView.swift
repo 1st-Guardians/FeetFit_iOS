@@ -220,6 +220,7 @@ struct RecommendListView: View {
                     )) {
                         ForEach(DrugCategory.allCases) { category in
                             Text(category.label).tag(category)
+                                .pretendardFont(.Description)
                         }
                     }
                     .pickerStyle(.menu)

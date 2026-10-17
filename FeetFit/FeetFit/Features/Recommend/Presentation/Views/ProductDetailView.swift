@@ -109,21 +109,18 @@ struct ProductDetailView: View {
     private var titleSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             if !product.tags.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(product.tags.indices, id: \.self) { index in
-                            Text(product.tags[index])
-                                .pretendardFont(.BlockText)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 5)
-                                .glassEffect(
-                                    .regular.tint(Color(red: 219 / 255, green: 241 / 255, blue: 1)),
-                                    in: .capsule
-                                )
-                        }
+                HStack(spacing: 8) {
+                    ForEach(product.tags.indices, id: \.self) { index in
+                        Text(product.tags[index])
+                            .pretendardFont(.BlockText)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
+                            .glassEffect(
+                                .regular.tint(Color(red: 219 / 255, green: 241 / 255, blue: 1)),
+                                in: .capsule
+                            )
                     }
                 }
-                .scrollClipDisabled()
             }
 
             VStack(alignment: .leading, spacing: 4) {

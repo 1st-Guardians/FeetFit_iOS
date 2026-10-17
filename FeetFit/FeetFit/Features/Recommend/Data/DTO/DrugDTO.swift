@@ -53,7 +53,7 @@ struct DrugDTO: Decodable {
 
         return ProductInfo(
             id: id,
-            tags: [categoryLabel],
+            tags: [categoryLabel] + [nonempty(permit?.classification)].compactMap { $0 },
             brand: company ?? "",
             name: name,
             imageURL: imageURL,
