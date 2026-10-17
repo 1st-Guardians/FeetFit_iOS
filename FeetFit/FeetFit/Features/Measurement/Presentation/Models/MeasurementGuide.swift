@@ -102,4 +102,13 @@ enum MeasurementGuide: CaseIterable {
         default: return nil
         }
     }
+
+    var spokenDescription: String? {
+        switch self {
+        case .preparation, .photoPreparation, .recapturePreparation, .pressurePreparation, .pressureRetryPreparation:
+            return description
+        default:
+            return nil
+        }
+    }
 }

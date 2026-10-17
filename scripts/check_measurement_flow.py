@@ -111,10 +111,12 @@ final class MeasurementSocketManager {
             try await emit(waiting)
             let waitingGuide = MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture)
             assert(waitingGuide.buttonTitle != nil && waitingGuide.systemImage != nil)
+            assert(waitingGuide.spokenDescription == waitingGuide.description, "Preparation steps read their visible description")
             await action()
             assert(vm.measurementStatus == ready)
             let activeGuide = MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture)
             assert(activeGuide.buttonTitle == nil && activeGuide.systemImage == nil, "Ready responses show an animation without a button")
+            assert(activeGuide.spokenDescription == nil, "Active measurement must not trigger speech")
             assert(api.requests.last == ready)
             let requestCount = api.requests.count
             await action()
@@ -181,6 +183,9 @@ final class MeasurementSocketManager {
         try await _Concurrency.Task.sleep(for: .milliseconds(10))
         assert(vm.measurementStatus == .failed && !vm.isLoading, "Connection loss during measurement shows the retry screen")
         assert(MeasurementGuide.allCases.filter { $0.buttonTitle != nil }.count == 6)
+        assert(MeasurementGuide.allCases.filter { $0.spokenDescription != nil } == [
+            .preparation, .photoPreparation, .recapturePreparation, .pressurePreparation, .pressureRetryPreparation
+        ], "Only the five preparation steps have automatic speech")
         for status in [MeasurementStatus.waitingForPhotoEnvironment, .readyForPhotoEnvironment, .capturingPhotoEnvironment, .waitingForRecapture, .readyForRecapture, .waitingForPressure, .readyForPressure, .measuringPressure, .waitingForPressureRetry, .readyForPressureRetry, .analyzing, .completed, .failed] {
             let decoded = try JSONDecoder().decode(MeasurementStatus.self, from: JSONEncoder().encode(status))
             assert(decoded == status)

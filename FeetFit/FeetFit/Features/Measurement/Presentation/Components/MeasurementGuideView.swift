@@ -1,7 +1,10 @@
 import SwiftUI
 import Lottie
+import AVFoundation
 
 struct MeasurementGuideView: View {
+    @State private var speechSynthesizer = AVSpeechSynthesizer()
+
     let guide: MeasurementGuide
     var isActionInFlight = false
     let action: () -> Void
@@ -18,15 +21,34 @@ struct MeasurementGuideView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if let buttonTitle = guide.buttonTitle {
-                MainButton(isActionInFlight ? "요청 중..." : buttonTitle, action: action)
-                    .disabled(isActionInFlight)
-                    .padding(.horizontal, 18)
-                    .padding(.bottom, 36)
+                MainButton(isActionInFlight ? "요청 중..." : buttonTitle) {
+                    speechSynthesizer.stopSpeaking(at: .immediate)
+                    action()
+                }
+                .disabled(isActionInFlight)
+                .padding(.horizontal, 18)
+                .padding(.bottom, 36)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.container, edges: .top)
         .background(.white)
+        .onChange(of: guide, initial: true) { _, _ in
+            speakGuide()
+        }
+        .onDisappear {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+    }
+
+    private func speakGuide() {
+        speechSynthesizer.stopSpeaking(at: .immediate)
+        guard let description = guide.spokenDescription else { return }
+
+        speechSynthesizer.usesApplicationAudioSession = false
+        let utterance = AVSpeechUtterance(string: description)
+        utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
+        speechSynthesizer.speak(utterance)
     }
 
     private var guideContent: some View {
