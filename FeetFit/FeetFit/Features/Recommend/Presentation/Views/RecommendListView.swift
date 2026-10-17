@@ -12,6 +12,7 @@ struct RecommendListView: View {
     
     let onShoeTap: (ShoeInfo) -> Void
     var products: [ProductInfo] = ProductInfo.samples
+    var onProductTap: (ProductInfo) -> Void = { _ in }
     
     @State private var selectedRecommendation = "제품 추천"
     @State private var selectedProductSortType: ShoeSortType = .fit
@@ -118,7 +119,7 @@ struct RecommendListView: View {
                 }
             } else {
                 ScrollView {
-                    ProductListView(products: products)
+                    ProductListView(products: products, onProductTap: onProductTap)
                         .padding(.bottom, 70)
                 }
             }

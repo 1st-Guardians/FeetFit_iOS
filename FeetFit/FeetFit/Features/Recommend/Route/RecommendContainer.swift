@@ -19,12 +19,17 @@ struct RecommendContainer: View {
                 onShoeTap: { shoe in
                     viewModel.registerShoeClick(shoeId: shoe.id)
                     path.append(.shoeDetail(shoeId: shoe.id))
+                },
+                onProductTap: { product in
+                    path.append(.productDetail(product: product))
                 }
             )
             .navigationDestination(for: RecommendRoute.self) { route in
                 switch route {
                 case .shoeDetail(let shoeId):
                     ShoeDetailView(shoeId: shoeId)
+                case .productDetail(let product):
+                    ProductDetailView(product: product)
                 }
             }
         }
