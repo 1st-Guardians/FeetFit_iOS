@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProductDetailView: View {
     let product: ProductInfo
+    @State private var presentedSheet: ProductDetailSheet?
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -27,6 +28,18 @@ struct ProductDetailView: View {
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn()
+        }
+        .sheet(item: $presentedSheet) { sheet in
+            Group {
+                switch sheet {
+                case .precautions:
+                    ProductPrecautionsView(product: product)
+                case .information:
+                    ProductInformationView(product: product)
+                }
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
     }
 
@@ -127,41 +140,27 @@ struct ProductDetailView: View {
     private var detailList: some View {
         List {
             Section {
-                NavigationLink {
-                    ProductDetailTextView(
-                        title: "주의사항",
-                        text: product.precautions ?? "주의사항이 아직 등록되지 않았어요."
-                    )
-                } label: {
-                    Label {
-                        Text("주의사항")
-                    } icon: {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .foregroundStyle(.red01)
-                    }
-                    .pretendardFont(.BlockTitle)
+                ProductDetailActionRow(
+                    title: "주의사항",
+                    systemImage: "exclamationmark.circle.fill",
+                    iconColor: .red01
+                ) {
+                    presentedSheet = .precautions
                 }
 
-                NavigationLink {
-                    ProductDetailTextView(
-                        title: "상세 정보",
-                        text: product.details ?? "상세 정보가 아직 등록되지 않았어요."
-                    )
-                } label: {
-                    Label {
-                        Text("상세 정보")
-                    } icon: {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundStyle(.blue01)
-                    }
-                    .pretendardFont(.BlockTitle)
+                ProductDetailActionRow(
+                    title: "상세 정보",
+                    systemImage: "info.circle.fill",
+                    iconColor: .blue01
+                ) {
+                    presentedSheet = .information
                 }
+                .listRowSeparator(.hidden, edges: .bottom)
             }
-            .listSectionSeparator(.hidden, edges: .top)
+            .listSectionSeparator(.hidden)
         }
         .listStyle(.insetGrouped)
         .environment(\.defaultMinListRowHeight, 60)
-        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
         .contentMargins(.all, 0, for: .scrollContent)
         .scrollContentBackground(.hidden)
         .scrollDisabled(true)
@@ -170,25 +169,42 @@ struct ProductDetailView: View {
     }
 }
 
-private struct ProductDetailTextView: View {
+private enum ProductDetailSheet: String, Identifiable {
+    case precautions
+    case information
+
+    var id: Self { self }
+}
+
+private struct ProductDetailActionRow: View {
     let title: String
-    let text: String
+    let systemImage: String
+    let iconColor: Color
+    let action: () -> Void
 
     var body: some View {
-        ScrollView {
-            Text(text)
-                .pretendardFont(.BlockText)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(20)
+        Button(action: action) {
+            HStack {
+                Label {
+                    Text(title)
+                } icon: {
+                    Image(systemName: systemImage)
+                        .foregroundStyle(iconColor)
+                }
+                .pretendardFont(.BlockTitle)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            .frame(minHeight: 60)
+            .contentShape(Rectangle())
         }
-        .foregroundStyle(.black01)
-        .background(.white)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden()
-        .toolbar {
-            ToolBarCollection.BackBtn()
-        }
+        .buttonStyle(.plain)
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
 }
 

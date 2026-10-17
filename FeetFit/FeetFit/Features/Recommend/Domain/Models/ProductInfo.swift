@@ -11,7 +11,14 @@ struct ProductInfo: Identifiable, Hashable {
     var usage: String?
     var storage: String?
     var precautions: String?
-    var details: String?
+    var sideEffects: String?
+    var detailItems: [DetailItem] = []
+    var informationSource: String?
+
+    struct DetailItem: Hashable {
+        let title: String
+        let value: String
+    }
 
     var tag: String {
         tags.first ?? ""
