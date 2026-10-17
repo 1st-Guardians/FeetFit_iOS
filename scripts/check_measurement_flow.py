@@ -1,0 +1,172 @@
+#!/usr/bin/env python3
+"""Run the production measurement state/DTO/router/view-model code with local I/O stubs."""
+from pathlib import Path
+import os
+import subprocess
+import tempfile
+
+root = Path(__file__).resolve().parents[1] / "FeetFit/FeetFit"
+files = [
+    "Core/Enum/MeasurementStatus.swift",
+    "Core/Enum/MeasurementFailureReason.swift",
+    "Features/Measurement/Data/DTO/MeasurementSessionDTO.swift",
+    "Features/Measurement/Data/DTO/MeasurementSocketMessageDTO.swift",
+    "Features/Measurement/Data/API/MeasurementRouter.swift",
+    "Features/Measurement/Presentation/ViewModels/FootMeasurementViewModel.swift",
+]
+production = "\n".join(
+    (root / name).read_text().replace("import Moya", "").replace("import Alamofire", "")
+    for name in files
+)
+harness = r'''
+import Foundation
+import Observation
+
+// Only network/platform dependencies are replaced; measurement logic is production code.
+enum Moya { enum Method { case get, post, patch } }
+enum URLEncoding { case queryString }
+enum Task { case requestPlain, requestParameters(parameters: [String: Any], encoding: URLEncoding) }
+protocol APITargetType {}
+enum MyPageRouter { case getProfile }
+struct MyPageProfileResult: Decodable { let userId: Int }
+struct BaseResponse<T: Decodable>: Decodable { let result: T? }
+struct Response { let data: Data }
+struct ProfileProvider {
+    func request(_ route: MyPageRouter, completion: (Result<Response, Error>) -> Void) {
+        completion(.success(Response(data: Data(#"{"result":{"userId":7}}"#.utf8))))
+    }
+}
+struct APIManager {
+    static let shared = APIManager()
+    func createProvider(for type: MyPageRouter.Type, withAuth: Bool) -> ProfileProvider { ProfileProvider() }
+}
+final class MeasurementSocketManager {
+    static let shared = MeasurementSocketManager()
+    var onConnected: (() -> Void)?
+    var onMeasurementMessage: ((String) -> Void)?
+    var onError: ((Error) -> Void)?
+    var topics: [String] = []
+    var disconnectCount = 0
+    func connect() { onConnected?() }
+    func subscribe(to topic: String) { topics.append(topic) }
+    func disconnect() { disconnectCount += 1 }
+}
+@MainActor final class MeasurementAPI {
+    static let shared = MeasurementAPI()
+    var requests: [MeasurementStatus] = []
+    var beforePostResponse: (() async -> Void)?
+    var beforePatchResponse: (() async -> Void)?
+    var failNextPatch = false
+    func postMeasurementSessions() async throws -> MeasurementSessionResultDTO {
+        await beforePostResponse?()
+        return try JSONDecoder().decode(MeasurementSessionResultDTO.self, from: Data(
+            #"{"id":142,"deviceId":1,"status":"WAITING_FOR_PHOTO_ENVIRONMENT","measuredAt":"2026-10-14","createdAt":"2026-10-14","webSocketTopic":"/topic/measurements/142"}"#.utf8
+        ))
+    }
+    func patchMeasurementSessionStatus(sessionId: Int, status: MeasurementStatus) async throws -> MeasurementSessionStatusResultDTO {
+        assert(sessionId == 142)
+        requests.append(status)
+        await beforePatchResponse?()
+        if failNextPatch {
+            failNextPatch = false
+            throw NSError(domain: "test", code: 1)
+        }
+        return try JSONDecoder().decode(MeasurementSessionStatusResultDTO.self, from: Data(
+            "{\"id\":142,\"status\":\"\(status.rawValue)\",\"pressureMeasurementAttempt\":1,\"remainingPressureRetries\":2}".utf8
+        ))
+    }
+}
+
+@main struct Check {
+    @MainActor static func emit(_ status: MeasurementStatus, sessionID: Int = 142, disconnect: Bool = false, extra: String = "") async throws {
+        let body = "{\"eventType\":\"MEASUREMENT_STATUS_CHANGED\",\"measurementSessionId\":\(sessionID),\"status\":\"\(status.rawValue)\",\"shouldDisconnect\":\(disconnect)\(extra)}"
+        MeasurementSocketManager.shared.onMeasurementMessage?(body)
+        try await _Concurrency.Task.sleep(for: .milliseconds(10))
+    }
+    @MainActor static func main() async throws {
+        let api = MeasurementAPI.shared
+        let socket = MeasurementSocketManager.shared
+        let vm = FootMeasurementViewModel()
+        // A user-topic event arriving before POST returns must survive session creation.
+        api.beforePostResponse = { try! await emit(.capturingPhotoEnvironment) }
+        await vm.startMeasurementSessionIfNeeded()
+        assert(vm.measurementStatus == .capturingPhotoEnvironment)
+        assert(socket.topics == ["/topic/users/7/measurements", "/topic/measurements/142"])
+        api.beforePostResponse = nil
+
+        let readyPairs: [(MeasurementStatus, MeasurementStatus, () async -> Void)] = [
+            (.waitingForPhotoEnvironment, .readyForPhotoEnvironment, { await vm.confirmPhotoEnvironmentReady() }),
+            (.waitingForRecapture, .readyForRecapture, { await vm.confirmRecaptureReady() }),
+            (.waitingForPressure, .readyForPressure, { await vm.confirmPressureReady() }),
+            (.waitingForPressureRetry, .readyForPressureRetry, { await vm.confirmPressureRetryReady() })
+        ]
+        for (waiting, ready, action) in readyPairs {
+            try await emit(waiting)
+            await action()
+            assert(vm.measurementStatus == ready)
+            assert(api.requests.last == ready)
+            let requestCount = api.requests.count
+            await action()
+            assert(api.requests.count == requestCount, "Repeated ready taps must not send another request")
+            let router = MeasurementRouter.patchSessionStatus(sessionId: 142, status: ready)
+            assert(router.path == "/api/measurement-sessions/142/status")
+            assert(router.method == .patch)
+            guard case let .requestParameters(parameters, encoding) = router.task else { fatalError() }
+            assert(encoding == .queryString)
+            assert(parameters.count == 1 && parameters["status"] as? String == ready.rawValue)
+            assert(ready.rawValue == ready.rawValue.uppercased())
+        }
+        // Socket progress beats a delayed PATCH response.
+        try await emit(.waitingForPressureRetry)
+        api.beforePatchResponse = { try! await emit(.measuringPressure) }
+        await vm.confirmPressureRetryReady()
+        assert(vm.measurementStatus == .measuringPressure)
+        api.beforePatchResponse = nil
+        // A failed ready request stays retryable.
+        try await emit(.waitingForPressureRetry)
+        api.failNextPatch = true
+        await vm.confirmPressureRetryReady()
+        assert(vm.measurementStatus == .waitingForPressureRetry && !vm.isStatusUpdateInFlight)
+        await vm.confirmPressureRetryReady()
+        assert(vm.measurementStatus == .readyForPressureRetry)
+
+        try await emit(.waitingForPressureRetry, extra: ",\"detail\":\"발 위치를 조정해 주세요\",\"pressureMeasurementAttempt\":2,\"remainingPressureRetries\":1")
+        assert(vm.pressureMeasurementAttempt == 2 && vm.remainingPressureRetries == 1)
+        assert(vm.measurementStatusText == "발 위치를 조정해 주세요")
+        try await emit(.waitingForRecapture, extra: ",\"statusMessage\":\"사진을 다시 촬영해 주세요\",\"photoCaptureAttempt\":1,\"remainingPhotoRecaptures\":2")
+        assert(vm.photoCaptureAttempt == 1 && vm.remainingPhotoRecaptures == 2)
+        assert(vm.measurementStatusText == "사진을 다시 촬영해 주세요")
+        try await emit(.analyzing, sessionID: 141)
+        assert(vm.measurementStatus == .waitingForRecapture, "Ignore old-session events")
+        try await emit(.analyzing)
+        var finishes = 0
+        vm.onMoveToFinish = { finishes += 1 }
+        try await emit(.completed, disconnect: true)
+        try await emit(.completed, disconnect: true)
+        assert(finishes == 1 && socket.disconnectCount == 1)
+        vm.resetMeasurementState()
+        await vm.startMeasurementSessionIfNeeded()
+        try await emit(.failed, disconnect: true, extra: ",\"failureMessage\":\"측정 실패\"")
+        assert(vm.errorMessage == "측정 실패" && socket.disconnectCount == 2)
+        vm.resetMeasurementState()
+        assert(vm.measurementStatus == nil && vm.pressureMeasurementAttempt == nil && vm.remainingPressureRetries == nil)
+        for status in [MeasurementStatus.waitingForPhotoEnvironment, .readyForPhotoEnvironment, .capturingPhotoEnvironment, .waitingForRecapture, .readyForRecapture, .waitingForPressure, .readyForPressure, .measuringPressure, .waitingForPressureRetry, .readyForPressureRetry, .analyzing, .completed, .failed] {
+            let decoded = try JSONDecoder().decode(MeasurementStatus.self, from: JSONEncoder().encode(status))
+            assert(decoded == status)
+        }
+        print("PASS: integrated flow, four status-only PATCH actions, retries, late responses, topic subscriptions, and terminal disconnects")
+    }
+}
+'''
+with tempfile.TemporaryDirectory(prefix="feetfit-measurement-check-") as directory:
+    work = Path(directory)
+    source = work / "check.swift"
+    source.write_text(production + "\n" + harness)
+    env = os.environ | {"DEVELOPER_DIR": "/Applications/Xcode.app/Contents/Developer"}
+    subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-module-cache-path", str(work / "cache"), str(source), "-o", str(work / "check")], env=env, check=True)
+    result = subprocess.run([str(work / "check")], capture_output=True, text=True)
+    if result.returncode:
+        print(result.stdout)
+        print(result.stderr)
+        raise SystemExit(result.returncode)
+    print(result.stdout.splitlines()[-1])

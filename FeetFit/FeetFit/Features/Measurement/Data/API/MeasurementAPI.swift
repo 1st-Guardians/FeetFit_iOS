@@ -112,15 +112,13 @@ final class MeasurementAPI {
     // 측정 상태 변경 (사용자 준비 완료 액션)
     func patchMeasurementSessionStatus(
         sessionId: Int,
-        status: MeasurementStatus,
-        photoCaptureAttempt: Int? = nil
+        status: MeasurementStatus
     ) async throws -> MeasurementSessionStatusResultDTO {
         try await withCheckedThrowingContinuation { continuation in
             provider.request(
                 .patchSessionStatus(
                     sessionId: sessionId,
-                    status: status,
-                    photoCaptureAttempt: photoCaptureAttempt
+                    status: status
                 )
             ) { result in
                 switch result {
