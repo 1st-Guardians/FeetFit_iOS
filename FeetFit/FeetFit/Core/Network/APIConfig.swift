@@ -27,6 +27,7 @@ enum APIConfig {
         static let user = "/api/users"
         static let report = "/api/reports"
         static let shoes = "/api/shoes"
+        static let drugs = "/api/drugs"
         static let device = "/api/devices"
         static let measurement = "/api/measurement-sessions"
     }

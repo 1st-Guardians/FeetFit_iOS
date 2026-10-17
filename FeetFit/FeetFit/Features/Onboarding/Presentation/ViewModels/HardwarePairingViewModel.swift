@@ -74,9 +74,21 @@ final class HardwarePairingViewModel: ObservableObject {
                 
             case .failure(let error):
                 print("Device Connect API 오류:", error)
+
+                var serverMessage: String?
+                if let response = error.response {
+                    print("Device Connect 요청 URL:", response.request?.url?.absoluteString ?? "확인 불가")
+                    print("Device Connect statusCode:", response.statusCode)
+                    print("Device Connect 에러 응답:", String(data: response.data, encoding: .utf8) ?? "응답 없음")
+                    serverMessage = try? JSONDecoder().decode(
+                        APIErrorResponse.self,
+                        from: response.data
+                    ).message
+                }
+                let message = serverMessage ?? "하드웨어를 연결하지 못했습니다."
                 
                 DispatchQueue.main.async {
-                    ToastManager.shared.show("하드웨어를 연결하지 못했습니다.")
+                    ToastManager.shared.show(message)
                 }
             }
         }

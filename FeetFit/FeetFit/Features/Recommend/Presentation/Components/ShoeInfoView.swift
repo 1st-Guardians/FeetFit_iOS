@@ -51,7 +51,7 @@ struct ShoeInfoView: View {
                         .resizable()
                         .scaledToFill()
                         .frame(width: 78, height: 78)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
                 } placeholder: {
                     ProgressView()
                         .frame(width: 78, height: 78)

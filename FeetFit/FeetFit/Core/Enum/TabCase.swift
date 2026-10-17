@@ -19,7 +19,7 @@ enum TabCase: CaseIterable, Identifiable {
         switch self {
         case .home: return "홈"
         case .report: return "리포트"
-        case .recommend: return "신발추천"
+        case .recommend: return "추천"
         case .mypage: return "마이페이지"
         }
     }
@@ -31,7 +31,7 @@ enum TabCase: CaseIterable, Identifiable {
         case .report:
             Image(systemName: "list.clipboard.fill")
         case .recommend:
-            Image(systemName: "shoe.fill")
+            Image(systemName: "star.fill")
         case .mypage:
             Image(systemName: "person.fill")
         }

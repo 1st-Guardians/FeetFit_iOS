@@ -18,7 +18,7 @@ struct FootMeasurementProgressView: View {
                     LoadingMessageView(
                         message: displayMessage,
                         bottomPadding: 10,
-                        messageLineLimit: isFailed || isWaitingForRecapture ? nil : 2
+                        messageLineLimit: nil
                     )
 
                     if let errorDetailText {
@@ -72,7 +72,7 @@ struct FootMeasurementProgressView: View {
             return errorMessage
         }
 
-        if viewModel.measurementStatus == .waitingForRecapture {
+        if viewModel.measurementStatus == .waitingForRecapture || viewModel.measurementStatus == .waitingForPressureRetry {
             return viewModel.measurementStatusText
         }
 
@@ -84,33 +84,15 @@ struct FootMeasurementProgressView: View {
         return viewModel.errorDetail
     }
 
-    private var isFailed: Bool {
-        viewModel.measurementStatus == .failed
-    }
-
-    private var isWaitingForRecapture: Bool {
-        viewModel.measurementStatus == .waitingForRecapture
-    }
-
     @ViewBuilder
     private var actionButton: some View {
         switch viewModel.measurementStatus {
-        case .waitingForPhoto:
+        case .waitingForPhotoEnvironment:
             MainButton(
                 viewModel.isStatusUpdateInFlight ? "요청 중..." : "측정 준비 완료",
                 action: {
                     HapticFeedback.impact()
-                    Task { await viewModel.confirmPhotoReady() }
-                }
-            )
-            .disabled(viewModel.isStatusUpdateInFlight)
-
-        case .waitingForEnvironment:
-            MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "측정 준비 완료",
-                action: {
-                    HapticFeedback.impact()
-                    Task { await viewModel.confirmEnvironmentReady() }
+                    Task { await viewModel.confirmPhotoEnvironmentReady() }
                 }
             )
             .disabled(viewModel.isStatusUpdateInFlight)
@@ -137,6 +119,20 @@ struct FootMeasurementProgressView: View {
 
         case .readyForRecapture:
             MainButton("재촬영 준비 중...", action: {})
+                .disabled(true)
+
+        case .waitingForPressureRetry:
+            MainButton(
+                viewModel.isStatusUpdateInFlight ? "요청 중..." : "압력 재측정 준비 완료",
+                action: {
+                    HapticFeedback.impact()
+                    Task { await viewModel.confirmPressureRetryReady() }
+                }
+            )
+            .disabled(viewModel.isStatusUpdateInFlight)
+
+        case .readyForPressureRetry:
+            MainButton("압력 재측정 준비 중...", action: {})
                 .disabled(true)
 
         case .failed:

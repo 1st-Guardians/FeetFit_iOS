@@ -11,34 +11,15 @@ struct ShoeSortMenuButton: View {
     @Binding var selectedSortType: ShoeSortType
     
     var body: some View {
-        Menu {
+        Picker("신발 정렬", selection: $selectedSortType) {
             ForEach(ShoeSortType.allCases, id: \.self) { type in
-                Button {
-                    selectedSortType = type
-                } label: {
-                    HStack {
-                        Text(type.rawValue)
-                        
-                        if selectedSortType == type {
-                            Image(systemName: "checkmark")
-                        }
-                    }
-                }
-            }
-        } label: {
-            HStack(spacing: 4) {
-                Text(selectedSortType.rawValue)
+                Text(type.rawValue)
+                    .tag(type)
                     .pretendardFont(.Description)
-
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 11))
             }
-            .foregroundStyle(.black)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 13)
         }
-        .glassEffect(in: .capsule)
-        .buttonStyle(.plain)
+        .pickerStyle(.menu)
+        .tint(.black01)
     }
 }
 

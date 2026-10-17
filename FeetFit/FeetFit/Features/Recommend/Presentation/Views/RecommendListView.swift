@@ -9,9 +9,13 @@ import SwiftUI
 
 struct RecommendListView: View {
     @ObservedObject var viewModel: RecommendListViewModel
+    @StateObject private var drugViewModel = DrugListViewModel()
     
     let onShoeTap: (ShoeInfo) -> Void
+    var onProductTap: (ProductInfo) -> Void = { _ in }
     
+    @State private var selectedRecommendation = "제품 추천"
+    @State private var productSearchText = ""
     @State private var searchText: String = ""
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
@@ -36,21 +40,39 @@ struct RecommendListView: View {
         ZStack(alignment: .bottom) {
             contentView
             
-            SearchBarView(
-                text: $searchText,
-                placeholder: "신발을 검색해 보세요",
-                onTap: handleSearchTap,
-                onClear: handleSearchClear,
-                onSubmit: handleSearchSubmit
-            )
-            .padding(.horizontal, 24)
-            .padding(.bottom, 16)
+            if selectedRecommendation == "신발 추천" {
+                SearchBarView(
+                    text: $searchText,
+                    placeholder: "신발을 검색해 보세요",
+                    onTap: handleSearchTap,
+                    onClear: handleSearchClear,
+                    onSubmit: handleSearchSubmit
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
+            } else {
+                SearchBarView(
+                    text: $productSearchText,
+                    placeholder: "제품을 검색해 보세요",
+                    onTap: {},
+                    onClear: { drugViewModel.search(query: "") },
+                    onSubmit: { drugViewModel.search(query: productSearchText) }
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
+            }
         }
         .onAppear {
             viewModel.fetchInitialData()
+            drugViewModel.fetchInitialData()
         }
         .onChange(of: searchText) { _, newValue in
             handleSearchTextChange(newValue)
+        }
+        .onChange(of: productSearchText) { _, newValue in
+            if newValue.isEmpty {
+                drugViewModel.search(query: "")
+            }
         }
     }
     
@@ -89,13 +111,12 @@ struct RecommendListView: View {
     }
     
     private var mainContent: some View {
-        ZStack(alignment: .topLeading) {
-            background
-            
-            VStack(alignment: .leading, spacing: 0) {
-                topGroup
-                    .padding([.bottom, .horizontal], 16)
+        VStack(alignment: .leading, spacing: 0) {
+            topGroup
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
 
+            if selectedRecommendation == "신발 추천" {
                 if viewModel.shoes.isEmpty && viewModel.isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity)
@@ -112,78 +133,104 @@ struct RecommendListView: View {
                         .padding(.bottom, 70)
                     }
                 }
+            } else {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ProductListView(
+                            products: drugViewModel.products,
+                            onProductTap: onProductTap,
+                            onProductAppear: { drugViewModel.loadNextPageIfNeeded(currentProduct: $0) }
+                        )
+
+                        if drugViewModel.isLoading {
+                            ProgressView()
+                                .padding()
+                        } else if let message = drugViewModel.errorMessage {
+                            VStack(spacing: 12) {
+                                Text(message)
+                                    .pretendardFont(.BlockText)
+                                Button("다시 시도") { drugViewModel.retry() }
+                                    .tint(.blue01)
+                            }
+                            .padding()
+                        } else if drugViewModel.products.isEmpty {
+                            Text("검색 결과가 없습니다.")
+                                .pretendardFont(.BlockText)
+                                .foregroundStyle(.gray01)
+                                .padding()
+                        }
+                    }
+                    .padding(.bottom, 70)
+                }
             }
         }
     }
-    
-    private var background: some View {
-        VStack {
-            Rectangle()
-                .foregroundColor(.clear)
-                .blueLinear()
-                .padding(.bottom, 502)
-            
-            Spacer()
-        }
-    }
-    
+
     private var topGroup: some View {
-        VStack(alignment: .leading) {
-            Text("신발 추천")
+        VStack(alignment: .leading, spacing: 0) {
+            Text("추천")
                 .pretendardFont(.Title)
                 .padding(.top, 26)
                 .padding(.leading, 12)
-            
-            VStack(alignment: .leading, spacing: 0) {
+
+            Picker("추천 유형", selection: $selectedRecommendation) {
+                Text("제품 추천").tag("제품 추천")
+                Text("신발 추천").tag("신발 추천")
+            }
+            .pickerStyle(.segmented)
+            .padding(.top, 12)
+
+            VStack(alignment: .leading, spacing: 10) {
                 Text("\(viewModel.nickname.isEmpty ? "내" : "\(viewModel.nickname)님의") 발 타입")
                     .pretendardFont(.BlockTitle)
-                    .padding(.bottom, 10)
-                
+
                 Text(viewModel.footTypeText ?? "발 측정 결과를 기반으로 적합도, 별점, 관심도 순으로 신발을 확인할 수 있어요.")
                     .pretendardFont(.BlockText)
             }
             .padding(20)
-            .background {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.white.opacity(0.35))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                Color(red: 240 / 255, green: 249 / 255, blue: 1),
+                in: RoundedRectangle(cornerRadius: 24)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 24)
+                    .strokeBorder(Color(red: 203 / 255, green: 235 / 255, blue: 1), lineWidth: 1)
             }
-            .background {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.blue02)
-                    .shadow(color: .blue02, radius: 2, x: 0, y: 0)
-                    .mask {
-                        Rectangle()
-                            .padding(-8)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .blendMode(.destinationOut)
-                            }
-                            .compositingGroup()
-                    }
-            }
-            .padding(.bottom, 18)
-            
+            .padding(.top, 20)
+
             HStack {
-                Text("\(viewModel.totalElements)개")
+                Text("\(selectedRecommendation == "신발 추천" ? viewModel.totalElements : drugViewModel.totalElements)개")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
-                
+
                 Spacer()
-                
-                ShoeSortMenuButton(
-                    selectedSortType: Binding(
-                        get: {
-                            viewModel.selectedSortType
-                        },
-                        set: { newValue in
-                            viewModel.updateSortType(newValue)
-                        }
+
+                if selectedRecommendation == "신발 추천" {
+                    ShoeSortMenuButton(
+                        selectedSortType: Binding(
+                            get: { viewModel.selectedSortType },
+                            set: { viewModel.updateSortType($0) }
+                        )
                     )
-                )
+                } else {
+                    Picker("제품 카테고리", selection: Binding(
+                        get: { drugViewModel.selectedCategory },
+                        set: { drugViewModel.updateCategory($0) }
+                    )) {
+                        ForEach(DrugCategory.allCases) { category in
+                            Text(category.label).tag(category)
+                                .pretendardFont(.Description)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.black01)
+                }
             }
+            .padding(.top, 18)
         }
     }
-    
+
     private func handleSearchTap() {
         let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         

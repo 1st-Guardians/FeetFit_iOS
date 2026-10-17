@@ -94,15 +94,7 @@ struct ShoeDetailView: View {
     @ViewBuilder
     private func purchaseLinkButton(shoe: ShoeDetailInfo) -> some View {
         if let url = URL(string: shoe.shoeURL), !shoe.shoeURL.isEmpty {
-            Link(destination: url) {
-                Text("구매처로 이동하기")
-                    .pretendardFont(.Description)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 15)
-                    .padding(.vertical, 10)
-            }
-            .buttonStyle(.glass)
-            .frame(maxWidth: .infinity)
+            DetailLinkButton(title: "구매처로 이동하기", url: url)
         }
     }
 

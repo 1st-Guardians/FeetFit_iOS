@@ -25,6 +25,9 @@ final class FootMeasurementViewModel {
     var measurementSessionId: Int?
     var measurementStatus: MeasurementStatus?
     var photoCaptureAttempt: Int?
+    var remainingPhotoRecaptures: Int?
+    var pressureMeasurementAttempt: Int?
+    var remainingPressureRetries: Int?
     var isStatusUpdateInFlight = false
 
     var measurementStatusText = "발 측정\n준비 중..."
@@ -82,6 +85,9 @@ final class FootMeasurementViewModel {
         measurementSessionId = nil
         measurementStatus = nil
         photoCaptureAttempt = nil
+        remainingPhotoRecaptures = nil
+        pressureMeasurementAttempt = nil
+        remainingPressureRetries = nil
         isStatusUpdateInFlight = false
         isMeasurementCompleted = false
         isUserTopicSubscribed = false
@@ -104,7 +110,7 @@ final class FootMeasurementViewModel {
     // MARK: - 사용자 topic 구독 (세션 생성 전)
 
     /// 측정 세션 생성(POST) 전에 사용자 topic을 먼저 구독해 둔다.
-    /// 세션 생성 후에 구독하면 백엔드가 그 직후 바로 보내는 WAITING_FOR_PHOTO를 놓칠 수 있다.
+    /// 세션 생성 후에 구독하면 직후 전송되는 WAITING_FOR_PHOTO_ENVIRONMENT를 놓칠 수 있다.
     private func subscribeUserTopicIfNeeded() async {
         guard !isUserTopicSubscribed else { return }
 
@@ -134,7 +140,7 @@ final class FootMeasurementViewModel {
     @MainActor
     private func startMeasurementSession() async {
         do {
-            measurementStatusText = MeasurementStatus.waitingForPhoto.guideMessage
+            measurementStatusText = MeasurementStatus.waitingForPhotoEnvironment.guideMessage
 
             // 사용자 topic 구독이 아직 안 끝났다면(예: onConnected 처리와 경합) 여기서 한 번 더 보장한다.
             await subscribeUserTopicIfNeeded()
@@ -145,6 +151,13 @@ final class FootMeasurementViewModel {
             self.measurementSessionId = result.id
             // POST 응답의 status를 최초 UI 상태로 즉시 반영한다.
             self.measurementStatus = result.status
+            self.measurementStatusText = result.status.guideMessage
+            self.photoCaptureAttempt = result.photoCaptureAttempt
+            self.remainingPhotoRecaptures = result.remainingPhotoRecaptures
+            self.pressureMeasurementAttempt = result.pressureMeasurementAttempt
+            self.remainingPressureRetries = result.remainingPressureRetries
+
+            socketManager.subscribe(to: "/topic/measurements/\(result.id)")
 
             print("측정 세션 생성 성공")
             print("session id:", result.id)
@@ -184,28 +197,28 @@ final class FootMeasurementViewModel {
     // MARK: - 사용자 준비 완료 액션
 
     @MainActor
-    func confirmPhotoReady() async {
-        await patchStatus(.readyForPhoto)
-    }
-
-    @MainActor
-    func confirmEnvironmentReady() async {
-        await patchStatus(.readyForEnvironment)
+    func confirmPhotoEnvironmentReady() async {
+        await patchStatus(.readyForPhotoEnvironment, from: .waitingForPhotoEnvironment)
     }
 
     @MainActor
     func confirmPressureReady() async {
-        await patchStatus(.readyForPressure)
+        await patchStatus(.readyForPressure, from: .waitingForPressure)
     }
 
     @MainActor
     func confirmRecaptureReady() async {
-        await patchStatus(.readyForRecapture, photoCaptureAttempt: photoCaptureAttempt)
+        await patchStatus(.readyForRecapture, from: .waitingForRecapture)
     }
 
     @MainActor
-    private func patchStatus(_ status: MeasurementStatus, photoCaptureAttempt: Int? = nil) async {
-        guard !isStatusUpdateInFlight else { return }
+    func confirmPressureRetryReady() async {
+        await patchStatus(.readyForPressureRetry, from: .waitingForPressureRetry)
+    }
+
+    @MainActor
+    private func patchStatus(_ status: MeasurementStatus, from expectedStatus: MeasurementStatus) async {
+        guard measurementStatus == expectedStatus, !isStatusUpdateInFlight else { return }
 
         guard let measurementSessionId else {
             print("measurementSessionId가 없어 상태 변경 요청을 보낼 수 없음")
@@ -219,11 +232,19 @@ final class FootMeasurementViewModel {
         do {
             let result = try await MeasurementAPI.shared.patchMeasurementSessionStatus(
                 sessionId: measurementSessionId,
-                status: status,
-                photoCaptureAttempt: photoCaptureAttempt
+                status: status
             )
 
             print("측정 상태 PATCH 성공:", result.status.rawValue)
+            // PATCH 응답이 늦게 도착해도 이미 수신한 소켓 상태를 덮어쓰지 않는다.
+            if measurementStatus == expectedStatus {
+                measurementStatus = result.status
+                measurementStatusText = result.status.guideMessage
+                photoCaptureAttempt = result.photoCaptureAttempt ?? photoCaptureAttempt
+                remainingPhotoRecaptures = result.remainingPhotoRecaptures ?? remainingPhotoRecaptures
+                pressureMeasurementAttempt = result.pressureMeasurementAttempt ?? pressureMeasurementAttempt
+                remainingPressureRetries = result.remainingPressureRetries ?? remainingPressureRetries
+            }
             
         } catch {
             errorMessage = error.localizedDescription
@@ -289,6 +310,8 @@ final class FootMeasurementViewModel {
             print("detail:", message.detail ?? "nil")
             print("photoCaptureAttempt:", message.photoCaptureAttempt?.description ?? "nil")
             print("remainingPhotoRecaptures:", message.remainingPhotoRecaptures?.description ?? "nil")
+            print("pressureMeasurementAttempt:", message.pressureMeasurementAttempt?.description ?? "nil")
+            print("remainingPressureRetries:", message.remainingPressureRetries?.description ?? "nil")
             print("shouldDisconnect:", message.shouldDisconnect)
 
             // 소켓 매니저가 싱글턴이라, 재시도 등으로 세션이 바뀐 뒤에도
@@ -298,11 +321,19 @@ final class FootMeasurementViewModel {
                 return
             }
 
+            // 사용자·세션 topic에서 중복 전달된 종료 메시지는 한 번만 처리한다.
+            guard measurementStatus != .completed, measurementStatus != .failed else { return }
+
             // UI는 eventType이 아니라 status를 기준으로 동작한다.
             measurementStatus = message.status
             photoCaptureAttempt = message.photoCaptureAttempt ?? photoCaptureAttempt
-            if message.status == .waitingForRecapture, let detail = message.detail {
-                measurementStatusText = detail
+            remainingPhotoRecaptures = message.remainingPhotoRecaptures ?? remainingPhotoRecaptures
+            pressureMeasurementAttempt = message.pressureMeasurementAttempt ?? pressureMeasurementAttempt
+            remainingPressureRetries = message.remainingPressureRetries ?? remainingPressureRetries
+            if message.status == .waitingForRecapture || message.status == .waitingForPressureRetry {
+                measurementStatusText = message.detail ?? message.statusMessage ?? message.status.guideMessage
+            } else {
+                measurementStatusText = message.status.guideMessage
             }
             print("measurementStatus 갱신됨:", measurementStatus?.rawValue ?? "nil")
 
@@ -335,10 +366,10 @@ final class FootMeasurementViewModel {
                     socketManager.disconnect()
                 }
 
-            case .waitingForPhoto, .readyForPhoto, .capturingPhoto,
+            case .waitingForPhotoEnvironment, .readyForPhotoEnvironment, .capturingPhotoEnvironment,
                  .waitingForRecapture, .readyForRecapture,
-                 .waitingForEnvironment, .readyForEnvironment, .measuringEnvironment,
                  .waitingForPressure, .readyForPressure, .measuringPressure,
+                 .waitingForPressureRetry, .readyForPressureRetry,
                  .analyzing:
                 // 중간 상태는 measurementStatus 갱신 외에 별도 화면 전환이 없다.
                 break

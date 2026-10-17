@@ -9,4 +9,5 @@ import Foundation
 
 enum RecommendRoute: Hashable {
     case shoeDetail(shoeId: Int)
+    case productDetail(product: ProductInfo)
 }
