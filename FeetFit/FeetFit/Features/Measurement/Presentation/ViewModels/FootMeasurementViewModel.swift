@@ -18,13 +18,14 @@ final class FootMeasurementViewModel {
 
     var isLoading = false
     var errorMessage: String?
-    /// 실패 상세 사유. failureMessage(제목)와 별개로 상세 설명 영역에 보여준다.
+    /// 서버가 전달한 실패 상세 사유. 안내 화면은 로컬의 고정 문구를 사용한다.
     var errorDetail: String?
     var session: MeasurementSessionResultDTO?
 
     var measurementSessionId: Int?
     var measurementStatus: MeasurementStatus?
     var photoCaptureAttempt: Int?
+    private(set) var isPhotoRecapture = false
     var remainingPhotoRecaptures: Int?
     var pressureMeasurementAttempt: Int?
     var remainingPressureRetries: Int?
@@ -67,9 +68,11 @@ final class FootMeasurementViewModel {
 
         socketManager.onError = { [weak self] error in
             _Concurrency.Task { @MainActor in
-                self?.isLoading = false
-                self?.errorMessage = error.localizedDescription
-                self?.measurementStatusText = "WebSocket 연결이\n끊겼어요"
+                guard let self, self.measurementStatus != .completed, self.measurementStatus != .failed else { return }
+                self.isLoading = false
+                self.errorMessage = error.localizedDescription
+                self.measurementStatus = .failed
+                self.measurementStatusText = MeasurementStatus.failed.guideMessage
             }
         }
     }
@@ -85,6 +88,7 @@ final class FootMeasurementViewModel {
         measurementSessionId = nil
         measurementStatus = nil
         photoCaptureAttempt = nil
+        isPhotoRecapture = false
         remainingPhotoRecaptures = nil
         pressureMeasurementAttempt = nil
         remainingPressureRetries = nil
@@ -169,6 +173,7 @@ final class FootMeasurementViewModel {
 
         } catch {
             errorMessage = error.localizedDescription
+            measurementStatus = .failed
             measurementStatusText = "측정 시작에\n실패했어요"
             print("측정 세션 생성 실패:", error)
         }
@@ -326,6 +331,9 @@ final class FootMeasurementViewModel {
 
             // UI는 eventType이 아니라 status를 기준으로 동작한다.
             measurementStatus = message.status
+            if message.status == .waitingForRecapture || message.status == .readyForRecapture {
+                isPhotoRecapture = true
+            }
             photoCaptureAttempt = message.photoCaptureAttempt ?? photoCaptureAttempt
             remainingPhotoRecaptures = message.remainingPhotoRecaptures ?? remainingPhotoRecaptures
             pressureMeasurementAttempt = message.pressureMeasurementAttempt ?? pressureMeasurementAttempt
@@ -350,8 +358,7 @@ final class FootMeasurementViewModel {
                 onMoveToFinish?()
 
             case .failed:
-                // 제목: 백엔드가 준 사용자용 문구 > 실패 사유별 로컬 폴백 문구 > statusMessage > 기본 문구
-                // 상세: failureDetail을 상세 원인으로 보여준다 (0825 스펙 추가). 오류코드 표기는 사용자에게 노출하지 않는다.
+                // 서버의 실패 정보는 상태에 보관하고, 안내 화면에는 MeasurementGuide의 고정 문구를 표시한다.
                 let title = message.failureMessage
                     ?? message.failureReason?.fallbackMessage
                     ?? message.statusMessage

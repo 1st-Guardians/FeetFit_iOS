@@ -93,13 +93,17 @@ struct HomeView: View {
                     router.push(.hardwarePairing)
 
                 case .noRecord, .notMeasuredToday:
-                    router.push(.measurement)
+                    withTransaction(\.disablesAnimations, true) {
+                        router.push(.measurement)
+                    }
 
                 case .measuredToday:
                     if let date = weeklyStatusViewModel.todayDate {
                         router.push(.report(date))
                     } else {
-                        router.push(.measurement)
+                        withTransaction(\.disablesAnimations, true) {
+                            router.push(.measurement)
+                        }
                     }
                 }
             }) {

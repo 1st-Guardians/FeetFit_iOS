@@ -21,7 +21,9 @@ struct FootMeasurementFinishView: View {
             MainButton("홈으로 돌아가기", action: {
                 HapticFeedback.impact()
                 viewModel.resetMeasurementState()
-                router.reset()
+                withTransaction(\.disablesAnimations, true) {
+                    router.reset()
+                }
             })
             .padding(.horizontal, 18)
             .padding(.bottom, 40)
@@ -31,7 +33,9 @@ struct FootMeasurementFinishView: View {
         .toolbar {
             ToolBarCollection.BackBtn {
                 viewModel.resetMeasurementState()
-                router.reset()
+                withTransaction(\.disablesAnimations, true) {
+                    router.reset()
+                }
             }
         }
     }

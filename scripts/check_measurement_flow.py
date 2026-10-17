@@ -9,6 +9,7 @@ root = Path(__file__).resolve().parents[1] / "FeetFit/FeetFit"
 files = [
     "Core/Enum/MeasurementStatus.swift",
     "Core/Enum/MeasurementFailureReason.swift",
+    "Features/Measurement/Presentation/Models/MeasurementGuide.swift",
     "Features/Measurement/Data/DTO/MeasurementSessionDTO.swift",
     "Features/Measurement/Data/DTO/MeasurementSocketMessageDTO.swift",
     "Features/Measurement/Data/API/MeasurementRouter.swift",
@@ -57,8 +58,13 @@ final class MeasurementSocketManager {
     var beforePostResponse: (() async -> Void)?
     var beforePatchResponse: (() async -> Void)?
     var failNextPatch = false
+    var failNextPost = false
     func postMeasurementSessions() async throws -> MeasurementSessionResultDTO {
         await beforePostResponse?()
+        if failNextPost {
+            failNextPost = false
+            throw NSError(domain: "test", code: 2)
+        }
         return try JSONDecoder().decode(MeasurementSessionResultDTO.self, from: Data(
             #"{"id":142,"deviceId":1,"status":"WAITING_FOR_PHOTO_ENVIRONMENT","measuredAt":"2026-10-14","createdAt":"2026-10-14","webSocketTopic":"/topic/measurements/142"}"#.utf8
         ))
@@ -93,6 +99,7 @@ final class MeasurementSocketManager {
         assert(vm.measurementStatus == .capturingPhotoEnvironment)
         assert(socket.topics == ["/topic/users/7/measurements", "/topic/measurements/142"])
         api.beforePostResponse = nil
+        assert(MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture) == .photoMeasurement)
 
         let readyPairs: [(MeasurementStatus, MeasurementStatus, () async -> Void)] = [
             (.waitingForPhotoEnvironment, .readyForPhotoEnvironment, { await vm.confirmPhotoEnvironmentReady() }),
@@ -102,8 +109,12 @@ final class MeasurementSocketManager {
         ]
         for (waiting, ready, action) in readyPairs {
             try await emit(waiting)
+            let waitingGuide = MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture)
+            assert(waitingGuide.buttonTitle != nil && waitingGuide.systemImage != nil)
             await action()
             assert(vm.measurementStatus == ready)
+            let activeGuide = MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture)
+            assert(activeGuide.buttonTitle == nil && activeGuide.systemImage == nil, "Ready responses show an animation without a button")
             assert(api.requests.last == ready)
             let requestCount = api.requests.count
             await action()
@@ -136,25 +147,45 @@ final class MeasurementSocketManager {
         try await emit(.waitingForRecapture, extra: ",\"statusMessage\":\"사진을 다시 촬영해 주세요\",\"photoCaptureAttempt\":1,\"remainingPhotoRecaptures\":2")
         assert(vm.photoCaptureAttempt == 1 && vm.remainingPhotoRecaptures == 2)
         assert(vm.measurementStatusText == "사진을 다시 촬영해 주세요")
+        // Recapture can reuse CAPTURING_PHOTO_ENVIRONMENT without an updated attempt counter.
+        try await emit(.readyForRecapture)
+        try await emit(.capturingPhotoEnvironment)
+        assert(vm.isPhotoRecapture && vm.photoCaptureAttempt == 1)
+        assert(MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture) == .recapturing)
         try await emit(.analyzing, sessionID: 141)
-        assert(vm.measurementStatus == .waitingForRecapture, "Ignore old-session events")
+        assert(vm.measurementStatus == .capturingPhotoEnvironment, "Ignore old-session events")
         try await emit(.analyzing)
         var finishes = 0
         vm.onMoveToFinish = { finishes += 1 }
         try await emit(.completed, disconnect: true)
         try await emit(.completed, disconnect: true)
         assert(finishes == 1 && socket.disconnectCount == 1)
+        socket.onError?(NSError(domain: "late-disconnect", code: 1))
+        try await _Concurrency.Task.sleep(for: .milliseconds(10))
+        assert(vm.measurementStatus == .completed, "A disconnect after completion must not show failure")
         vm.resetMeasurementState()
         await vm.startMeasurementSessionIfNeeded()
         try await emit(.failed, disconnect: true, extra: ",\"failureMessage\":\"측정 실패\"")
         assert(vm.errorMessage == "측정 실패" && socket.disconnectCount == 2)
+        let failureGuide = MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture)
+        assert(failureGuide == .failed && failureGuide.title == "측정 실패")
+        assert(failureGuide.description == "측정 중 문제가 발생했습니다.\n처음부터 다시 시도해 주세요.")
         vm.resetMeasurementState()
-        assert(vm.measurementStatus == nil && vm.pressureMeasurementAttempt == nil && vm.remainingPressureRetries == nil)
+        assert(vm.measurementStatus == nil && vm.pressureMeasurementAttempt == nil && vm.remainingPressureRetries == nil && !vm.isPhotoRecapture)
+        api.failNextPost = true
+        await vm.startMeasurementSessionIfNeeded()
+        assert(vm.measurementStatus == .failed && vm.errorMessage != nil, "Session creation errors show the retry screen")
+        vm.resetMeasurementState()
+        await vm.startMeasurementSessionIfNeeded()
+        socket.onError?(NSError(domain: "connection-lost", code: 1))
+        try await _Concurrency.Task.sleep(for: .milliseconds(10))
+        assert(vm.measurementStatus == .failed && !vm.isLoading, "Connection loss during measurement shows the retry screen")
+        assert(MeasurementGuide.allCases.filter { $0.buttonTitle != nil }.count == 6)
         for status in [MeasurementStatus.waitingForPhotoEnvironment, .readyForPhotoEnvironment, .capturingPhotoEnvironment, .waitingForRecapture, .readyForRecapture, .waitingForPressure, .readyForPressure, .measuringPressure, .waitingForPressureRetry, .readyForPressureRetry, .analyzing, .completed, .failed] {
             let decoded = try JSONDecoder().decode(MeasurementStatus.self, from: JSONEncoder().encode(status))
             assert(decoded == status)
         }
-        print("PASS: integrated flow, four status-only PATCH actions, retries, late responses, topic subscriptions, and terminal disconnects")
+        print("PASS: measurement guides, recapture without counters, button transitions, failures/retry, PATCH actions, and socket flow")
     }
 }
 '''

@@ -21,7 +21,9 @@ struct FootMeasurementDataExportingView: View {
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn {
-                router.reset()
+                withTransaction(\.disablesAnimations, true) {
+                    router.reset()
+                }
             }
         }
     }
