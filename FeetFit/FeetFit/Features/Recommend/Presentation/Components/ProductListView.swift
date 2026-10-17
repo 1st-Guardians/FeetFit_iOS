@@ -3,23 +3,25 @@ import SwiftUI
 struct ProductListView: View {
     let products: [ProductInfo]
     var onProductTap: (ProductInfo) -> Void = { _ in }
+    var onProductAppear: (ProductInfo) -> Void = { _ in }
 
     var body: some View {
         LazyVStack(alignment: .leading, spacing: 0) {
-            ForEach(products.indices, id: \.self) { index in
+            ForEach(products) { product in
                 Button {
-                    onProductTap(products[index])
+                    onProductTap(product)
                 } label: {
                     ProductInfoView(
-                        tag: products[index].tag,
-                        brand: products[index].brand,
-                        name: products[index].name,
-                        imageURL: products[index].imageURL
+                        tag: product.tag,
+                        brand: product.brand,
+                        name: product.name,
+                        imageURL: product.imageURL
                     )
                 }
                 .buttonStyle(.plain)
+                .onAppear { onProductAppear(product) }
 
-                if index != products.indices.last {
+                if product.id != products.last?.id {
                     Divider()
                         .padding(.horizontal, 20)
                 }

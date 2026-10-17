@@ -43,29 +43,40 @@ struct ProductInfoView: View {
     private var productImage: some View {
         Group {
             if let url = URL(string: imageURL), !imageURL.isEmpty {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 78, height: 78)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                } placeholder: {
-                    ProgressView()
-                        .frame(width: 78, height: 78)
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 78, height: 78)
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 78, height: 78)
+                    case .failure:
+                        imagePlaceholder
+                    @unknown default:
+                        imagePlaceholder
+                    }
                 }
             } else {
-                Rectangle()
-                    .fill(.white)
-                    .overlay {
-                        Image(systemName: "shippingbox")
-                            .font(.system(size: 24))
-                            .foregroundStyle(.gray02)
-                    }
-                    .frame(width: 78, height: 78)
+                imagePlaceholder
             }
         }
         .frame(width: 78, height: 78)
         .mainBoxStyle()
+    }
+
+    private var imagePlaceholder: some View {
+        Rectangle()
+            .fill(.white)
+            .overlay {
+                Image(systemName: "shippingbox")
+                    .font(.system(size: 24))
+                    .foregroundStyle(.gray02)
+            }
+            .frame(width: 78, height: 78)
     }
 }
 

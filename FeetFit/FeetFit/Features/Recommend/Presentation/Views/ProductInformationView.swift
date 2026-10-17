@@ -69,9 +69,10 @@ struct ProductInformationView: View {
                             .foregroundStyle(.black01)
                     }
                     .pretendardFont(.Description)
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 16)
-                    .frame(height: 52)
+                    .padding(.vertical, 12)
+                    .frame(minHeight: 52)
 
                     if index != informationItems.indices.last {
                         Divider()

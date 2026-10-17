@@ -9,13 +9,13 @@ import SwiftUI
 
 struct RecommendListView: View {
     @ObservedObject var viewModel: RecommendListViewModel
+    @StateObject private var drugViewModel = DrugListViewModel()
     
     let onShoeTap: (ShoeInfo) -> Void
-    var products: [ProductInfo] = ProductInfo.samples
     var onProductTap: (ProductInfo) -> Void = { _ in }
     
     @State private var selectedRecommendation = "제품 추천"
-    @State private var selectedProductSortType: ShoeSortType = .fit
+    @State private var productSearchText = ""
     @State private var searchText: String = ""
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
@@ -50,13 +50,29 @@ struct RecommendListView: View {
                 )
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
+            } else {
+                SearchBarView(
+                    text: $productSearchText,
+                    placeholder: "제품을 검색해 보세요",
+                    onTap: {},
+                    onClear: { drugViewModel.search(query: "") },
+                    onSubmit: { drugViewModel.search(query: productSearchText) }
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
         }
         .onAppear {
             viewModel.fetchInitialData()
+            drugViewModel.fetchInitialData()
         }
         .onChange(of: searchText) { _, newValue in
             handleSearchTextChange(newValue)
+        }
+        .onChange(of: productSearchText) { _, newValue in
+            if newValue.isEmpty {
+                drugViewModel.search(query: "")
+            }
         }
     }
     
@@ -119,8 +135,32 @@ struct RecommendListView: View {
                 }
             } else {
                 ScrollView {
-                    ProductListView(products: products, onProductTap: onProductTap)
-                        .padding(.bottom, 70)
+                    VStack(spacing: 16) {
+                        ProductListView(
+                            products: drugViewModel.products,
+                            onProductTap: onProductTap,
+                            onProductAppear: { drugViewModel.loadNextPageIfNeeded(currentProduct: $0) }
+                        )
+
+                        if drugViewModel.isLoading {
+                            ProgressView()
+                                .padding()
+                        } else if let message = drugViewModel.errorMessage {
+                            VStack(spacing: 12) {
+                                Text(message)
+                                    .pretendardFont(.BlockText)
+                                Button("다시 시도") { drugViewModel.retry() }
+                                    .tint(.blue01)
+                            }
+                            .padding()
+                        } else if drugViewModel.products.isEmpty {
+                            Text("검색 결과가 없습니다.")
+                                .pretendardFont(.BlockText)
+                                .foregroundStyle(.gray01)
+                                .padding()
+                        }
+                    }
+                    .padding(.bottom, 70)
                 }
             }
         }
@@ -160,28 +200,31 @@ struct RecommendListView: View {
             .padding(.top, 20)
 
             HStack {
-                Text("\(selectedRecommendation == "신발 추천" ? viewModel.totalElements : products.count)개")
+                Text("\(selectedRecommendation == "신발 추천" ? viewModel.totalElements : drugViewModel.totalElements)개")
                     .pretendardFont(.BlockText)
                     .foregroundStyle(.gray01)
 
                 Spacer()
 
-                ShoeSortMenuButton(
-                    selectedSortType: Binding(
-                        get: {
-                            selectedRecommendation == "신발 추천"
-                                ? viewModel.selectedSortType
-                                : selectedProductSortType
-                        },
-                        set: { newValue in
-                            if selectedRecommendation == "신발 추천" {
-                                viewModel.updateSortType(newValue)
-                            } else {
-                                selectedProductSortType = newValue
-                            }
-                        }
+                if selectedRecommendation == "신발 추천" {
+                    ShoeSortMenuButton(
+                        selectedSortType: Binding(
+                            get: { viewModel.selectedSortType },
+                            set: { viewModel.updateSortType($0) }
+                        )
                     )
-                )
+                } else {
+                    Picker("제품 카테고리", selection: Binding(
+                        get: { drugViewModel.selectedCategory },
+                        set: { drugViewModel.updateCategory($0) }
+                    )) {
+                        ForEach(DrugCategory.allCases) { category in
+                            Text(category.label).tag(category)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.black01)
+                }
             }
             .padding(.top, 18)
         }
