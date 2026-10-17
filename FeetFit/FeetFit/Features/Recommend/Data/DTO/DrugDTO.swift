@@ -11,6 +11,20 @@ struct DrugListResultDTO: Decodable {
     let hasNext: Bool
 }
 
+struct DrugDetailResultDTO: Decodable {
+    let drug: DrugDTO
+    let permit: DrugPermitDTO?
+    let recall: DrugRecallDTO?
+    let source: String
+
+    func toDomain(categoryLabel: String) -> ProductInfo {
+        var product = drug.toDomain(categoryLabel: categoryLabel, source: source, permit: permit)
+        product.detailItems += recall?.detailItems ?? []
+        product.recallSourceURL = nonempty(recall?.sourceUrl).flatMap { URL(string: $0) }
+        return product
+    }
+}
+
 struct DrugDTO: Decodable {
     let id: String
     let name: String
@@ -26,13 +40,23 @@ struct DrugDTO: Decodable {
     let description: String?
     let permit: DrugPermitDTO?
 
-    func toDomain(categoryLabel: String, source: String) -> ProductInfo {
-        ProductInfo(
+    func toDomain(categoryLabel: String, source: String, permit detailPermit: DrugPermitDTO? = nil) -> ProductInfo {
+        let permit = detailPermit ?? self.permit
+        let imageURL: String
+        if let image = nonempty(image) {
+            imageURL = URL(string: image)?.scheme == nil
+                ? URL(string: image, relativeTo: URL(string: APIConfig.baseURL))?.absoluteURL.absoluteString ?? ""
+                : image
+        } else {
+            imageURL = ""
+        }
+
+        return ProductInfo(
             id: id,
             tags: [categoryLabel],
             brand: company ?? "",
             name: name,
-            imageURL: image ?? "",
+            imageURL: imageURL,
             officialURL: (nonempty(permit?.officialUrl) ?? nonempty(detailUrl)).flatMap { URL(string: $0) },
             effects: nonempty(efficacy) ?? nonempty(description),
             usage: nonempty(usage),
@@ -41,7 +65,8 @@ struct DrugDTO: Decodable {
             interactions: nonempty(interaction),
             sideEffects: nonempty(sideEffect),
             detailItems: permit?.detailItems ?? [],
-            informationSource: source
+            informationSource: source,
+            itemSeq: nonempty(permit?.itemSeq) ?? (!id.isEmpty && id.allSatisfy { $0.isASCII && $0.isNumber } ? id : nil)
         )
     }
 }
@@ -81,6 +106,24 @@ struct DrugPermitDTO: Decodable {
             guard let value = nonempty(value) else { return nil }
             return .init(title: title, value: value)
         }
+    }
+}
+
+struct DrugRecallDTO: Decodable {
+    let status: String?
+    let checkedAt: String?
+    let sourceUrl: String?
+
+    var detailItems: [ProductInfo.DetailItem] {
+        var items: [ProductInfo.DetailItem] = [
+            .init(title: "회수 조회 결과", value: status == "clear" ? "회수 이력 없음" : "공식 정보 확인 필요")
+        ]
+        if let checkedAt,
+           let date = (try? Date.ISO8601FormatStyle(includingFractionalSeconds: true).parse(checkedAt))
+                ?? (try? Date.ISO8601FormatStyle().parse(checkedAt)) {
+            items.append(.init(title: "회수 조회 시각", value: date.formatted(date: .numeric, time: .shortened)))
+        }
+        return items
     }
 }
 

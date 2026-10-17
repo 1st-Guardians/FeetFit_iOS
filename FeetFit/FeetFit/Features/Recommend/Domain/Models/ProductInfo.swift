@@ -15,6 +15,8 @@ struct ProductInfo: Identifiable, Hashable {
     var sideEffects: String?
     var detailItems: [DetailItem] = []
     var informationSource: String?
+    var itemSeq: String?
+    var recallSourceURL: URL?
 
     struct DetailItem: Hashable {
         let title: String

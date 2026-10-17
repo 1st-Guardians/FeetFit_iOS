@@ -22,6 +22,10 @@ struct ProductInformationView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     productInformation
 
+                    if let url = product.recallSourceURL {
+                        DetailLinkButton(title: "회수 정보 출처 확인하기", url: url)
+                    }
+
                     VStack(alignment: .leading, spacing: 8) {
                         Text("정보 출처")
                             .pretendardFont(.BlockTitle)

@@ -4,10 +4,16 @@ import Alamofire
 
 enum DrugRoute {
     case getDrugs(category: DrugCategory, query: String, page: Int, size: Int)
+    case getDrugPermit(itemSeq: String)
 }
 
 extension DrugRoute: APITargetType {
-    var path: String { APIConfig.Path.drugs }
+    var path: String {
+        switch self {
+        case .getDrugs: return APIConfig.Path.drugs
+        case .getDrugPermit: return "\(APIConfig.Path.drugs)/permit"
+        }
+    }
 
     var method: Moya.Method { .get }
 
@@ -24,6 +30,8 @@ extension DrugRoute: APITargetType {
                 parameters["query"] = keyword
             }
             return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+        case .getDrugPermit(let itemSeq):
+            return .requestParameters(parameters: ["itemSeq": itemSeq], encoding: URLEncoding.queryString)
         }
     }
 }

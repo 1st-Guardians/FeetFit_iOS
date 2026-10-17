@@ -1,8 +1,14 @@
 import SwiftUI
 
 struct ProductDetailView: View {
-    let product: ProductInfo
+    @StateObject private var viewModel: DrugDetailViewModel
     @State private var presentedSheet: ProductDetailSheet?
+
+    private var product: ProductInfo { viewModel.product }
+
+    init(product: ProductInfo) {
+        _viewModel = StateObject(wrappedValue: DrugDetailViewModel(product: product))
+    }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -12,11 +18,25 @@ struct ProductDetailView: View {
                 VStack(alignment: .leading, spacing: 32) {
                     titleSection
 
-                    DetailLinkButton(title: "공식 정보 확인하기", url: product.officialURL)
+                    if viewModel.isLoading {
+                        ProgressView("상세 정보를 불러오는 중이에요.")
+                            .frame(maxWidth: .infinity)
+                    } else if let message = viewModel.errorMessage {
+                        VStack(spacing: 12) {
+                            Text(message)
+                                .pretendardFont(.BlockText)
+                                .multilineTextAlignment(.center)
+                            Button("다시 시도") { viewModel.fetchDetail() }
+                                .tint(.blue01)
+                        }
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        DetailLinkButton(title: "공식 정보 확인하기", url: product.officialURL)
 
-                    informationSection
+                        informationSection
 
-                    detailList
+                        detailList
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 32)
@@ -28,6 +48,9 @@ struct ProductDetailView: View {
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn()
+        }
+        .task {
+            viewModel.fetchDetail()
         }
         .sheet(item: $presentedSheet) { sheet in
             Group {
