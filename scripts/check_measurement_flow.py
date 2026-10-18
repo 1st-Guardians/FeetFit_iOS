@@ -96,6 +96,7 @@ final class MeasurementSocketManager {
         // A user-topic event arriving before POST returns must survive session creation.
         api.beforePostResponse = { try! await emit(.capturingPhotoEnvironment) }
         await vm.startMeasurementSessionIfNeeded()
+        await vm.startMeasurementSessionIfNeeded()
         assert(vm.measurementStatus == .capturingPhotoEnvironment)
         assert(socket.topics == ["/topic/users/7/measurements", "/topic/measurements/142"])
         api.beforePostResponse = nil
@@ -144,11 +145,10 @@ final class MeasurementSocketManager {
         assert(vm.measurementStatus == .readyForPressureRetry)
 
         try await emit(.waitingForPressureRetry, extra: ",\"detail\":\"발 위치를 조정해 주세요\",\"pressureMeasurementAttempt\":2,\"remainingPressureRetries\":1")
-        assert(vm.pressureMeasurementAttempt == 2 && vm.remainingPressureRetries == 1)
-        assert(vm.measurementStatusText == "발 위치를 조정해 주세요")
+        assert(MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture) == .pressureRetryPreparation)
         try await emit(.waitingForRecapture, extra: ",\"statusMessage\":\"사진을 다시 촬영해 주세요\",\"photoCaptureAttempt\":1,\"remainingPhotoRecaptures\":2")
-        assert(vm.photoCaptureAttempt == 1 && vm.remainingPhotoRecaptures == 2)
-        assert(vm.measurementStatusText == "사진을 다시 촬영해 주세요")
+        assert(vm.photoCaptureAttempt == 1)
+        assert(MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture) == .recapturePreparation)
         // Recapture can reuse CAPTURING_PHOTO_ENVIRONMENT without an updated attempt counter.
         try await emit(.readyForRecapture)
         try await emit(.capturingPhotoEnvironment)
@@ -167,13 +167,13 @@ final class MeasurementSocketManager {
         assert(vm.measurementStatus == .completed, "A disconnect after completion must not show failure")
         vm.resetMeasurementState()
         await vm.startMeasurementSessionIfNeeded()
-        try await emit(.failed, disconnect: true, extra: ",\"failureMessage\":\"측정 실패\"")
-        assert(vm.errorMessage == "측정 실패" && socket.disconnectCount == 2)
+        try await emit(.failed, disconnect: true, extra: ",\"failureReason\":\"NEW_SERVER_FAILURE\",\"failureMessage\":\"측정 실패\"")
+        assert(vm.measurementStatus == .failed && socket.disconnectCount == 2)
         let failureGuide = MeasurementGuide(status: vm.measurementStatus, isPhotoRecapture: vm.isPhotoRecapture)
         assert(failureGuide == .failed && failureGuide.title == "측정 실패")
         assert(failureGuide.description == "측정 중 문제가 발생했습니다.\n처음부터 다시 시도해 주세요.")
         vm.resetMeasurementState()
-        assert(vm.measurementStatus == nil && vm.pressureMeasurementAttempt == nil && vm.remainingPressureRetries == nil && !vm.isPhotoRecapture)
+        assert(vm.measurementStatus == nil && vm.measurementSessionId == nil && vm.photoCaptureAttempt == nil && !vm.isPhotoRecapture)
         api.failNextPost = true
         await vm.startMeasurementSessionIfNeeded()
         assert(vm.measurementStatus == .failed && vm.errorMessage != nil, "Session creation errors show the retry screen")

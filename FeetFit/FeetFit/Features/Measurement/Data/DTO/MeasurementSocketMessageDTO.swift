@@ -23,7 +23,7 @@ struct MeasurementSocketMessageDTO: Decodable {
 
     // MEASUREMENT_FAILED 전용 필드
     let failureReason: MeasurementFailureReason?
-    /// 사용자에게 그대로 보여줄 실패 문구 (백엔드 제공)
+    /// 서버가 전달한 실패 문구. 화면에는 로컬 고정 문구를 표시하고 이 값은 로그에 남긴다.
     let failureMessage: String?
     /// 디버깅/로그용 상세 사유. 사용자에게는 노출하지 않는다.
     let failureDetail: String?

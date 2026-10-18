@@ -25,25 +25,11 @@ struct HomeContainer: View {
                         )
                         .toolbar(.hidden, for: .tabBar)
 
-                    case .measurementStart:
-                        FootMeasurementStartView()
-                            .toolbar(.hidden, for: .tabBar)
-
                     case .measurementProgress:
                         FootMeasurementProgressView(
                             viewModel: measurementViewModel
                         )
                         .toolbar(.hidden, for: .tabBar)
-
-                    case .measurementExporting:
-                        FootMeasurementDataExportingView()
-                            .toolbar(.hidden, for: .tabBar)
-
-                    case .measurementFinish:
-                        FootMeasurementFinishView(
-                            viewModel: measurementViewModel
-                        )
-                            .toolbar(.hidden, for: .tabBar)
 
                     case .hardwarePairing:
                         HardwarePairingView {

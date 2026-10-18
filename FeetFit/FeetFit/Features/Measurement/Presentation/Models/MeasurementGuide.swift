@@ -69,7 +69,7 @@ enum MeasurementGuide: CaseIterable {
         case .recapturePreparation:
             return "측정에 문제가 생겼어요.\n사진과 온습도를 다시 측정합니다."
         case .pressurePreparation:
-            return "하얀색 발판을 내리고,\n발꿈치를 표시에 맞춰 올라와 주세요."
+            return "하얀색 발판을 내리고,\n발꿈치 표시에 맞춰 올라와 주세요."
         case .pressureMeasurement:
             return "양발을 센서 위에 유지하고\n측정이 끝날 때까지 움직이지 말아 주세요."
         case .pressureRetryPreparation:

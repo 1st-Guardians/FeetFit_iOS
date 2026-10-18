@@ -18,21 +18,12 @@ final class FootMeasurementViewModel {
 
     var isLoading = false
     var errorMessage: String?
-    /// 서버가 전달한 실패 상세 사유. 안내 화면은 로컬의 고정 문구를 사용한다.
-    var errorDetail: String?
-    var session: MeasurementSessionResultDTO?
 
     var measurementSessionId: Int?
     var measurementStatus: MeasurementStatus?
     var photoCaptureAttempt: Int?
     private(set) var isPhotoRecapture = false
-    var remainingPhotoRecaptures: Int?
-    var pressureMeasurementAttempt: Int?
-    var remainingPressureRetries: Int?
     var isStatusUpdateInFlight = false
-
-    var measurementStatusText = "발 측정\n준비 중..."
-    var isMeasurementCompleted = false
 
     var onMoveToProgress: (() -> Void)?
     var onMoveToFinish: (() -> Void)?
@@ -72,7 +63,6 @@ final class FootMeasurementViewModel {
                 self.isLoading = false
                 self.errorMessage = error.localizedDescription
                 self.measurementStatus = .failed
-                self.measurementStatusText = MeasurementStatus.failed.guideMessage
             }
         }
     }
@@ -83,20 +73,13 @@ final class FootMeasurementViewModel {
     func resetMeasurementState() {
         isLoading = false
         errorMessage = nil
-        errorDetail = nil
-        session = nil
         measurementSessionId = nil
         measurementStatus = nil
         photoCaptureAttempt = nil
         isPhotoRecapture = false
-        remainingPhotoRecaptures = nil
-        pressureMeasurementAttempt = nil
-        remainingPressureRetries = nil
         isStatusUpdateInFlight = false
-        isMeasurementCompleted = false
         isUserTopicSubscribed = false
         pendingMessageBodies = []
-        measurementStatusText = "발 측정\n준비 중..."
     }
 
     @MainActor
@@ -106,7 +89,6 @@ final class FootMeasurementViewModel {
         resetMeasurementState()
         bindSocketCallbacks()
         isLoading = true
-        measurementStatusText = "기기와\n연결 중이에요"
 
         socketManager.connect()
     }
@@ -133,7 +115,7 @@ final class FootMeasurementViewModel {
 
     @MainActor
     func startMeasurementSessionIfNeeded() async {
-        guard session == nil else {
+        guard measurementSessionId == nil else {
             print("이미 측정 세션이 생성되어 있음")
             return
         }
@@ -144,22 +126,15 @@ final class FootMeasurementViewModel {
     @MainActor
     private func startMeasurementSession() async {
         do {
-            measurementStatusText = MeasurementStatus.waitingForPhotoEnvironment.guideMessage
-
             // 사용자 topic 구독이 아직 안 끝났다면(예: onConnected 처리와 경합) 여기서 한 번 더 보장한다.
             await subscribeUserTopicIfNeeded()
 
             let result = try await MeasurementAPI.shared.postMeasurementSessions()
 
-            self.session = result
             self.measurementSessionId = result.id
             // POST 응답의 status를 최초 UI 상태로 즉시 반영한다.
             self.measurementStatus = result.status
-            self.measurementStatusText = result.status.guideMessage
             self.photoCaptureAttempt = result.photoCaptureAttempt
-            self.remainingPhotoRecaptures = result.remainingPhotoRecaptures
-            self.pressureMeasurementAttempt = result.pressureMeasurementAttempt
-            self.remainingPressureRetries = result.remainingPressureRetries
 
             socketManager.subscribe(to: "/topic/measurements/\(result.id)")
 
@@ -174,7 +149,6 @@ final class FootMeasurementViewModel {
         } catch {
             errorMessage = error.localizedDescription
             measurementStatus = .failed
-            measurementStatusText = "측정 시작에\n실패했어요"
             print("측정 세션 생성 실패:", error)
         }
     }
@@ -232,7 +206,6 @@ final class FootMeasurementViewModel {
 
         isStatusUpdateInFlight = true
         errorMessage = nil
-        errorDetail = nil
 
         do {
             let result = try await MeasurementAPI.shared.patchMeasurementSessionStatus(
@@ -244,11 +217,7 @@ final class FootMeasurementViewModel {
             // PATCH 응답이 늦게 도착해도 이미 수신한 소켓 상태를 덮어쓰지 않는다.
             if measurementStatus == expectedStatus {
                 measurementStatus = result.status
-                measurementStatusText = result.status.guideMessage
                 photoCaptureAttempt = result.photoCaptureAttempt ?? photoCaptureAttempt
-                remainingPhotoRecaptures = result.remainingPhotoRecaptures ?? remainingPhotoRecaptures
-                pressureMeasurementAttempt = result.pressureMeasurementAttempt ?? pressureMeasurementAttempt
-                remainingPressureRetries = result.remainingPressureRetries ?? remainingPressureRetries
             }
             
         } catch {
@@ -335,21 +304,11 @@ final class FootMeasurementViewModel {
                 isPhotoRecapture = true
             }
             photoCaptureAttempt = message.photoCaptureAttempt ?? photoCaptureAttempt
-            remainingPhotoRecaptures = message.remainingPhotoRecaptures ?? remainingPhotoRecaptures
-            pressureMeasurementAttempt = message.pressureMeasurementAttempt ?? pressureMeasurementAttempt
-            remainingPressureRetries = message.remainingPressureRetries ?? remainingPressureRetries
-            if message.status == .waitingForRecapture || message.status == .waitingForPressureRetry {
-                measurementStatusText = message.detail ?? message.statusMessage ?? message.status.guideMessage
-            } else {
-                measurementStatusText = message.status.guideMessage
-            }
             print("measurementStatus 갱신됨:", measurementStatus?.rawValue ?? "nil")
 
             switch message.status {
             case .completed:
-                isMeasurementCompleted = true
-
-                print("COMPLETED 수신 → 측정 완료 화면으로 이동")
+                print("COMPLETED 수신 → 결과 화면으로 이동")
 
                 if message.shouldDisconnect {
                     socketManager.disconnect()
@@ -358,15 +317,8 @@ final class FootMeasurementViewModel {
                 onMoveToFinish?()
 
             case .failed:
-                // 서버의 실패 정보는 상태에 보관하고, 안내 화면에는 MeasurementGuide의 고정 문구를 표시한다.
-                let title = message.failureMessage
-                    ?? message.failureReason?.fallbackMessage
-                    ?? message.statusMessage
-                    ?? MeasurementStatus.failed.guideMessage
-                errorMessage = addLineBreakIfNeeded(removingErrorCode(title))
-                errorDetail = message.failureDetail.map(removingErrorCode)
-
                 print("측정 실패 - failureReason:", message.failureReason?.rawValue ?? "nil")
+                print("측정 실패 - failureMessage:", message.failureMessage ?? "nil")
                 print("측정 실패 - failureDetail:", message.failureDetail ?? "nil")
 
                 if message.shouldDisconnect {
@@ -392,24 +344,5 @@ final class FootMeasurementViewModel {
 
     func disconnect() {
         socketManager.disconnect()
-    }
-
-    // MARK: - 문구 가공
-
-    /// 백엔드가 한 줄로 보내는 failureMessage도 앱 전반의 2줄 안내 문구 배치와 맞도록,
-    /// 이미 줄바꿈이 없으면 첫 문장 뒤에서 한 번 끊어준다.
-    private func addLineBreakIfNeeded(_ text: String) -> String {
-        guard !text.contains("\n") else { return text }
-        guard let range = text.range(of: ". ") else { return text }
-        return text.replacingCharacters(in: range, with: ".\n")
-    }
-
-    /// failureMessage/failureDetail에 붙어 오는 "(오류 코드: ~)" 같은 표기는 사용자에게 노출하지 않는다.
-    private func removingErrorCode(_ text: String) -> String {
-        text.replacingOccurrences(
-            of: #"\s*\(오류\s*코드[^)]*\)"#,
-            with: "",
-            options: .regularExpression
-        ).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
