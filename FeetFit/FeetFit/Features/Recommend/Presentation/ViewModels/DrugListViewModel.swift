@@ -10,10 +10,27 @@ final class DrugListViewModel: ObservableObject {
     @Published private(set) var totalElements = 0
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
+    @Published private(set) var hasMeasurement: Bool?
+    @Published private(set) var summary: String?
+    @Published private(set) var orderedCategories = DrugCategory.allCases
+
+    var recommendationSummary: String {
+        if let summary, !summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return summary
+        }
+        if hasMeasurement == false {
+            return "발을 측정하면 측정 결과에 맞는 제품 정보를 안내해 드려요."
+        }
+        if hasMeasurement == true {
+            return "측정 결과를 바탕으로 제품 추천 안내를 준비하고 있어요."
+        }
+        return isLoading ? "제품 추천 정보를 불러오는 중이에요." : "발 측정 결과를 바탕으로 제품 정보를 안내해 드려요."
+    }
 
     private var currentPage = 0
     private var hasNext = false
     private var didLoadInitialData = false
+    private var didApplyInitialPriority = false
     private var requestID = UUID()
     private var request: Moya.Cancellable?
 
@@ -30,6 +47,7 @@ final class DrugListViewModel: ObservableObject {
 
     func updateCategory(_ category: DrugCategory) {
         guard selectedCategory != category else { return }
+        didApplyInitialPriority = true
         selectedCategory = category
         fetchProducts()
     }
@@ -37,6 +55,7 @@ final class DrugListViewModel: ObservableObject {
     func search(query: String) {
         let keyword = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard self.query != keyword else { return }
+        didApplyInitialPriority = true
         self.query = keyword
         fetchProducts()
     }
@@ -71,7 +90,9 @@ final class DrugListViewModel: ObservableObject {
         ) { [weak self] response in
             DispatchQueue.main.async {
                 guard let self, self.requestID == id else { return }
-                defer { self.isLoading = false }
+                defer {
+                    if self.requestID == id { self.isLoading = false }
+                }
 
                 switch response {
                 case .success(let response):
@@ -84,14 +105,26 @@ final class DrugListViewModel: ObservableObject {
                             throw APIError.serverError("제품 목록 응답이 비어 있습니다.")
                         }
 
-                        let products = result.items.map {
-                            $0.toDomain(categoryLabel: result.categoryLabel, source: result.source)
-                        }
                         if page == 0 {
-                            self.products = products
-                        } else {
-                            self.products += products
+                            self.hasMeasurement = result.hasMeasurement
+                            self.summary = result.summary
+                            self.orderedCategories = result.orderedCategories
+
+                            if !self.didApplyInitialPriority {
+                                self.didApplyInitialPriority = true
+                                if let category = self.orderedCategories.first, category != self.selectedCategory {
+                                    self.selectedCategory = category
+                                    self.fetchProducts()
+                                    return
+                                }
+                            }
                         }
+
+                        let products = result.items.map {
+                            $0.toDomain(categoryLabel: result.categoryLabel ?? self.selectedCategory.label, source: result.source)
+                        }
+                        let grouped = Dictionary(grouping: page == 0 ? products : self.products + products, by: \.category)
+                        self.products = self.orderedCategories.flatMap { grouped[$0] ?? [] } + (grouped[nil] ?? [])
                         self.currentPage = result.currentPage
                         self.hasNext = result.hasNext
                         self.totalElements = result.totalElements

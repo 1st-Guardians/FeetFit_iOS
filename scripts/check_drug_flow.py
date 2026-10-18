@@ -83,10 +83,18 @@ struct APIManager {
         {"isSuccess":true,"code":"COMMON200","message":"성공입니다.","result":{"category":"athletes-foot","categoryLabel":"무좀약","source":"식품의약품안전처 e약은요","items":[\(items.joined(separator: ","))],"currentPage":\(number),"totalPages":4,"totalElements":\(total),"hasNext":\(next)}}
         """
     }
+    static let recommendationSummary = "무좀 관련 안전점수가 낮아 해당 부위의 관리를 우선 살필 수 있도록 무좀약 정보를 먼저 안내합니다. 실제 제품 사용 전에는 제품 설명서를 확인하고 약사와 상담해 주세요."
+    static let priorities = #"[{"rank":3,"category":"wound-care"},{"rank":1,"category":"bunion-band"},{"rank":2,"category":"athletes-foot"}]"#
+    static func recommendationPage(_ items: [String], priorities: String = priorities, hasMeasurement: Bool = true, summary: String? = recommendationSummary, number: Int = 0, next: Bool = false) -> String {
+        let summaryJSON = summary.map { String(decoding: try! JSONEncoder().encode($0), as: UTF8.self) } ?? "null"
+        return """
+        {"isSuccess":true,"code":"COMMON200","message":"성공입니다.","result":{"hasMeasurement":\(hasMeasurement),"reportId":\(hasMeasurement ? "8" : "null"),"summary":\(summaryJSON),"summaryStatus":"COMPLETED","summarySource":"GPT","priorities":\(priorities),"items":[\(items.joined(separator: ","))],"currentPage":\(number),"totalPages":2,"totalElements":4,"hasNext":\(next)}}
+        """
+    }
     static func parameters(_ route: DrugRoute) -> [String: Any] {
         assert(route.method == .get)
         switch route {
-        case .getDrugs: assert(route.path == "/api/drugs")
+        case .getDrugs: assert(route.path == "/api/drugs/recommendations")
         case .getDrugPermit: assert(route.path == "/api/drugs/permit")
         }
         guard case let .requestParameters(parameters, encoding) = route.task else { fatalError() }
@@ -100,8 +108,11 @@ struct APIManager {
             let params = parameters(.getDrugs(category: category, query: " ", page: 0, size: 20))
             assert(params["category"] as? String == category.rawValue)
             assert(params["page"] as? Int == 0 && params["size"] as? Int == 20)
-            assert(params["query"] == nil)
+            assert(params["q"] == nil)
         }
+        let allParameters = parameters(.getDrugs(category: nil, query: "  관리  ", page: 0, size: 20))
+        assert(allParameters["category"] == nil && allParameters["q"] as? String == "관리")
+        assert(allParameters["query"] == nil, "The recommendation endpoint searches with q")
         let mapped = try JSONDecoder().decode(DrugDTO.self, from: Data(medicine.utf8))
             .toDomain(categoryLabel: "무좀약", source: "식품의약품안전처 e약은요")
         assert(mapped.id == "199304286" && mapped.tag == "무좀약")
@@ -173,7 +184,7 @@ struct APIManager {
 
         vm.search(query: "  라미실  ")
         assert(vm.products.isEmpty && vm.totalElements == 0)
-        assert(parameters(provider.pending[3].route)["query"] as? String == "라미실")
+        assert(parameters(provider.pending[3].route)["q"] as? String == "라미실")
         vm.updateCategory(.bunionBand)
         assert(provider.pending[3].token.cancelled)
         assert(parameters(provider.pending[4].route)["category"] as? String == "bunion-band")
@@ -184,7 +195,7 @@ struct APIManager {
         await drain()
         assert(vm.products.first?.id == "band-1" && !vm.isLoading)
         vm.search(query: "")
-        assert(parameters(provider.pending[5].route)["query"] == nil)
+        assert(parameters(provider.pending[5].route)["q"] == nil)
         provider.complete(5, json: page([], total: 0))
         await drain()
         assert(vm.products.isEmpty && vm.totalElements == 0 && vm.errorMessage == nil)
@@ -203,6 +214,81 @@ struct APIManager {
         provider.pending.last!.completion(.failure(RequestError(response: nil)))
         await drain()
         assert(vm.errorMessage == "제품 목록을 불러오지 못했습니다.")
+
+        let taggedBand = band.replacingOccurrences(of: #""permit":null"#, with: #""category":"bunion-band","permit":null"#)
+        let secondBand = taggedBand.replacingOccurrences(of: "band-1", with: "band-2")
+        let taggedMedicine = medicine.replacingOccurrences(of: #""permit":{"#, with: #""category":"athletes-foot","permit":{"#)
+        let secondMedicine = taggedMedicine.replacingOccurrences(of: "199304286", with: "199304287")
+        let wound = #"{"id":"wound-1","name":"상처 관리 제품","category":"wound-care"}"#
+        let recommendationResult = try JSONDecoder().decode(BaseResponse<DrugListResultDTO>.self, from: Data(recommendationPage([taggedBand]).utf8)).result!
+        assert(recommendationResult.hasMeasurement == true && recommendationResult.reportId == 8)
+        assert(recommendationResult.summary == recommendationSummary)
+        assert(recommendationResult.summaryStatus == "COMPLETED" && recommendationResult.summarySource == "GPT")
+        assert(recommendationResult.categoryLabel == nil && recommendationResult.source == nil, "The new contract omits legacy result-level labels/source")
+        assert(recommendationResult.orderedCategories == [.bunionBand, .athletesFoot, .woundCare])
+        let messyPriorities = #"[{"rank":0,"category":"wound-care"},{"rank":1,"category":"future-category"},{"rank":2,"category":"bunion-band"},{"rank":3,"category":"bunion-band"}]"#
+        let messy = try JSONDecoder().decode(BaseResponse<DrugListResultDTO>.self, from: Data(recommendationPage([], priorities: messyPriorities).utf8)).result!
+        assert(messy.orderedCategories == [.bunionBand, .athletesFoot, .woundCare], "Ignore unknown/duplicate priorities and keep unranked categories available")
+
+        let recommendedVM = DrugListViewModel()
+        var index = provider.pending.count
+        recommendedVM.fetchInitialData()
+        assert(parameters(provider.pending[index].route)["category"] as? String == "athletes-foot")
+        provider.complete(index, json: recommendationPage([secondBand, taggedMedicine, wound, taggedBand], next: true))
+        await drain()
+        assert(recommendedVM.selectedCategory == .bunionBand && recommendedVM.orderedCategories == [.bunionBand, .athletesFoot, .woundCare])
+        assert(recommendedVM.recommendationSummary == recommendationSummary && recommendedVM.hasMeasurement == true)
+        assert(provider.pending.count == index + 2 && recommendedVM.isLoading && recommendedVM.products.isEmpty)
+        assert(parameters(provider.pending.last!.route)["category"] as? String == "bunion-band")
+        provider.complete(index + 1, json: recommendationPage([secondBand, taggedMedicine, wound, taggedBand], next: true))
+        await drain()
+        assert(recommendedVM.products.map(\.id) == ["band-2", "band-1", "199304286", "wound-1"], "Group all products by rank, keeping item order inside each category")
+        assert(recommendedVM.products.map(\.tag) == ["무지외반증 교정밴드", "무지외반증 교정밴드", "무좀약", "상처·발 관리"])
+        recommendedVM.loadNextPageIfNeeded(currentProduct: recommendedVM.products.last!)
+        assert(parameters(provider.pending.last!.route)["page"] as? Int == 1)
+        provider.complete(provider.pending.count - 1, json: page([secondMedicine, taggedBand.replacingOccurrences(of: "band-1", with: "band-3")], number: 1))
+        await drain()
+        assert(recommendedVM.products.map(\.id) == ["band-2", "band-1", "band-3", "199304286", "199304287", "wound-1"], "Pagination must keep rank ordering across all loaded pages")
+        assert(recommendedVM.recommendationSummary == recommendationSummary, "Pagination without recommendation metadata keeps the current header")
+
+        index = provider.pending.count
+        recommendedVM.updateCategory(.woundCare)
+        provider.complete(index, json: recommendationPage([wound]))
+        await drain()
+        assert(provider.pending.count == index + 1 && recommendedVM.selectedCategory == .woundCare, "Priority updates must not undo the user's selection")
+        assert(recommendedVM.products.first?.tag == "상처·발 관리")
+        recommendedVM.search(query: "  관리  ")
+        assert(parameters(provider.pending.last!.route)["q"] as? String == "관리")
+        assert(parameters(provider.pending.last!.route)["category"] as? String == "wound-care")
+        provider.complete(provider.pending.count - 1, json: recommendationPage([], summary: "  "))
+        await drain()
+        assert(recommendedVM.recommendationSummary.contains("제품 추천 안내를 준비"))
+
+        let specifiedPriorities = #"[{"rank":1,"category":"athletes-foot"},{"rank":2,"category":"bunion-band"},{"rank":3,"category":"wound-care"}]"#
+        recommendedVM.updateCategory(.athletesFoot)
+        assert(parameters(provider.pending.last!.route)["category"] as? String == "athletes-foot")
+        provider.complete(provider.pending.count - 1, json: recommendationPage([wound, taggedBand, taggedMedicine], priorities: specifiedPriorities))
+        await drain()
+        assert(recommendedVM.orderedCategories == [.athletesFoot, .bunionBand, .woundCare])
+        assert(recommendedVM.products.map(\.id) == ["199304286", "band-1", "wound-1"], "Match the supplied priorities even when items arrive in the reverse category order")
+
+        let earlySelectionVM = DrugListViewModel()
+        index = provider.pending.count
+        earlySelectionVM.fetchInitialData()
+        earlySelectionVM.updateCategory(.woundCare)
+        assert(provider.pending[index].token.cancelled)
+        provider.complete(index, json: recommendationPage([medicine]))
+        provider.complete(index + 1, json: recommendationPage([wound]))
+        await drain()
+        assert(provider.pending.count == index + 2 && earlySelectionVM.selectedCategory == .woundCare)
+        assert(earlySelectionVM.products.first?.id == "wound-1")
+
+        let noMeasurementVM = DrugListViewModel()
+        noMeasurementVM.fetchInitialData()
+        provider.complete(provider.pending.count - 1, json: recommendationPage([], priorities: "[]", hasMeasurement: false, summary: nil))
+        await drain()
+        assert(noMeasurementVM.hasMeasurement == false && noMeasurementVM.orderedCategories == DrugCategory.allCases)
+        assert(noMeasurementVM.recommendationSummary.contains("발을 측정하면"))
 
         let detailStart = provider.pending.count
         let bandDetail = DrugDetailViewModel(product: nullable)
@@ -237,7 +323,7 @@ struct APIManager {
         let countAfterDetail = provider.pending.count
         detailVM.fetchDetail()
         assert(provider.pending.count == countAfterDetail, "A loaded detail does not refetch when returning from a sheet")
-        print("PASS: drug routes, nullable/list/detail/recall mapping, relative images, pagination, retries, and API errors")
+        print("PASS: recommendation endpoint/q, all-category rank ordering across pages, category filters, summary, detail mapping, and API errors")
     }
 }
 '''

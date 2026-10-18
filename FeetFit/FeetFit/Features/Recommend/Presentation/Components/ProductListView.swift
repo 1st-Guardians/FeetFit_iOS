@@ -19,7 +19,7 @@ struct ProductListView: View {
                     )
                 }
                 .buttonStyle(.plain)
-                .onAppear { onProductAppear(product) }
+                .task(id: products.count) { onProductAppear(product) }
 
                 if product.id != products.last?.id {
                     Divider()

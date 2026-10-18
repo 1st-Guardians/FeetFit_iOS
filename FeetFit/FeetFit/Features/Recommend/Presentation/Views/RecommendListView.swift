@@ -184,8 +184,9 @@ struct RecommendListView: View {
                 Text("\(viewModel.nickname.isEmpty ? "내" : "\(viewModel.nickname)님의") 발 타입")
                     .pretendardFont(.BlockTitle)
 
-                Text(viewModel.footTypeText ?? "발 측정 결과를 기반으로 적합도, 별점, 관심도 순으로 신발을 확인할 수 있어요.")
+                Text(recommendationDescription)
                     .pretendardFont(.BlockText)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(20)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -218,7 +219,7 @@ struct RecommendListView: View {
                         get: { drugViewModel.selectedCategory },
                         set: { drugViewModel.updateCategory($0) }
                     )) {
-                        ForEach(DrugCategory.allCases) { category in
+                        ForEach(drugViewModel.orderedCategories) { category in
                             Text(category.label).tag(category)
                                 .pretendardFont(.Description)
                         }
@@ -229,6 +230,13 @@ struct RecommendListView: View {
             }
             .padding(.top, 18)
         }
+    }
+
+    private var recommendationDescription: String {
+        if selectedRecommendation == "제품 추천" {
+            return drugViewModel.recommendationSummary
+        }
+        return viewModel.footTypeText ?? "발 측정 결과를 기반으로 적합도, 별점, 관심도 순으로 신발을 확인할 수 있어요."
     }
 
     private func handleSearchTap() {

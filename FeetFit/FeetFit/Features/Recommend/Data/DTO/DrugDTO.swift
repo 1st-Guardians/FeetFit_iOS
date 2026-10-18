@@ -1,14 +1,36 @@
 import Foundation
 
 struct DrugListResultDTO: Decodable {
-    let category: String
-    let categoryLabel: String
-    let source: String
+    let hasMeasurement: Bool?
+    let reportId: Int?
+    let summary: String?
+    let summaryStatus: String?
+    let summarySource: String?
+    let priorities: [DrugPriorityDTO]?
+    let category: String?
+    let categoryLabel: String?
+    let source: String?
     let items: [DrugDTO]
     let currentPage: Int
     let totalPages: Int
     let totalElements: Int
     let hasNext: Bool
+
+    var orderedCategories: [DrugCategory] {
+        var categories: [DrugCategory] = []
+        for priority in (priorities ?? []).sorted(by: { $0.rank < $1.rank }) {
+            guard priority.rank > 0,
+                  let category = DrugCategory(rawValue: priority.category),
+                  !categories.contains(category) else { continue }
+            categories.append(category)
+        }
+        return categories + DrugCategory.allCases.filter { !categories.contains($0) }
+    }
+}
+
+struct DrugPriorityDTO: Decodable {
+    let rank: Int
+    let category: String
 }
 
 struct DrugDetailResultDTO: Decodable {
@@ -36,11 +58,12 @@ struct DrugDTO: Decodable {
     let interaction: String?
     let sideEffect: String?
     let storage: String?
+    let category: String?
     let detailUrl: String?
     let description: String?
     let permit: DrugPermitDTO?
 
-    func toDomain(categoryLabel: String, source: String, permit detailPermit: DrugPermitDTO? = nil) -> ProductInfo {
+    func toDomain(categoryLabel: String, source: String?, permit detailPermit: DrugPermitDTO? = nil) -> ProductInfo {
         let permit = detailPermit ?? self.permit
         let imageURL: String
         if let image = nonempty(image) {
@@ -53,7 +76,8 @@ struct DrugDTO: Decodable {
 
         return ProductInfo(
             id: id,
-            tags: [categoryLabel] + [nonempty(permit?.classification)].compactMap { $0 },
+            tags: [category.flatMap(DrugCategory.init(rawValue:))?.label ?? categoryLabel]
+                + [nonempty(permit?.classification)].compactMap { $0 },
             brand: company ?? "",
             name: name,
             imageURL: imageURL,
@@ -66,7 +90,8 @@ struct DrugDTO: Decodable {
             sideEffects: nonempty(sideEffect),
             detailItems: permit?.detailItems ?? [],
             informationSource: source,
-            itemSeq: nonempty(permit?.itemSeq) ?? (!id.isEmpty && id.allSatisfy { $0.isASCII && $0.isNumber } ? id : nil)
+            itemSeq: nonempty(permit?.itemSeq) ?? (!id.isEmpty && id.allSatisfy { $0.isASCII && $0.isNumber } ? id : nil),
+            category: category.flatMap(DrugCategory.init(rawValue:))
         )
     }
 }
