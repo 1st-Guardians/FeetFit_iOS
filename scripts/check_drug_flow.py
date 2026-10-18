@@ -161,7 +161,6 @@ struct APIManager {
         let vm = DrugListViewModel()
         let provider = APIManager.shared.provider
         vm.fetchInitialData()
-        vm.fetchInitialData()
         assert(provider.pending.count == 1 && vm.isLoading)
         provider.complete(0, json: page([medicine], next: true))
         await drain()
@@ -289,6 +288,18 @@ struct APIManager {
         await drain()
         assert(noMeasurementVM.hasMeasurement == false && noMeasurementVM.orderedCategories == DrugCategory.allCases)
         assert(noMeasurementVM.recommendationSummary.contains("발을 측정하면"))
+
+        index = provider.pending.count
+        recommendedVM.fetchInitialData()
+        assert(provider.pending.count == index + 1 && recommendedVM.isLoading && recommendedVM.products.isEmpty,
+               "Re-entering recommendations must fetch products again from page zero")
+        let refreshParameters = parameters(provider.pending[index].route)
+        assert(refreshParameters["page"] as? Int == 0 && refreshParameters["category"] as? String == "athletes-foot")
+        assert(refreshParameters["q"] as? String == "관리", "Refresh keeps the selected category and search query")
+        provider.complete(index, json: recommendationPage([taggedMedicine], priorities: specifiedPriorities, summary: "새 측정 결과에 맞춘 안내"))
+        await drain()
+        assert(recommendedVM.products.map(\.id) == ["199304286"] && !recommendedVM.isLoading)
+        assert(recommendedVM.recommendationSummary == "새 측정 결과에 맞춘 안내", "Refresh updates the product header too")
 
         let detailStart = provider.pending.count
         let bandDetail = DrugDetailViewModel(product: nullable)
