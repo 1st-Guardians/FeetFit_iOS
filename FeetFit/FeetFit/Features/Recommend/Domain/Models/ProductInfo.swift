@@ -17,6 +17,7 @@ struct ProductInfo: Identifiable, Hashable {
     var informationSource: String?
     var itemSeq: String?
     var recallSourceURL: URL?
+    var category: DrugCategory?
 
     struct DetailItem: Hashable {
         let title: String

@@ -12,43 +12,20 @@ struct FootMeasurementProgressView: View {
     @Bindable var viewModel: FootMeasurementViewModel
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    LoadingMessageView(
-                        message: displayMessage,
-                        bottomPadding: 10,
-                        messageLineLimit: nil
-                    )
-
-                    if let errorDetailText {
-                        Text(errorDetailText)
-                            .pretendardFont(.BlockText)
-                            .foregroundStyle(.gray01)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal, 24)
-                            .padding(.top, 12)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 120)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-
-            actionButton
-                .padding(.horizontal, 18)
-                .padding(.bottom, 40)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        MeasurementGuideView(
+            guide: guide,
+            isActionInFlight: viewModel.isStatusUpdateInFlight,
+            action: handleAction
+        )
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolBarCollection.BackBtn {
                 viewModel.onMoveToFinish = nil
                 viewModel.disconnect()
                 viewModel.resetMeasurementState()
-                router.reset()
+                withTransaction(\.disablesAnimations, true) {
+                    router.reset()
+                }
             }
         }
         .onAppear {
@@ -56,7 +33,9 @@ struct FootMeasurementProgressView: View {
                 let reportDate = Date()
                 viewModel.onMoveToFinish = nil
                 viewModel.resetMeasurementState()
-                router.replace(with: .report(reportDate))
+                withTransaction(\.disablesAnimations, true) {
+                    router.replace(with: .report(reportDate))
+                }
             }
         }
         .task {
@@ -65,90 +44,33 @@ struct FootMeasurementProgressView: View {
         }
     }
 
-    // MARK: - SubView
-
-    private var displayMessage: String {
-        if viewModel.measurementStatus == .failed, let errorMessage = viewModel.errorMessage {
-            return errorMessage
-        }
-
-        if viewModel.measurementStatus == .waitingForRecapture || viewModel.measurementStatus == .waitingForPressureRetry {
-            return viewModel.measurementStatusText
-        }
-
-        return viewModel.measurementStatus?.guideMessage ?? viewModel.measurementStatusText
+    private var guide: MeasurementGuide {
+        MeasurementGuide(
+            status: viewModel.measurementStatus,
+            isPhotoRecapture: viewModel.isPhotoRecapture || (viewModel.photoCaptureAttempt ?? 0) > 1
+        )
     }
 
-    private var errorDetailText: String? {
-        guard viewModel.measurementStatus == .failed else { return nil }
-        return viewModel.errorDetail
-    }
-
-    @ViewBuilder
-    private var actionButton: some View {
+    private func handleAction() {
+        HapticFeedback.impact()
         switch viewModel.measurementStatus {
         case .waitingForPhotoEnvironment:
-            MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "측정 준비 완료",
-                action: {
-                    HapticFeedback.impact()
-                    Task { await viewModel.confirmPhotoEnvironmentReady() }
-                }
-            )
-            .disabled(viewModel.isStatusUpdateInFlight)
-
+            Task { await viewModel.confirmPhotoEnvironmentReady() }
         case .waitingForPressure:
-            MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "측정 준비 완료",
-                action: {
-                    HapticFeedback.impact()
-                    Task { await viewModel.confirmPressureReady() }
-                }
-            )
-            .disabled(viewModel.isStatusUpdateInFlight)
-
+            Task { await viewModel.confirmPressureReady() }
         case .waitingForRecapture:
-            MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "다시 촬영하기",
-                action: {
-                    HapticFeedback.impact()
-                    Task { await viewModel.confirmRecaptureReady() }
-                }
-            )
-            .disabled(viewModel.isStatusUpdateInFlight)
-
-        case .readyForRecapture:
-            MainButton("재촬영 준비 중...", action: {})
-                .disabled(true)
-
+            Task { await viewModel.confirmRecaptureReady() }
         case .waitingForPressureRetry:
-            MainButton(
-                viewModel.isStatusUpdateInFlight ? "요청 중..." : "압력 재측정 준비 완료",
-                action: {
-                    HapticFeedback.impact()
-                    Task { await viewModel.confirmPressureRetryReady() }
-                }
-            )
-            .disabled(viewModel.isStatusUpdateInFlight)
-
-        case .readyForPressureRetry:
-            MainButton("압력 재측정 준비 중...", action: {})
-                .disabled(true)
-
+            Task { await viewModel.confirmPressureRetryReady() }
         case .failed:
-            MainButton(
-                "다시 측정하기",
-                action: {
-                    HapticFeedback.impact()
-                    viewModel.onMoveToFinish = nil
-                    viewModel.disconnect()
-                    viewModel.resetMeasurementState()
-                    router.replace(with: .measurement)
-                }
-            )
-
+            viewModel.onMoveToFinish = nil
+            viewModel.disconnect()
+            viewModel.resetMeasurementState()
+            withTransaction(\.disablesAnimations, true) {
+                router.replace(with: .measurement)
+            }
         default:
-            EmptyView()
+            break
         }
     }
 }
