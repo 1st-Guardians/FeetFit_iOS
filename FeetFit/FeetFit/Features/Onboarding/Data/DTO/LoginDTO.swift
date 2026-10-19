@@ -1,5 +1,5 @@
 //
-//  KakaoLoginDTO.swift
+//  LoginDTO.swift
 //  FeetFit
 //
 //  Created by 이채은 on 5/29/26.
@@ -11,7 +11,7 @@ struct KakaoLoginRequest: Encodable {
     let accessToken: String
 }
 
-struct KakaoLoginResponse: Decodable {
+struct LoginResponse: Decodable {
     let accessToken: String
     let refreshToken: String
     let grantType: String

@@ -29,7 +29,6 @@ final class DrugListViewModel: ObservableObject {
 
     private var currentPage = 0
     private var hasNext = false
-    private var didLoadInitialData = false
     private var didApplyInitialPriority = false
     private var requestID = UUID()
     private var request: Moya.Cancellable?
@@ -40,8 +39,6 @@ final class DrugListViewModel: ObservableObject {
     )
 
     func fetchInitialData() {
-        guard !didLoadInitialData else { return }
-        didLoadInitialData = true
         fetchProducts()
     }
 

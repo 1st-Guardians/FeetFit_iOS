@@ -43,7 +43,7 @@ final class RecommendListViewModel: ObservableObject {
     )
     
     func fetchInitialData() {
-        guard !didLoadInitialData else { return }
+        let isInitialLoad = !didLoadInitialData
         didLoadInitialData = true
         isLoading = true
 
@@ -53,7 +53,9 @@ final class RecommendListViewModel: ObservableObject {
             guard let self else { return }
             
             DispatchQueue.main.async {
-                self.selectedSortType = hasMeasurement ? .fit : .rating
+                if isInitialLoad || (!hasMeasurement && self.selectedSortType == .fit) {
+                    self.selectedSortType = hasMeasurement ? .fit : .rating
+                }
                 
                 if hasMeasurement {
                     self.fetchTopRecommendations()

@@ -15,7 +15,6 @@ struct RecommendListView: View {
     var onProductTap: (ProductInfo) -> Void = { _ in }
     
     @State private var selectedRecommendation = "제품 추천"
-    @State private var productSearchText = ""
     @State private var searchText: String = ""
     @State private var searchMode: ShoeSearchMode = .list
     @State private var submittedSearchText: String = ""
@@ -50,16 +49,6 @@ struct RecommendListView: View {
                 )
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
-            } else {
-                SearchBarView(
-                    text: $productSearchText,
-                    placeholder: "제품을 검색해 보세요",
-                    onTap: {},
-                    onClear: { drugViewModel.search(query: "") },
-                    onSubmit: { drugViewModel.search(query: productSearchText) }
-                )
-                .padding(.horizontal, 24)
-                .padding(.bottom, 16)
             }
         }
         .onAppear {
@@ -68,11 +57,6 @@ struct RecommendListView: View {
         }
         .onChange(of: searchText) { _, newValue in
             handleSearchTextChange(newValue)
-        }
-        .onChange(of: productSearchText) { _, newValue in
-            if newValue.isEmpty {
-                drugViewModel.search(query: "")
-            }
         }
     }
     
@@ -111,18 +95,18 @@ struct RecommendListView: View {
     }
     
     private var mainContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            topGroup
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                topGroup
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
 
-            if selectedRecommendation == "신발 추천" {
-                if viewModel.shoes.isEmpty && viewModel.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
-                } else {
-                    ScrollView {
+                if selectedRecommendation == "신발 추천" {
+                    if viewModel.shoes.isEmpty && viewModel.isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 40)
+                    } else {
                         ShoeListView(
                             shoes: viewModel.shoes,
                             onShoeTap: onShoeTap,
@@ -130,11 +114,8 @@ struct RecommendListView: View {
                                 viewModel.loadNextPageIfNeeded(currentShoe: shoe)
                             }
                         )
-                        .padding(.bottom, 70)
                     }
-                }
-            } else {
-                ScrollView {
+                } else {
                     VStack(spacing: 16) {
                         ProductListView(
                             products: drugViewModel.products,
@@ -154,15 +135,15 @@ struct RecommendListView: View {
                             }
                             .padding()
                         } else if drugViewModel.products.isEmpty {
-                            Text("검색 결과가 없습니다.")
+                            Text("추천 제품이 없습니다.")
                                 .pretendardFont(.BlockText)
                                 .foregroundStyle(.gray01)
                                 .padding()
                         }
                     }
-                    .padding(.bottom, 70)
                 }
             }
+            .padding(.bottom, selectedRecommendation == "신발 추천" ? 70 : 0)
         }
     }
 

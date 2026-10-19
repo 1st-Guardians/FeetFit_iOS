@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AuthenticationServices
 
 
 struct LoginView: View {
@@ -41,41 +42,34 @@ struct LoginView: View {
                 .buttonStyle(.plain)
                 .glassEffect(.regular.tint(.yellow02).interactive())
                 .padding(.horizontal, 16)
-                .onChange(of: viewModel.isLogin) { _, isLogin in
-                    guard isLogin else { return }
-                    
-                    if viewModel.requiresProfileSetup {
-                        print("사용자 정보 입력 화면으로 이동")
-                    } else {
-                        print("홈 화면으로 이동")
-                    }
-                }
-                
-                
-                Button(action: {
-                    print("애플 로그인")
-                }) {
-                    HStack(spacing: 5) {
-                        Image(systemName: "apple.logo")
-                            .pretendardFont(.BlockTitle)
-                        
-                        Text("Apple로 로그인")
-                            .pretendardFont(.BlockTitle)
-                    }
-                    .foregroundStyle(.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                }
-                .buttonStyle(.plain)
+
+                SignInWithAppleButton(
+                    .signIn,
+                    onRequest: { _ in
+                        #if DEBUG
+                        print("[AppleLogin] Apple 인증 요청 시작")
+                        #endif
+                    },
+                    onCompletion: viewModel.handleAppleAuthorization
+                )
+                .signInWithAppleButtonStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 52)
+                .clipShape(Capsule())
                 .glassEffect(.regular.tint(.white).interactive())
                 .padding(.horizontal, 16)
             }
+            .disabled(viewModel.isLoggingIn)
             .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden()
         .onChange(of: viewModel.isLogin) { _, isLogin in
             guard isLogin else { return }
+
+            #if DEBUG
+            print("[Login] 화면 이동: \(viewModel.requiresProfileSetup ? "프로필 등록" : "메인")")
+            #endif
             
             if viewModel.requiresProfileSetup {
                 router.replace(with: .onboardingUserInfo)

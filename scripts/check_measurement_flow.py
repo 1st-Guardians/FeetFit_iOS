@@ -184,8 +184,8 @@ final class MeasurementSocketManager {
         assert(vm.measurementStatus == .failed && !vm.isLoading, "Connection loss during measurement shows the retry screen")
         assert(MeasurementGuide.allCases.filter { $0.buttonTitle != nil }.count == 6)
         assert(MeasurementGuide.allCases.filter { $0.spokenDescription != nil } == [
-            .preparation, .photoPreparation, .recapturePreparation, .pressurePreparation, .pressureRetryPreparation
-        ], "Only the five preparation steps have automatic speech")
+            .preparation, .photoPreparation, .recapturePreparation, .pressurePreparation, .pressureRetryPreparation, .analyzing
+        ], "Preparation steps and the measurement-complete guidance have automatic speech")
         for status in [MeasurementStatus.waitingForPhotoEnvironment, .readyForPhotoEnvironment, .capturingPhotoEnvironment, .waitingForRecapture, .readyForRecapture, .waitingForPressure, .readyForPressure, .measuringPressure, .waitingForPressureRetry, .readyForPressureRetry, .analyzing, .completed, .failed] {
             let decoded = try JSONDecoder().decode(MeasurementStatus.self, from: JSONEncoder().encode(status))
             assert(decoded == status)
