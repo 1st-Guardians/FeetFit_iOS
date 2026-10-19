@@ -11,6 +11,7 @@ import Moya
 
 enum AuthRouter {
     case postKakao(accessToken: String)
+    case postApple(code: String)
 }
 
 extension AuthRouter: APITargetType {
@@ -18,12 +19,14 @@ extension AuthRouter: APITargetType {
         switch self {
         case .postKakao:
             return "/api/auth/kakao"
+        case .postApple:
+            return "/api/auth/apple"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .postKakao:
+        case .postKakao, .postApple:
             return .post
         }
     }
@@ -34,6 +37,11 @@ extension AuthRouter: APITargetType {
             return .requestJSONEncodable(
                 KakaoLoginRequest(accessToken: accessToken)
             )
+        case .postApple(let code):
+            return .requestParameters(
+                parameters: ["code": code],
+                encoding: URLEncoding.httpBody
+            )
         }
     }
 
@@ -43,6 +51,8 @@ extension AuthRouter: APITargetType {
             return [
                 "Content-Type": "application/json"
             ]
+        case .postApple:
+            return ["Content-Type": "application/x-www-form-urlencoded"]
         }
     }
 }
